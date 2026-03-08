@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="32dp">
+
+        <!-- Logo -->
+        <ImageView
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:src="@drawable/waitwell_logo"
+            android:contentDescription="Logo" />
+
+        <!-- "Create Account" -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Create Account"
+            android:fontFamily="@font/poppins"
+            android:textColor="#02542D"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Create an account so you can explore\nall the existing events"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
+        <!-- Name field -->
+        <EditText
+            android:id="@+id/editName"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Name"
+            android:inputType="textPersonName"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Email field -->
+        <EditText
+            android:id="@+id/editEmail"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Phone field (optional) -->
+        <EditText
+            android:id="@+id/editPhone"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Phone Number (optional)"
+            android:inputType="phone"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Type of Account spinner -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="16dp"
+            android:fontFamily="@font/poppins"
+            android:paddingEnd="16dp">
+
+            <Spinner
+                android:id="@+id/spinnerAccountType"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/poppins"
+                android:background="@android:color/transparent" />
+        </FrameLayout>
+
+        <!-- Sign up button -->
+        <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSignUp"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_button_green"
+            android:text="Sign up"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppinsmedium"
+            />
+
+        <!-- Already have an account button -->
+        <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnAlreadyHaveAccount"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_button_white_outlined"
+            android:text="Already have an account"
+            android:textAllCaps="false"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/poppins"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</ScrollView>
