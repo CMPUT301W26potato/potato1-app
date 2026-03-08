@@ -68,11 +68,11 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (DocumentSnapshot doc : allEventDocs) {
-            String title        = doc.getString("title");
-            String organizer    = doc.getString("organizerName");
-            Double priceObj     = doc.getDouble("price");
-            String status       = doc.getString("status");
-            String eventId      = doc.getId();
+            String title = doc.getString("title");
+            String organizer = doc.getString("organizerName");
+            Double priceObj = doc.getDouble("price");
+            String status = doc.getString("status");
+            String eventId = doc.getId();
 
             if (title == null) title = "Untitled Event";
             if (organizer == null) organizer = "";
