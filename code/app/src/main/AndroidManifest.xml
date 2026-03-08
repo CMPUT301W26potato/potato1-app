@@ -24,6 +24,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Register: shown to first-time users -->
+        <activity
+            android:name=".activities.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WaitWell.Splash" />
+
         <!-- Main menu screen -->
         <activity
             android:name=".activities.MainActivity"

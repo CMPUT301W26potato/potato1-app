@@ -36,6 +36,16 @@
             android:fontFamily="@font/inter24ptmedium"
             />
 
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Logo"
+            android:src="@drawable/waitwell_logo" />
+
+
     </RelativeLayout>
 
     <!--Scrollable content  -->
@@ -87,7 +97,6 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:fontFamily="@font/inter"
-
                 >
 
                 <TextView
@@ -106,19 +115,20 @@
             </LinearLayout>
 
             <!-- ▶ Scan QR Code button -->
+            <!-- "Title >" section header -->
+
             <Button
                 android:id="@+id/btnScanQr"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_button_dark_rounded"
-                android:text="▶  Scan QR Code"
+                android:background="@drawable/bg_button_green"
+                android:fontFamily="@font/poppinsmedium"
+                android:text="▶ Scan QR Code"
                 android:textAllCaps="false"
                 android:textColor="@color/text_white"
-                android:textSize="16sp"
-                android:fontFamily="@font/inter24ptmedium"/>
+                android:textSize="15sp" />
 
-            <!-- "Title >" section header -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -258,8 +268,7 @@
         android:layout_width="match_parent"
         android:layout_height="74dp"
         android:background="@color/bg_white"
-        app:itemIconTint="@color/text_hint"
         app:itemTextColor="@color/text_hint"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu_main_activity" />
 
 </LinearLayout>
