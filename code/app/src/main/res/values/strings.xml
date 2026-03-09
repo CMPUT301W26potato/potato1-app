@@ -10,4 +10,11 @@
     <string name="most_viewed">Most Viewed</string>
     <string name="nearby">Nearby</string>
     <string name="latest">Latest</string>
+<!--    (rehaan) addition-->
+    <string name="back">Back</string>
+    <string name="invited_entrants_title">Invited Entrants</string>
+    <string name="loading">Loading…</string>
+    <string name="no_invited_entrants">No invited entrants yet</string>
+    <string name ="invited">Invited</string>
+    <string name ="user_icon">User icon</string>
 </resources>
