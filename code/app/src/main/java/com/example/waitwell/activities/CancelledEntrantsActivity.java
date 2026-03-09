@@ -18,15 +18,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 /**
  * (Rehaan's addition)
- * Displays the list of entrants who have been invited (chosen) for a specific event.
- * US 02.06.01: As an organizer I want to view a list of all chosen entrants who are invited to apply.
+ * Displays the list of entrants who have been cancelled for a specific event.
+ * US 02.06.02: As an organizer I want to see a list of all the cancelled entrants.
  * Expects an intent extra event_id containing the Firestore document ID of the event.
- * Queries the waitlist_entries collection for entries matching the event with status selected.
+ * Queries the waitlist_entries collection for entries matching the event with status cancelled.
  * For each entry, fetches the user's name and email from the users collection.
  */
-public class InvitedEntrantsActivity extends AppCompatActivity {
+public class CancelledEntrantsActivity extends AppCompatActivity {
 
-    private static final String TAG = "InvitedEntrants";
+    private static final String TAG = "CancelledEntrants";
     private LinearLayout entrantListContainer;
     private TextView txtCount;
     private TextView txtLoading;
@@ -36,7 +36,7 @@ public class InvitedEntrantsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_invited_entrants);
+        setContentView(R.layout.activity_cancelled_entrants);
 
         entrantListContainer = findViewById(R.id.entrantListContainer);
         txtCount = findViewById(R.id.txtCount);
@@ -52,37 +52,36 @@ public class InvitedEntrantsActivity extends AppCompatActivity {
             return;
         }
 
-        loadInvitedEntrants();
+        loadCancelledEntrants();
     }
 
 
-    private void loadInvitedEntrants() {
+    private void loadCancelledEntrants() {
         txtLoading.setVisibility(View.VISIBLE);
         txtEmpty.setVisibility(View.GONE);
         entrantListContainer.removeAllViews();
 
         FirebaseHelper.getInstance()
-                .getEntriesByEventAndStatus(eventId, "selected")
+                .getEntriesByEventAndStatus(eventId, "cancelled")
                 .addOnSuccessListener(this::onEntriesLoaded)
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to load invited entrants", e);
+                    Log.e(TAG, "Failed to load cancelled entrants", e);
                     txtLoading.setVisibility(View.GONE);
                     Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show();
                 });
     }
-
 
     private void onEntriesLoaded(QuerySnapshot snapshot) {
         txtLoading.setVisibility(View.GONE);
 
         if (snapshot.isEmpty()) {
             txtEmpty.setVisibility(View.VISIBLE);
-            txtCount.setText(getString(R.string.invited_count, 0));
+            txtCount.setText(getString(R.string.cancelled_count, 0));
             return;
         }
 
         int count = snapshot.size();
-        txtCount.setText(getString(R.string.invited_count, count));
+        txtCount.setText(getString(R.string.cancelled_count, count));
 
         FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -95,12 +94,18 @@ public class InvitedEntrantsActivity extends AppCompatActivity {
                     .addOnSuccessListener(userDoc -> {
                         String name = userDoc.getString("name");
                         String email = userDoc.getString("email");
-                        if (name == null) name = "Unknown";
+                        if (name == null) name = getString(R.string.unknown_user);
                         if (email == null) email = "";
 
                         View row = inflater.inflate(R.layout.item_entrant_row, entrantListContainer, false);
                         ((TextView) row.findViewById(R.id.txtEntrantName)).setText(name);
                         ((TextView) row.findViewById(R.id.txtEntrantEmail)).setText(email);
+
+                        TextView statusBadge = row.findViewById(R.id.txtEntrantStatus);
+                        statusBadge.setText(R.string.status_cancelled);
+                        statusBadge.setTextColor(getColor(R.color.status_closed_text));
+                        statusBadge.setBackgroundResource(R.drawable.bg_status_closed);
+
                         entrantListContainer.addView(row);
                     })
                     .addOnFailureListener(e ->

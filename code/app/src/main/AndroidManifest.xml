@@ -34,9 +34,14 @@
         <activity
             android:name=".activities.MainActivity"
             android:exported="false" />
-        <!-- Rehaan;s addition for US 02.06.01 : Invited entrants list for organizers -->
+        <!-- Rehaan's addition for US 02.06.01 : Invited entrants list for organizers -->
         <activity
             android:name=".activities.InvitedEntrantsActivity"
+            android:exported="false" />
+
+        <!--Rehaan's addition for US 02.07.01 Cancelled entrants list for organizers -->
+        <activity
+            android:name=".activities.CancelledEntrantsActivity"
             android:exported="false" />
 
     </application>
