@@ -17,4 +17,15 @@
     <string name="no_invited_entrants">No invited entrants yet</string>
     <string name ="invited">Invited</string>
     <string name ="user_icon">User icon</string>
+    <string name="invited_count">%d invited</string>
+
+
+<!--    rehaan's addition for US.02.07.01-->
+    <string name="cancelled_entrants_title">Cancelled Entrants</string>
+    <string name="no_cancelled_entrants">No cancelled entrants</string>
+    <string name="cancelled_count">%d cancelled</string>
+    <string name="no_event_specified">No event specified</string>
+    <string name="could_not_load_entrants">Could not load entrants</string>
+    <string name="unknown_user">Unknown</string>
+    <string name="status_cancelled">Cancelled</string>
 </resources>
