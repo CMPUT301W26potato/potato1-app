@@ -15,6 +15,7 @@
 
     <color name="status_open_text">#008747</color>
     <color name="status_closed_text">#D27987</color>
+    <color name="status_completed_text">#5C6BC0</color>
 
     <color name="divider">#E0E0E0</color>
     <color name="black">#FF000000</color>

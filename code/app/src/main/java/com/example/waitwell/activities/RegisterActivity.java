@@ -130,8 +130,13 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "User registered: " + deviceId);
                     Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, MainActivity.class));
-                    finish();}).addOnFailureListener(e -> {
+                    if ("organizer".equalsIgnoreCase(role)) {
+                        startActivity(new Intent(this, OrganizerEntryActivity.class));
+                    } else {
+                        startActivity(new Intent(this, MainActivity.class));
+                    }
+                    finish();
+                }).addOnFailureListener(e -> {
                     Log.e(TAG, "Registration failed", e);
                     Toast.makeText(this, "Registration failed – check your connection", Toast.LENGTH_LONG).show();
                     btnSignUp.setEnabled(true);
@@ -156,7 +161,12 @@ public class RegisterActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        startActivity(new Intent(this, MainActivity.class));
+                        String role = doc.getString("role");
+                        if ("organizer".equalsIgnoreCase(role)) {
+                            startActivity(new Intent(this, OrganizerEntryActivity.class));
+                        } else {
+                            startActivity(new Intent(this, MainActivity.class));
+                        }
                         finish();
                     } else {
                         Toast.makeText(this, "No account found for this device — please sign up", Toast.LENGTH_SHORT).show();
