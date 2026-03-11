@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_light"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Back -->
+        <Button
+            android:id="@+id/btnOrganizerBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:text="@string/organizer_back"
+            android:textColor="@color/primary"
+            android:textAllCaps="false"
+            android:fontFamily="@font/poppins" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Create Event"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppinsmedium" />
+
+        <!-- Event Name -->
+        <EditText
+            android:id="@+id/editEventName"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_event_name"
+            android:inputType="textCapWords"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Location -->
+        <EditText
+            android:id="@+id/editLocation"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_location"
+            android:inputType="textPostalAddress"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Geolocation toggle (US 02.02.03) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/organizer_geolocation_required"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:fontFamily="@font/inter" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchGeolocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Registration Start Date (calendar picker on tap) -->
+        <EditText
+            android:id="@+id/editRegistrationStart"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_registration_start"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Registration Deadline (calendar picker on tap) -->
+        <EditText
+            android:id="@+id/editRegistrationDeadline"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_registration_deadline"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Waitlist Limit optional – number selector on tap (US 02.03.01) -->
+        <EditText
+            android:id="@+id/editWaitlistLimit"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_waitlist_limit"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Price -->
+        <EditText
+            android:id="@+id/editPrice"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_price"
+            android:inputType="numberDecimal"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Description -->
+        <EditText
+            android:id="@+id/editDescription"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:gravity="top|start"
+            android:hint="@string/organizer_description"
+            android:inputType="textMultiLine"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <!-- Upload Poster (US 02.04.01) -->
+        <Button
+            android:id="@+id/btnUploadPoster"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_button_white_outlined"
+            android:text="@string/organizer_upload_poster"
+            android:textAllCaps="false"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/poppins" />
+
+        <TextView
+            android:id="@+id/txtPosterStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_hint"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <!-- Submit -->
+        <Button
+            android:id="@+id/btnSubmitEvent"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_button_green"
+            android:text="@string/organizer_submit"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppinsmedium" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
+    </LinearLayout>
+</ScrollView>

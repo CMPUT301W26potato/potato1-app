@@ -116,4 +116,11 @@ public class FirebaseHelper {
                 .whereEqualTo("userId", userId)
                 .get();
     }
+    /** US 02.06.01 (Rehaan) :  Get all waitlist entries for a given event filtered by status. */
+    public Task<QuerySnapshot> getEntriesByEventAndStatus(String eventId, String status) {
+        return db.collection("waitlist_entries")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", status)
+                .get();
+    }
 }

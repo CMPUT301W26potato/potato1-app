@@ -12,4 +12,48 @@
     <string name="latest">Latest</string>
     <string name="reject_notifications">Reject Notifications</string>
     <string name="accept_notifications">Accept Notifications"</string>
+<!--    (rehaan) addition-->
+    <string name="back">Back</string>
+    <string name="invited_entrants_title">Invited Entrants</string>
+    <string name="loading">Loading…</string>
+    <string name="no_invited_entrants">No invited entrants yet</string>
+    <string name ="invited">Invited</string>
+    <string name ="user_icon">User icon</string>
+
+    <!-- Organizer module -->
+    <string name="organizer_my_events">My Events</string>
+    <string name="organizer_create_new_event">Create New Event</string>
+    <string name="organizer_manage">Manage</string>
+    <string name="organizer_status_open">Open</string>
+    <string name="organizer_status_closed">Closed</string>
+    <string name="organizer_status_completed">Completed</string>
+    <string name="organizer_back">Back</string>
+    <string name="organizer_event_name">Event Name</string>
+    <string name="organizer_location">Location</string>
+    <string name="organizer_geolocation_required">Require geolocation for registration</string>
+    <string name="organizer_registration_start">Registration Start Date</string>
+    <string name="organizer_registration_deadline">Registration Deadline</string>
+    <string name="organizer_waitlist_limit">Waitlist Limit (optional)</string>
+    <string name="organizer_price">Price</string>
+    <string name="organizer_description">Description</string>
+    <string name="organizer_upload_poster">Upload Poster</string>
+    <string name="organizer_submit">Submit</string>
+    <string name="organizer_poster_uploaded">Poster selected</string>
+    <string name="organizer_event_created">Event created successfully</string>
+    <string name="organizer_error_fill_required">Please fill all required fields</string>
+    <string name="organizer_error_invalid_price">Enter a valid price (0 or more)</string>
+    <string name="organizer_error_dates">Registration deadline must be after start date</string>
+    <string name="organizer_error_upload">Poster upload failed</string>
+    <string name="organizer_error_save">Failed to save event</string>
+    <string name="invited_count">%d invited</string>
+
+
+<!--    rehaan's addition for US.02.07.01-->
+    <string name="cancelled_entrants_title">Cancelled Entrants</string>
+    <string name="no_cancelled_entrants">No cancelled entrants</string>
+    <string name="cancelled_count">%d cancelled</string>
+    <string name="no_event_specified">No event specified</string>
+    <string name="could_not_load_entrants">Could not load entrants</string>
+    <string name="unknown_user">Unknown</string>
+    <string name="status_cancelled">Cancelled</string>
 </resources>

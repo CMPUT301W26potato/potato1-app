@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
-                Toast.makeText(this, "All Events ", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, AllEventsActivity.class)));
 
         // Filter tabs – toggle selected state
         TextView tabMostViewed = findViewById(R.id.tabMostViewed);
