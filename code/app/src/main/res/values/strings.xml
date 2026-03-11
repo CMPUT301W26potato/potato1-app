@@ -10,6 +10,8 @@
     <string name="most_viewed">Most Viewed</string>
     <string name="nearby">Nearby</string>
     <string name="latest">Latest</string>
+    <string name="reject_notifications">Reject Notifications</string>
+    <string name="accept_notifications">Accept Notifications"</string>
 <!--    (rehaan) addition-->
     <string name="back">Back</string>
     <string name="invited_entrants_title">Invited Entrants</string>
