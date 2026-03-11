@@ -61,9 +61,14 @@ public class SplashActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        //returning user
-                        destination = MainActivity.class;
-                    } else {//new user
+                        // Role-based routing: organizer gets isolated Organizer flow
+                        String role = doc.getString("role");
+                        if ("organizer".equalsIgnoreCase(role)) {
+                            destination = OrganizerEntryActivity.class;
+                        } else {
+                            destination = MainActivity.class; // entrant, admin, or unknown
+                        }
+                    } else {
                         destination = RegisterActivity.class;
                     }
                     checkDone = true;

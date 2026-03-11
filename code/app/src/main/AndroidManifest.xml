@@ -30,10 +30,16 @@
             android:exported="false"
             android:theme="@style/Theme.WaitWell.Splash" />
 
-        <!-- Main menu screen -->
+        <!-- Main menu screen (Entrant/Admin) -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="false" />
+
+        <!-- Organizer-only entry: no Entrant/Admin UI -->
+        <activity
+            android:name=".activities.OrganizerEntryActivity"
+            android:exported="false" />
+        <!-- Rehaan;s addition for US 02.06.01 : Invited entrants list for organizers -->
         <!-- Rehaan's addition for US 02.06.01 : Invited entrants list for organizers -->
         <activity
             android:name=".activities.InvitedEntrantsActivity"
