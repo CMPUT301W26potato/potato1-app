@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -178,6 +180,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_notifications) {
                 Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
+
+                //go to the notifications screen
+                //use intent to do this
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                startActivity(intent);
+
                 return true;
             }
             return false;
