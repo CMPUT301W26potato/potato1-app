@@ -37,18 +37,22 @@ import java.util.Map;
  * Karina's contribution:
  * Organizer create-event form. US 02.01.01 (Create Event & QR), US 02.01.04 (Registration Period),
  * US 02.02.03 (Geolocation), US 02.03.01 (Waitlist Limit), US 02.04.01/02 (Poster).
- * Isolated in Organizer module; uses Firebase Storage for poster and Firestore for event.
+ * Organizer module; uses Firebase Storage for poster and Firestore for event.
  */
 public class OrganizerCreateEventFragment extends Fragment {
 
     private static final String TAG = "OrganizerCreateEvent";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String ARG_EVENT_ID = "event_id";
 
     private EditText editEventName, editLocation, editRegistrationStart, editRegistrationDeadline;
     private EditText editWaitlistLimit, editPrice, editDescription;
     private androidx.appcompat.widget.SwitchCompat switchGeolocation;
     private TextView txtPosterStatus;
     private Uri posterUri;
+
+    private String eventIdToEdit;
+    private String existingPosterUrl;
 
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -91,6 +95,14 @@ public class OrganizerCreateEventFragment extends Fragment {
         editRegistrationStart.setOnClickListener(v -> showDatePicker(editRegistrationStart));
         editRegistrationDeadline.setOnClickListener(v -> showDatePicker(editRegistrationDeadline));
         editWaitlistLimit.setOnClickListener(v -> showWaitlistLimitPicker());
+
+        Bundle args = getArguments();
+        if (args != null) {
+            eventIdToEdit = args.getString(ARG_EVENT_ID);
+            if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
+                loadEventForEdit(eventIdToEdit);
+            }
+        }
     }
 
     private static final int WAITLIST_PICKER_MIN = 0;
@@ -191,12 +203,19 @@ public class OrganizerCreateEventFragment extends Fragment {
         String organizerId = DeviceUtils.getDeviceId(requireContext());
         boolean geolocationRequired = switchGeolocation.isChecked();
 
+        String posterUrlForSave = null;
         if (posterUri != null) {
-            uploadPosterThenSaveEvent(organizerId, title, description, location, geolocationRequired,
-                    registrationOpen, registrationClose, waitlistLimit, price);
+            posterUrlForSave = posterUri.toString();
+        } else if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
+            posterUrlForSave = existingPosterUrl;
+        }
+
+        if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
+            updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
+                    geolocationRequired, registrationOpen, registrationClose, waitlistLimit, price, posterUrlForSave);
         } else {
             saveEventToFirestore(organizerId, title, description, location, geolocationRequired,
-                    registrationOpen, registrationClose, waitlistLimit, price, null);
+                    registrationOpen, registrationClose, waitlistLimit, price, posterUrlForSave);
         }
     }
 
@@ -207,25 +226,6 @@ public class OrganizerCreateEventFragment extends Fragment {
         } catch (ParseException e) {
             return null;
         }
-    }
-
-    private void uploadPosterThenSaveEvent(String organizerId, String title, String description, String location,
-                                           boolean geolocationRequired, Date registrationOpen, Date registrationClose,
-                                           Integer waitlistLimit, double price) {
-        String path = "posters/" + organizerId + "/" + System.currentTimeMillis() + ".jpg";
-        StorageReference ref = FirebaseStorage.getInstance().getReference().child(path);
-        ref.putFile(posterUri)
-                .addOnSuccessListener(t -> ref.getDownloadUrl()
-                        .addOnSuccessListener(uri -> saveEventToFirestore(organizerId, title, description, location,
-                                geolocationRequired, registrationOpen, registrationClose, waitlistLimit, price, uri.toString()))
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Get download URL failed", e);
-                            Toast.makeText(requireContext(), R.string.organizer_error_upload, Toast.LENGTH_SHORT).show();
-                        }))
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Poster upload failed", e);
-                    Toast.makeText(requireContext(), R.string.organizer_error_upload, Toast.LENGTH_SHORT).show();
-                });
     }
 
     private void saveEventToFirestore(String organizerId, String title, String description, String location,
@@ -249,13 +249,98 @@ public class OrganizerCreateEventFragment extends Fragment {
         FirebaseHelper.getInstance().getDb().collection("events").add(event)
                 .addOnSuccessListener(docRef -> {
                     Toast.makeText(requireContext(), R.string.organizer_event_created, Toast.LENGTH_SHORT).show();
-                    if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                        getParentFragmentManager().popBackStack();
+                    String newEventId = docRef.getId();
+                    Fragment fragment = OrganizerEventCreatedFragment.newInstance(
+                            newEventId,
+                            title,
+                            posterUrl
+                    );
+                    if (getActivity() instanceof OrganizerEntryActivity) {
+                        ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(fragment);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Save event failed", e);
                     Toast.makeText(requireContext(), R.string.organizer_error_save, Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void updateEventInFirestore(String eventId, String organizerId, String title, String description, String location,
+                                        boolean geolocationRequired, Date registrationOpen, Date registrationClose,
+                                        Integer waitlistLimit, double price, @Nullable String posterUrl) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("title", title);
+        updates.put("description", description);
+        updates.put("location", location);
+        updates.put("geolocationRequired", geolocationRequired);
+        updates.put("registrationOpen", registrationOpen);
+        updates.put("registrationClose", registrationClose);
+        if (waitlistLimit != null) {
+            updates.put("waitlistLimit", waitlistLimit);
+        } else {
+            updates.put("waitlistLimit", null);
+        }
+        updates.put("price", price);
+        updates.put("organizerId", organizerId);
+        if (posterUrl != null) {
+            updates.put("imageUrl", posterUrl);
+        }
+
+        FirebaseHelper.getInstance().getDb().collection("events").document(eventId)
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(requireContext(), R.string.organizer_event_created, Toast.LENGTH_SHORT).show();
+                    if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                        getParentFragmentManager().popBackStack();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Update event failed", e);
+                    Toast.makeText(requireContext(), R.string.organizer_error_save, Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void loadEventForEdit(@NonNull String eventId) {
+        FirebaseHelper.getInstance().getDb()
+                .collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc == null || !doc.exists()) {
+                        return;
+                    }
+                    String title = doc.getString("title");
+                    String location = doc.getString("location");
+                    String description = doc.getString("description");
+                    Boolean geoRequired = doc.getBoolean("geolocationRequired");
+                    Date regOpen = doc.getDate("registrationOpen");
+                    Date regClose = doc.getDate("registrationClose");
+                    Number waitlist = doc.getLong("waitlistLimit");
+                    Double price = doc.getDouble("price");
+                    existingPosterUrl = doc.getString("imageUrl");
+
+                    SimpleDateFormat fmt = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+
+                    if (title != null) editEventName.setText(title);
+                    if (location != null) editLocation.setText(location);
+                    if (description != null) editDescription.setText(description);
+                    if (geoRequired != null) switchGeolocation.setChecked(geoRequired);
+                    if (regOpen != null) editRegistrationStart.setText(fmt.format(regOpen));
+                    if (regClose != null) editRegistrationDeadline.setText(fmt.format(regClose));
+                    if (waitlist != null) {
+                        int w = waitlist.intValue();
+                        if (w > 0) {
+                            editWaitlistLimit.setText(String.valueOf(w));
+                        }
+                    }
+                    if (price != null) {
+                        editPrice.setText(String.format(Locale.US, "%.2f", price));
+                    }
+                    if (existingPosterUrl != null) {
+                        txtPosterStatus.setVisibility(View.VISIBLE);
+                        txtPosterStatus.setText(R.string.organizer_poster_uploaded);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to load event for edit", e));
     }
 }

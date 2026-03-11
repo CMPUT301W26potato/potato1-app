@@ -18,11 +18,12 @@ import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Date;
+
 /**
  * Karina's Contribution:
  * Organizer home: "My Events" list and "Create New Event" button.
- * Isolated from Entrant/Admin; only used inside OrganizerEntryActivity.
- *
+ * Only used inside OrganizerEntryActivity!
  * User stories: US 02.01.01 (Create Event), US 02.04.01/02 (Poster), etc.
  */
 public class OrganizerHomeFragment extends Fragment {
@@ -88,6 +89,13 @@ public class OrganizerHomeFragment extends Fragment {
             if (status == null) status = "open";
             String eventId = doc.getId();
 
+            Date registrationClose = doc.getDate("registrationClose");
+            Date now = new Date();
+            if (registrationClose != null && registrationClose.before(now)) {
+                status = "closed";
+                doc.getReference().update("status", "closed");
+            }
+
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
             TextView statusBadge = row.findViewById(R.id.item_organizer_event_status);
@@ -118,8 +126,10 @@ public class OrganizerHomeFragment extends Fragment {
         }
     }
 
-    /** Manage button: no functionality yet! */
     private void onManageClicked(String eventId) {
-        Toast.makeText(requireContext(), "Manage event (id: " + eventId + ")", Toast.LENGTH_SHORT).show();
+        if (getActivity() instanceof OrganizerEntryActivity) {
+            OrganizerEventDetailFragment fragment = OrganizerEventDetailFragment.newInstance(eventId);
+            ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(fragment);
+        }
     }
 }

@@ -45,6 +45,21 @@
     <string name="organizer_error_dates">Registration deadline must be after start date</string>
     <string name="organizer_error_upload">Poster upload failed</string>
     <string name="organizer_error_save">Failed to save event</string>
+    <string name="organizer_event_poster">Event poster</string>
+    <string name="organizer_price_label">Price</string>
+    <string name="organizer_price_free">Free</string>
+    <string name="organizer_date_not_set">Registration dates not set</string>
+    <string name="organizer_delete_event">Delete Event</string>
+    <string name="organizer_edit_event">Edit Event</string>
+    <string name="organizer_share">Share</string>
+    <string name="organizer_view_requests">View Requests</string>
+    <string name="organizer_view_final_entrants">View Final Entrants</string>
+    <string name="organizer_view_canceled_entrants">View Canceled Entrants</string>
+    <string name="organizer_view_invited_entrants">View Invited Entrants</string>
+    <string name="organizer_view_sampled_entrants">View Sampled Entrants</string>
+    <string name="organizer_event_created_title">Event Created</string>
+    <string name="organizer_view_my_events">View My Events</string>
+    <string name="qr_code">QR code</string>
     <string name="invited_count">%d invited</string>
 
 
