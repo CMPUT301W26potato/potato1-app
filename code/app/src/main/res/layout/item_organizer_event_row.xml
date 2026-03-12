@@ -45,6 +45,6 @@
         android:text="@string/organizer_manage"
         android:textAllCaps="false"
         android:textSize="13sp"
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_white"
         android:fontFamily="@font/inter" />
 </LinearLayout>
