@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnHamburger).setOnClickListener(v ->
                 Toast.makeText(this, "Settings menu ", Toast.LENGTH_SHORT).show());
 
+
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
                 startActivity(new Intent(this, AllEventsActivity.class)));
