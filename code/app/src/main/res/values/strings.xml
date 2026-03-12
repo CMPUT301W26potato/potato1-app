@@ -63,7 +63,7 @@
     <string name="invited_count">%d invited</string>
 
 
-<!--    rehaan's addition for US.02.07.01-->
+<!-- rehaan's addition for US.02.07.01-->
     <string name="cancelled_entrants_title">Cancelled Entrants</string>
     <string name="no_cancelled_entrants">No cancelled entrants</string>
     <string name="cancelled_count">%d cancelled</string>
@@ -71,4 +71,17 @@
     <string name="could_not_load_entrants">Could not load entrants</string>
     <string name="unknown_user">Unknown</string>
     <string name="status_cancelled">Cancelled</string>
+
+    <!-- Rehaan's addition for US 02.05.02: -->
+    <string name="lottery_dialog_title">Run Lottery</string>
+    <string name="lottery_dialog_message">Enter the number of entrants to select from the waiting list.</string>
+    <string name="lottery_dialog_hint">Number of entrants</string>
+    <string name="lottery_dialog_confirm">Run</string>
+    <string name="lottery_dialog_cancel">Cancel</string>
+    <string name="lottery_running">Running lottery…</string>
+    <string name="lottery_success">Lottery complete : %d entrants selected</string>
+    <string name="lottery_error_enter_number">Please enter a number</string>
+    <string name="lottery_error_positive">Number must be greater than 0</string>
+    <string name="lottery_error_failed">Lottery failed : please try again</string>
 </resources>
+

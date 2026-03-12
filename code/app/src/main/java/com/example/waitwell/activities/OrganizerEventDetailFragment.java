@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -103,8 +104,10 @@ public class OrganizerEventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewInvitedEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewSampledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+//        Rehaan's addition for 02.05.02
+        btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
+//        btnViewSampledEntrants.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
 
         btnEdit.setOnClickListener(v -> openEditEvent());
 
@@ -218,6 +221,62 @@ public class OrganizerEventDetailFragment extends Fragment {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(fragment);
         }
+    }
+
+    /**
+     * Rehaan's addition for 02.05.02
+     * Shows a dialog prompting the organizer to enter how many entrants to sample.
+     * On confirm, executes the lottery and updates Firestore.
+     */
+    private void showLotteryDialog() {
+        android.widget.EditText input = new android.widget.EditText(requireContext());
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint(getString(R.string.lottery_dialog_hint));
+        input.setPadding(48, 24, 48, 24);
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.lottery_dialog_title))
+                .setMessage(getString(R.string.lottery_dialog_message))
+                .setView(input)
+                .setPositiveButton(getString(R.string.lottery_dialog_confirm), (dialog, which) -> {
+                    String raw = input.getText().toString().trim();
+                    if (raw.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.lottery_error_enter_number), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int sampleSize = Integer.parseInt(raw);
+                    if (sampleSize <= 0) {
+                        Toast.makeText(requireContext(), getString(R.string.lottery_error_positive), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    runLottery(sampleSize);
+                })
+                .setNegativeButton(getString(R.string.lottery_dialog_cancel), null)
+                .show();
+    }
+
+    /**
+     * Calls FirebaseHelper to execute lottery sampling for this event.
+     * Shows a loading toast while running, then success or failure feedback.
+     * @param sampleSize number of entrants the organizer wants to select
+     */
+    private void runLottery(int sampleSize) {
+        Toast.makeText(requireContext(), getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
+
+        FirebaseHelper.getInstance().executeLotterySampling(eventId, sampleSize, task -> {
+            if (!isAdded()) return;
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(),
+                        getString(R.string.lottery_success, sampleSize),
+                        Toast.LENGTH_LONG).show();
+            } else {
+                Exception e = task.getException();
+                android.util.Log.e("LotteryDebug", "Lottery failed", e);
+                Toast.makeText(requireContext(),
+                        getString(R.string.lottery_error_failed),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
 

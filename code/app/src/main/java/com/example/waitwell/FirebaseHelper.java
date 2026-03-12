@@ -2,12 +2,17 @@ package com.example.waitwell;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Firestore helper.
@@ -122,5 +127,66 @@ public class FirebaseHelper {
                 .whereEqualTo("eventId", eventId)
                 .whereEqualTo("status", status)
                 .get();
+    }
+    /** (Rehaan's Addition)
+     * US 02.05.02: Executes lottery sampling for an event.
+     * Fetches all waiting entries for the event, randomly selects
+     *  them using the Lottery engine, and batch-updates
+     * their status to selected in Firestore.
+     *
+     * @param eventId    Firestore document ID of the event
+     * @param sampleSize number of entrants the organizer wants to select
+     * @param listener   called on success or failure
+     */
+    public void executeLotterySampling(String eventId, int sampleSize, OnCompleteListener<Void> listener) {
+        db.collection("waitlist_entries")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "waiting")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+
+                    List<String> waitingIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        String userId = doc.getString("userId");
+                        if (userId != null) waitingIds.add(userId);
+                    }
+
+
+
+                    java.util.Map<String, DocumentReference> userIdToRef = new java.util.HashMap<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        String userId = doc.getString("userId");
+                        if (userId != null) {
+                            waitingIds.add(userId);
+                            userIdToRef.put(userId, doc.getReference());
+                        }
+                    }
+
+                    List<String> selectedIds = Lottery.sample(waitingIds, sampleSize);
+
+                    if (selectedIds.isEmpty()) {
+                        if (listener != null) listener.onComplete(Tasks.forResult(null));
+                        return;
+                    }
+
+                    WriteBatch batch = db.batch();
+                    for (String userId : selectedIds) {
+                        DocumentReference ref = userIdToRef.get(userId);
+                        if (ref != null) {
+                            batch.update(ref, "status", "selected");
+                        }
+                    }
+
+                    batch.commit()
+                            .addOnSuccessListener(v -> {
+                                if (listener != null) listener.onComplete(Tasks.forResult(null));
+                            })
+                            .addOnFailureListener(e -> {
+                                if (listener != null) listener.onComplete(Tasks.forException(e));
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
     }
 }
