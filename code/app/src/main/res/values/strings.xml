@@ -23,6 +23,7 @@
     <!-- Organizer module -->
     <string name="organizer_my_events">My Events</string>
     <string name="organizer_create_new_event">Create New Event</string>
+    <string name="organizer_logout">Log out</string>
     <string name="organizer_manage">Manage</string>
     <string name="organizer_status_open">Open</string>
     <string name="organizer_status_closed">Closed</string>
