@@ -116,11 +116,9 @@ public class MainActivity extends AppCompatActivity {
 
     /** Called when user taps an event card or row. */
     private void onEventCardClicked(String eventId) {
-        Toast.makeText(this, "Event detail (id: " + eventId + ")", Toast.LENGTH_SHORT).show();
-        // Later this will do:
-        // Intent i = new Intent(this, EventDetailActivity.class);
-        // i.putExtra("event_id", eventId);
-        // startActivity(i);
+        Intent i = new Intent(this, EventDetailActivity.class);
+        i.putExtra("event_id", eventId);
+        startActivity(i);
     }
 
 
@@ -173,10 +171,9 @@ public class MainActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                // already here
                 return true;
             } else if (id == R.id.nav_waitlist) {
-                Toast.makeText(this, "Wait List ", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, WaitListActivity.class));
                 return true;
             } else if (id == R.id.nav_notifications) {
                 Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();

@@ -54,6 +54,15 @@
         <activity
             android:name=".EntrantNotificationOptions"
             android:exported="false" />
+        <!-- Entrant Event Detail Screen -->
+        <activity android:name=".activities.EventDetailActivity"
+            android:exported="false" />
+        <activity android:name=".activities.ConfirmationActivity"
+            android:exported="false" />
+
+        <activity android:name=".activities.WaitListActivity"
+            android:exported="false" />
+
 
         <!-- Organizer-only entry: no Entrant/Admin UI -->
         <activity
