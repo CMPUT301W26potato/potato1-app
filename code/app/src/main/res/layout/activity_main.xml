@@ -91,13 +91,13 @@
             </LinearLayout>
 
             <!-- "History" chip -->
+            <!-- History chip + Scan QR button in one row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal"
-                android:fontFamily="@font/inter"
-                >
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/chipHistory"
@@ -112,22 +112,26 @@
                     android:text="@string/history"
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnScanQr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_filter_dropdown"
+                    android:backgroundTint="@null"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="▶ Scan QR Code"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    app:backgroundTint="@null" />
+
+
+                    android:textSize="13sp" />
             </LinearLayout>
-
-            <!-- ▶ Scan QR Code button -->
             <!-- "Title >" section header -->
-
-            <Button
-                android:id="@+id/btnScanQr"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_button_green"
-                android:fontFamily="@font/poppinsmedium"
-                android:text="▶ Scan QR Code"
-                android:textAllCaps="false"
-                android:textColor="@color/text_white"
-                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

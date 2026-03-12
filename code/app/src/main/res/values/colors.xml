@@ -20,4 +20,7 @@
     <color name="divider">#E0E0E0</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="status_waiting_bg">#FFF9C4</color>
+    <color name="status_waiting_text">#F9A825</color>
 </resources>

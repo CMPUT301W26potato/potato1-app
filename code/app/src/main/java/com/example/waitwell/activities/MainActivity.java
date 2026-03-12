@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
@@ -116,11 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
     /** Called when user taps an event card or row. */
     private void onEventCardClicked(String eventId) {
-        Toast.makeText(this, "Event detail (id: " + eventId + ")", Toast.LENGTH_SHORT).show();
-        // Later this will do:
-        // Intent i = new Intent(this, EventDetailActivity.class);
-        // i.putExtra("event_id", eventId);
-        // startActivity(i);
+        Intent i = new Intent(this, EventDetailActivity.class);
+        i.putExtra("event_id", eventId);
+        startActivity(i);
     }
 
 
@@ -139,9 +138,9 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(v ->
                 Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
 
-        // Hamburger menu
-        findViewById(R.id.btnHamburger).setOnClickListener(v ->
-                Toast.makeText(this, "Settings menu ", Toast.LENGTH_SHORT).show());
+        // Hamburger menu -> small overflow with Log out
+        View hamburger = findViewById(R.id.btnHamburger);
+        hamburger.setOnClickListener(this::showHamburgerMenu);
 
 
         // "View all" link
@@ -156,6 +155,23 @@ public class MainActivity extends AppCompatActivity {
         tabMostViewed.setOnClickListener(v -> selectTab(tabMostViewed, tabNearby, tabLatest));
         tabNearby.setOnClickListener(v -> selectTab(tabNearby, tabMostViewed, tabLatest));
         tabLatest.setOnClickListener(v -> selectTab(tabLatest, tabMostViewed, tabNearby));
+    }
+
+    /** Shows a popup anchored to the hamburger with a Log out action. */
+    private void showHamburgerMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logout) {
+                Intent intent = new Intent(this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
     /**
      * Visually selects one tab and deselects the others.
@@ -174,10 +190,9 @@ public class MainActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                // already here
                 return true;
             } else if (id == R.id.nav_waitlist) {
-                Toast.makeText(this, "Wait List ", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, WaitListActivity.class));
                 return true;
             } else if (id == R.id.nav_notifications) {
                 Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
