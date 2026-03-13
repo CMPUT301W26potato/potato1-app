@@ -55,6 +55,8 @@ public class SplashActivity extends AppCompatActivity {
 
     private void checkDeviceRegistered() {
         String deviceId = DeviceUtils.getDeviceId(this);
+
+
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(deviceId)

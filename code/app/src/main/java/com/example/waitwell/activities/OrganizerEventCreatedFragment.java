@@ -23,15 +23,11 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 /**
- * Organizer-only confirmation screen shown after successfully creating an event.
- * User story: US 02.01.01 – Create Event & QR.
- * Purpose:
- *  - Generate and display a QR code for the created event (QR content is the eventId).
- *  - Allow organizer to share the event via Android share intents.
- *  - Allow quick navigation back to "My Events" (OrganizerHomeFragment).
- * Navigation:
- *  - This fragment is launched only from OrganizerCreateEventFragment after a successful Firestore write.
- *  - "View My Events" replaces the current fragment stack with OrganizerHomeFragment.
+ * Little "completed!" confirmation screen that organizers see after creating an event.
+ * This fragment only belongs to the Organizer module and never shows up for other roles.
+ * It generates a QR code for the newly created event, lets the organizer share it out,
+ * and offers a quick way back to the Organizer home list.
+ * Mostly backs user story 02.01.01 (Create Event & QR) from the organizer's perspective.
  */
 public class OrganizerEventCreatedFragment extends Fragment {
 
@@ -45,6 +41,16 @@ public class OrganizerEventCreatedFragment extends Fragment {
 
     private ImageView imgQrCode;
 
+    /**
+     * Simple factory method to package the fields we care about into arguments.
+     * We keep the event id, title, and poster URL handy so the confirmation UI
+     * can render a QR code and show useful share content.
+     *
+     * @param eventId    Firestore id for the newly created event
+     * @param eventTitle title to show and include in share text
+     * @param posterUrl  optional poster URL, kept mostly for consistency with the flow
+     * @return a new {@link OrganizerEventCreatedFragment} with args set
+     */
     public static OrganizerEventCreatedFragment newInstance(@NonNull String eventId,
                                                             @NonNull String eventTitle,
                                                             @Nullable String posterUrl) {
@@ -57,12 +63,21 @@ public class OrganizerEventCreatedFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Inflates the compact confirmation layout that shows the QR code,
+     * share button, and shortcut back to the Organizer home screen.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_event_created, container, false);
     }
 
+    /**
+     * Pulls arguments out of the Bundle, generates the QR code, and hooks
+     * up the share and navigation buttons once the view is ready.
+     * Assumes the creator fragment passed a non empty event id.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -90,6 +105,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
     }
 
     private void generateQrCode(@NonNull String content) {
+        // I learned how to wire up this QR code generation flow by asking
+        // ChatGPT to walk me through the ZXing usage step by step.
         QRCodeWriter writer = new QRCodeWriter();
         int sizePx = 800;
         try {

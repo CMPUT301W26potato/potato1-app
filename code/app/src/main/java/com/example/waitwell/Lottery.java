@@ -5,22 +5,28 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Rehaan's addition for 02.05.02
- * Core lottery sampling engine.
- * Handles random selection of entrants from a waiting list.
- * Used by US 02.05.02 (Execute Lottery Sampling) and
- * US 02.05.03 (Draw Replacement Applicants).
+ * Lottery.java
+ * Core lottery sampling engine for WaitWell.
+ * Randomly picks entrants from a waiting list for an event.
+ * No Android or Firebase dependencies so its easy to unit test.
+ * Used by US 02.05.02 and US 02.05.03.
+ * Javadoc written with help from Claude (claude.ai)
+ *
+ * @author rehaan299
  */
 public class Lottery {
 
     /**
-     * Randomly samples user IDs from the provided waiting list.
-     * If sampleSize ? size selected, all entrants are selected.
-     * The original list is never modified.
+     * Randomly picks up to sampleSize user IDs from the waiting list.
+     * If sampleSize is bigger than the list, everyone gets selected.
+     * The original list is never touched.
      *
-     * @param waitingUserIds  which is the list of user IDs currently with "waiting" status
-     * @param sampleSize   which is the number of entrants the organizer wants to select
-     * @return a new list of randomly selected user IDs
+     * Shuffling approach referenced from:
+     * https://stackoverflow.com/questions/16000196/java-collections-shuffle
+     *
+     * @param waitingUserIds list of user IDs with waiting status
+     * @param sampleSize     how many entrants the organizer wants to select
+     * @return new list of randomly selected user IDs, empty if input is invalid
      */
     public static List<String> sample(List<String> waitingUserIds, int sampleSize) {
         if (waitingUserIds == null || waitingUserIds.isEmpty() || sampleSize <= 0) {

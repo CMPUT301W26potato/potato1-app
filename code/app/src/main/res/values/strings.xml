@@ -23,6 +23,7 @@
     <!-- Organizer module -->
     <string name="organizer_my_events">My Events</string>
     <string name="organizer_create_new_event">Create New Event</string>
+    <string name="organizer_logout">Log out</string>
     <string name="organizer_manage">Manage</string>
     <string name="organizer_status_open">Open</string>
     <string name="organizer_status_closed">Closed</string>
@@ -83,5 +84,13 @@
     <string name="lottery_error_enter_number">Please enter a number</string>
     <string name="lottery_error_positive">Number must be greater than 0</string>
     <string name="lottery_error_failed">Lottery failed : please try again</string>
+    <!-- rehaan 02.05.03 - draw replacement button and dialog strings -->
+    <string name="organizer_draw_replacement">Draw Replacement Applicant</string>
+    <string name="replacement_dialog_title">Draw Replacement</string>
+    <string name="replacement_dialog_message">This will draw one entrant from the waiting list to fill a cancelled or rejected spot.</string>
+    <string name="replacement_dialog_confirm">Draw</string>
+    <string name="replacement_running">Drawing replacement…</string>
+    <string name="replacement_success">Done:1 replacement selected</string>
+    <string name="replacement_error_failed">Draw failed, please try again</string>
 </resources>
 

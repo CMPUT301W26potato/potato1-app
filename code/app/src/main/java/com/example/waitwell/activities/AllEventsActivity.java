@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * All Events screen with search and filter.
@@ -308,8 +310,9 @@ public class AllEventsActivity extends AppCompatActivity {
             View root = row.findViewById(R.id.rowRoot);
             root.setBackgroundResource(isOpen ? R.drawable.bg_event_row : R.drawable.bg_event_row_closed);
             row.setOnClickListener(v -> {
-                Toast.makeText(this, "Event detail (id: " + eventId + ")", Toast.LENGTH_SHORT).show();
-                //TODO
+                Intent i = new Intent(this, EventDetailActivity.class);
+                i.putExtra("event_id", eventId);
+                startActivity(i);
             });
             eventsListContainer.addView(row);
         }
@@ -322,8 +325,7 @@ public class AllEventsActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_home) { finish(); return true; }
             if (id == R.id.nav_waitlist) {
-                Toast.makeText(this, "Wait List ", Toast.LENGTH_SHORT).show();
-                //todo
+                startActivity(new Intent(this, WaitListActivity.class));
                 return true;
             }
             if (id == R.id.nav_notifications) {
