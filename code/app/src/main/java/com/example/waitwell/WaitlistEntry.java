@@ -5,16 +5,17 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.io.Serializable;
 import java.util.Date;
 
-
+/**
+ * WaitlistEntry.java
+ * Model class for a single waitlist entry in the "waitlist_entries" Firestore collection.
+ * Document ID format is userId_eventId.
+ * Status can be: "waiting", "selected", "confirmed", "rejected", or "cancelled".
+ * Javadoc written with help from Claude (claude.ai)
+ */
 
 public class WaitlistEntry implements Serializable {
-    /**
-     * WaitlistEntry.java
-     * Model class for a single waitlist entry in the "waitlist_entries" Firestore collection.
-     * Document ID format is userId_eventId.
-     * Status can be: "waiting", "selected", "confirmed", "rejected", or "cancelled".
-     * Javadoc written with help from Claude (claude.ai)
-     */
+
+
 
     @DocumentId
     private String id;
@@ -29,16 +30,15 @@ public class WaitlistEntry implements Serializable {
     @ServerTimestamp
     private Date joinedAt;
 
-    public WaitlistEntry() {
-        /*
-          Creates a new waitlist entry with status set to "waiting" by default.
+    public WaitlistEntry() {}
 
-          @param userId     device ID of the entrant
-         * @param eventId    Firestore document ID of the event
-         * @param eventTitle title of the event, stored so we don't need a second query
-         */
-    }
-
+    /**
+     * Creates a new waitlist entry with status set to "waiting" by default.
+     *
+     * @param userId     device ID of the entrant
+     * @param eventId    Firestore document ID of the event
+     * @param eventTitle title of the event, stored so we don't need a second query
+     */
     public WaitlistEntry(String userId, String eventId, String eventTitle) {
         this.userId = userId;
         this.eventId = eventId;
