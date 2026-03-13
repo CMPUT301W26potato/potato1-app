@@ -33,6 +33,9 @@ import java.util.Locale;
  * Organizer-only event detail / manage screen.
  * Keep in mind there is eventId via arguments, loads from Firestore
  * Displays organizer actions like Edit / Delete / View Entrants, etc.
+ * Rehaan added: lottery sampling (02.05.02), draw replacement (02.05.03),
+ * view invited (02.06.01), view cancelled (02.06.02).
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class OrganizerEventDetailFragment extends Fragment {
 
@@ -237,9 +240,8 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     /**
-     * Rehaan's addition for 02.05.02
-     * Shows a dialog prompting the organizer to enter how many entrants to sample.
-     * On confirm, executes the lottery and updates Firestore.
+     * Shows a dialog asking the organizer how many entrants to sample (US 02.05.02).
+     * Validates the input then calls runLottery() with the given number.
      */
     private void showLotteryDialog() {
         android.widget.EditText input = new android.widget.EditText(requireContext());
@@ -269,9 +271,9 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     /**
-     * Calls FirebaseHelper to execute lottery sampling for this event.
-     * Shows a loading toast while running, then success or failure feedback.
-     * @param sampleSize number of entrants the organizer wants to select
+     * Calls FirebaseHelper to run the lottery for this event (US 02.05.02).
+     * Shows a toast while running, then tells the organizer if it worked or not.
+     * @param sampleSize how many entrants to select
      */
     private void runLottery(int sampleSize) {
         Toast.makeText(requireContext(), getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
@@ -291,7 +293,10 @@ public class OrganizerEventDetailFragment extends Fragment {
             }
         });
     }
-    // shows a confirm dialog before drawing a replacement - rehaan 02.05.03
+    /**
+     * Shows a confirmation dialog before drawing a replacement (US 02.05.03).
+     * Organizer uses this when a selected entrant cancelled or rejected.
+     */
     private void showDrawReplacementDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.replacement_dialog_title))
@@ -302,7 +307,11 @@ public class OrganizerEventDetailFragment extends Fragment {
                 .show();
     }
 
-    // calls firebase to pick one waiting entrant as replacement - rehaan 02.05.03
+    /**
+     * Calls FirebaseHelper to draw one replacement applicant (US 02.05.03).
+     * Shows a toast result so the organizer knows if it worked.
+     */
+
     private void drawReplacement() {
         Toast.makeText(requireContext(), getString(R.string.replacement_running), Toast.LENGTH_SHORT).show();
         FirebaseHelper.getInstance().drawReplacementApplicant(eventId, task -> {
