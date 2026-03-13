@@ -13,12 +13,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.PopupMenu;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.example.waitwell.Profile;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -37,6 +40,10 @@ public class OrganizerHomeFragment extends Fragment {
     private static final String TAG = "OrganizerHomeFragment";
     private LinearLayout eventsList;
     private String organizerId;
+
+    // Added for drawer navigation
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     /**
      * Grabs the device based organizer id once when the fragment is created.
@@ -70,8 +77,26 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
+        // Drawer navigation setup
+        drawerLayout = requireActivity().findViewById(R.id.drawer_layout);
+        navigationView = requireActivity().findViewById(R.id.navigation_view);
+
         View hamburger = view.findViewById(R.id.btnHamburger);
-        hamburger.setOnClickListener(this::showHamburgerMenu);
+        hamburger.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(requireContext(), Profile.class));
+            }
+            else if (id == R.id.nav_logout) {
+                logoutToRegister();
+            }
+
+            drawerLayout.closeDrawers();
+            return true;
+        });
 
         loadMyEvents();
     }
@@ -92,19 +117,6 @@ public class OrganizerHomeFragment extends Fragment {
         }
     }
 
-    private void showHamburgerMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(requireContext(), anchor);
-        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_logout) {
-                logoutToRegister();
-                return true;
-            }
-            return false;
-        });
-        popup.show();
-    }
-
     private void logoutToRegister() {
         if (getActivity() == null) return;
         Intent intent = new Intent(getActivity(), RegisterActivity.class);
@@ -115,6 +127,9 @@ public class OrganizerHomeFragment extends Fragment {
 
     private void loadMyEvents() {
         eventsList.removeAllViews();
+
+        Log.d(TAG, "Loading events for organizerId: " + organizerId);
+
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
                 .whereEqualTo("organizerId", organizerId)
@@ -129,27 +144,33 @@ public class OrganizerHomeFragment extends Fragment {
     private void onEventsLoaded(QuerySnapshot snapshot) {
         eventsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
+
         for (DocumentSnapshot doc : snapshot.getDocuments()) {
             String title = doc.getString("title");
             if (title == null) title = "Untitled Event";
+
             String status = doc.getString("status");
             if (status == null) status = "open";
+
             String eventId = doc.getId();
 
             Date registrationClose = doc.getDate("registrationClose");
             Date now = new Date();
+
             if (registrationClose != null && registrationClose.before(now)) {
                 status = "closed";
                 doc.getReference().update("status", "closed");
             }
 
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
+
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
             TextView statusBadge = row.findViewById(R.id.item_organizer_event_status);
             Button manageBtn = row.findViewById(R.id.item_organizer_btn_manage);
 
             titleView.setText(title);
             applyStatusBadge(statusBadge, status);
+
             manageBtn.setOnClickListener(v -> onManageClicked(eventId));
 
             eventsList.addView(row);
@@ -161,11 +182,13 @@ public class OrganizerHomeFragment extends Fragment {
             badge.setText(getString(R.string.organizer_status_completed));
             badge.setBackgroundResource(R.drawable.bg_status_completed);
             badge.setTextColor(getResources().getColor(R.color.status_completed_text, null));
-        } else if ("closed".equalsIgnoreCase(status)) {
+        }
+        else if ("closed".equalsIgnoreCase(status)) {
             badge.setText(getString(R.string.organizer_status_closed));
             badge.setBackgroundResource(R.drawable.bg_status_closed);
             badge.setTextColor(getResources().getColor(R.color.status_closed_text, null));
-        } else {
+        }
+        else {
             badge.setText(getString(R.string.organizer_status_open));
             badge.setBackgroundResource(R.drawable.bg_status_open);
             badge.setTextColor(getResources().getColor(R.color.status_open_text, null));
