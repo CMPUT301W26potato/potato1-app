@@ -34,10 +34,18 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Karina's contribution:
- * Organizer create-event form. US 02.01.01 (Create Event & QR), US 02.01.04 (Registration Period),
- * US 02.02.03 (Geolocation), US 02.03.01 (Waitlist Limit), US 02.04.01/02 (Poster).
- * Organizer module; uses Firebase Storage for poster and Firestore for event.
+ * Karina's features:
+ * It mainly covers user stories 02.01.01 (Create Event & QR), 02.01.04 (Registration Period),
+ * 02.02.03 (Geolocation), 02.03.01 (Waitlist Limit), and 02.04.01/02 (Poster uploads).
+ * *
+ * Fragment that handles the "create or edit event" form for organizers.
+ * This lives completely inside the Organizer module and never shows up
+ * for entrants or admins. It wires together title/location/date fields,
+ * geolocation and waitlist toggles, and poster upload, then saves everything
+ * into Firestore/Firebase Storage.
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
+
  */
 public class OrganizerCreateEventFragment extends Fragment {
 
@@ -51,6 +59,8 @@ public class OrganizerCreateEventFragment extends Fragment {
     private TextView txtPosterStatus;
     private Uri posterUri;
 
+    // I used ChatGPT to better understand how we can treat this device based
+    // identifier as the organizer's "account id" and reuse it consistently.
     private String eventIdToEdit;
     private String existingPosterUrl;
 
@@ -64,12 +74,22 @@ public class OrganizerCreateEventFragment extends Fragment {
                 }
             });
 
+    /**
+     * Inflates the create/edit event layout that contains all of the form fields
+     * the organizer can interact with. This is purely Organizer UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_create_event, container, false);
     }
 
+    /**
+     * Binds all views, hooks up click listeners, and optionally loads an
+     * existing event into the form if an {@code event_id} argument is present.
+     * Assumes this fragment is only hosted by {@link OrganizerEntryActivity}
+     * inside the Organizer flow.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -83,15 +103,21 @@ public class OrganizerCreateEventFragment extends Fragment {
         switchGeolocation = view.findViewById(R.id.switchGeolocation);
         txtPosterStatus = view.findViewById(R.id.txtPosterStatus);
 
+        // Simple back button that just pops this fragment off the Organizer stack.
         view.findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> {
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                 getParentFragmentManager().popBackStack();
             }
         });
+        // When the organizer taps this, we launch the system picker for an image banner.
         view.findViewById(R.id.btnUploadPoster).setOnClickListener(v ->
                 pickImage.launch("image/*"));
+        // Main "Save" action for both creating and editing events.
         view.findViewById(R.id.btnSubmitEvent).setOnClickListener(v -> submitEvent());
 
+        // These fields are all read-only text inputs that open pickers instead of keyboards.
+        // I used ChatGPT to learn, step by step, how to swap a plain text/date input
+        // for a proper Calendar style DatePicker so organizers choose real dates.
         editRegistrationStart.setOnClickListener(v -> showDatePicker(editRegistrationStart));
         editRegistrationDeadline.setOnClickListener(v -> showDatePicker(editRegistrationDeadline));
         editWaitlistLimit.setOnClickListener(v -> showWaitlistLimitPicker());
@@ -123,6 +149,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         picker.setValue(initial);
         picker.setWrapSelectorWheel(false);
 
+        // an AlertDialog shell that just wraps the number picker.
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.organizer_waitlist_limit)
                 .setView(picker)
@@ -164,6 +191,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         String priceStr = editPrice.getText().toString().trim();
         String description = editDescription.getText().toString().trim();
 
+        // Basic "all required fields filled in" check for the path.
         if (title.isEmpty() || location.isEmpty() || startStr.isEmpty() || deadlineStr.isEmpty() || priceStr.isEmpty()) {
             Toast.makeText(requireContext(), R.string.organizer_error_fill_required, Toast.LENGTH_SHORT).show();
             return;
@@ -176,17 +204,20 @@ public class OrganizerCreateEventFragment extends Fragment {
             Toast.makeText(requireContext(), R.string.organizer_error_invalid_price, Toast.LENGTH_SHORT).show();
             return;
         }
+        // We don’t allow negative prices – a free event is just 0.
         if (price < 0) {
             Toast.makeText(requireContext(), R.string.organizer_error_invalid_price, Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Parse dates from the string fields using a consistent yyyy-MM-dd format.
         Date registrationOpen = parseDate(startStr);
         Date registrationClose = parseDate(deadlineStr);
         if (registrationOpen == null || registrationClose == null) {
             Toast.makeText(requireContext(), "Use date format: " + DATE_FORMAT, Toast.LENGTH_SHORT).show();
             return;
         }
+        // Deadline must be strictly after the registration open date.
         if (!registrationClose.after(registrationOpen)) {
             Toast.makeText(requireContext(), R.string.organizer_error_dates, Toast.LENGTH_SHORT).show();
             return;
@@ -200,16 +231,22 @@ public class OrganizerCreateEventFragment extends Fragment {
             } catch (NumberFormatException ignored) { }
         }
 
+        // Device id plays the role of "organizer account" for this project.
         String organizerId = DeviceUtils.getDeviceId(requireContext());
         boolean geolocationRequired = switchGeolocation.isChecked();
 
-        String posterUrlForSave = null;
-        if (posterUri != null) {
-            posterUrlForSave = posterUri.toString();
-        } else if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
-            posterUrlForSave = existingPosterUrl;
-        }
+            // After running into issues with a full Firestore-driven image
+            // subscription approach, I asked ChatGPT to walk me through a
+            // simpler alternative. This version just stores the local URI
+            // string for the banner image instead of wiring up a complex
+            // upload/subscription flow.
+        // Decide which banner image (if any) we should persist with this event.
+        String posterUrlForSave = com.example.waitwell.OrganizerPosterUtils.resolvePosterUrl(
+                posterUri != null ? posterUri.toString() : null,
+                (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) ? existingPosterUrl : null
+        );
 
+        // If we already have an id we treat this as an edit, otherwise it’s a brand new event.
         if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
             updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
                     geolocationRequired, registrationOpen, registrationClose, waitlistLimit, price, posterUrlForSave);
@@ -244,12 +281,14 @@ public class OrganizerCreateEventFragment extends Fragment {
         event.put("createdAt", FieldValue.serverTimestamp());
         event.put("status", "open");
         event.put("waitlistEntrantIds", new ArrayList<String>());
-        if (posterUrl != null) event.put("imageUrl", posterUrl);
+        if (posterUrl != null) event.put("imageUrl", posterUrl); // optional banner image
 
+        // New document in the "events" collection – Firestore will generate the id.
         FirebaseHelper.getInstance().getDb().collection("events").add(event)
                 .addOnSuccessListener(docRef -> {
                     Toast.makeText(requireContext(), R.string.organizer_event_created, Toast.LENGTH_SHORT).show();
                     String newEventId = docRef.getId();
+                    // Drop the organizer into the little "event created" confirmation fragment.
                     Fragment fragment = OrganizerEventCreatedFragment.newInstance(
                             newEventId,
                             title,
@@ -286,10 +325,12 @@ public class OrganizerCreateEventFragment extends Fragment {
             updates.put("imageUrl", posterUrl);
         }
 
+        // Update the existing document for this event rather than creating a new one.
         FirebaseHelper.getInstance().getDb().collection("events").document(eventId)
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(requireContext(), R.string.organizer_event_created, Toast.LENGTH_SHORT).show();
+                    // On a successful edit we just pop back to wherever the organizer came from.
                     if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                         getParentFragmentManager().popBackStack();
                     }
@@ -336,6 +377,7 @@ public class OrganizerCreateEventFragment extends Fragment {
                     if (price != null) {
                         editPrice.setText(String.format(Locale.US, "%.2f", price));
                     }
+                    // If the event already had a banner we show a little "uploaded" hint.
                     if (existingPosterUrl != null) {
                         txtPosterStatus.setVisibility(View.VISIBLE);
                         txtPosterStatus.setText(R.string.organizer_poster_uploaded);

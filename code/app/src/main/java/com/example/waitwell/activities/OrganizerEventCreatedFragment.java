@@ -22,16 +22,14 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-/**
- * Organizer-only confirmation screen shown after successfully creating an event.
- * User story: US 02.01.01 – Create Event & QR.
- * Purpose:
- *  - Generate and display a QR code for the created event (QR content is the eventId).
- *  - Allow organizer to share the event via Android share intents.
- *  - Allow quick navigation back to "My Events" (OrganizerHomeFragment).
- * Navigation:
- *  - This fragment is launched only from OrganizerCreateEventFragment after a successful Firestore write.
- *  - "View My Events" replaces the current fragment stack with OrganizerHomeFragment.
+/** Karina's features:
+ * Mostly backs user story 02.01.01 (Create Event & QR) from the organizer's perspective.
+ * a little "completed!" confirmation screen that organizers see after creating an event.
+ * This fragment only belongs to the Organizer module and never shows up for other roles.
+ * It generates a QR code for the newly created event, lets the organizer share it out,
+ * and offers a quick way back to the Organizer home list.
+
+ * Citation will be gray inline comments at where the referenced code begins.
  */
 public class OrganizerEventCreatedFragment extends Fragment {
 
@@ -39,12 +37,24 @@ public class OrganizerEventCreatedFragment extends Fragment {
     private static final String ARG_EVENT_TITLE = "event_title";
     private static final String ARG_POSTER_URL = "event_poster_url";
 
+    // Values passed from the create‑event screen so this fragment knows
+    // which event to show a QR code for and what text to include when sharing.
     private String eventId;
     private String eventTitle;
     private String eventPosterUrl;
 
     private ImageView imgQrCode;
 
+    /**
+     * Simple factory method to package the fields we care about into arguments.
+     * We keep the event id, title, and poster URL handy so the confirmation UI
+     * can render a QR code and show useful share content.
+     *
+     * @param eventId    Firestore id for the newly created event
+     * @param eventTitle title to show and include in share text
+     * @param posterUrl  optional poster URL, kept mostly for consistency with the flow
+     * @return a new {@link OrganizerEventCreatedFragment} with args set
+     */
     public static OrganizerEventCreatedFragment newInstance(@NonNull String eventId,
                                                             @NonNull String eventTitle,
                                                             @Nullable String posterUrl) {
@@ -57,12 +67,21 @@ public class OrganizerEventCreatedFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Fires the compact confirmation layout that shows the QR code,
+     * share button, and shortcut back to the Organizer home screen.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_event_created, container, false);
     }
 
+    /**
+     * Pulls arguments out of the Bundle, generates the QR code, and hooks
+     * up the share and navigation buttons once the view is ready.
+     * Assumes the creator fragment passed a non empty event id.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -90,6 +109,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
     }
 
     private void generateQrCode(@NonNull String content) {
+        // I learned how to wire up this QR code generation flow by asking
+        // ChatGPT to walk me through the ZXing usage step by step.
         QRCodeWriter writer = new QRCodeWriter();
         int sizePx = 800;
         try {
@@ -111,6 +132,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
     private void shareEvent() {
         if (eventId == null) return;
 
+        // Grab the currently rendered QR bitmap from the ImageView so we can
+        // attach it to the share intent as an image (best‑effort only).
         imgQrCode.setDrawingCacheEnabled(true);
         imgQrCode.buildDrawingCache();
         Bitmap bitmap = imgQrCode.getDrawingCache();
@@ -124,6 +147,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
         shareIntent.putExtra(Intent.EXTRA_TEXT, text.toString());
 
         if (bitmap != null) {
+            // Insert a temporary image into the MediaStore so other apps can
+            // read it via content URI; this avoids FileProvider boilerplate.
             String path = MediaStore.Images.Media.insertImage(
                     requireContext().getContentResolver(), bitmap, "Event QR", null);
             if (path != null) {
@@ -138,6 +163,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
 
     private void navigateToMyEvents() {
         if (getActivity() instanceof OrganizerEntryActivity) {
+            // Clear any organizer fragments that might be on the stack so
+            // tapping back from My Events does not return to this screen.
             getParentFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerHomeFragment());
         }

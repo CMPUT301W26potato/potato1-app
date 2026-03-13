@@ -29,6 +29,7 @@ import java.util.Map;
  *   - a createdAt timestamp
  * Admin accounts:
  * Admins are added manually in the Firebase Console by creating a user document with role = "admin".
+ * Troubleshoot with the help from Claude (claude.ai)
  */
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
@@ -123,20 +124,30 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Save to Firestore
         // Document ID = deviceId for easier management
+        // Save to Firestore
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(deviceId)
                 .set(user)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "User registered: " + deviceId);
+
+                    // store locally
+                    getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
+                            .edit().putString("userId", deviceId)
+                            .apply();
+
                     Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
+
+                    // navigate
                     if ("organizer".equalsIgnoreCase(role)) {
                         startActivity(new Intent(this, OrganizerEntryActivity.class));
                     } else {
                         startActivity(new Intent(this, MainActivity.class));
                     }
                     finish();
-                }).addOnFailureListener(e -> {
+                })
+                .addOnFailureListener(e -> {
                     Log.e(TAG, "Registration failed", e);
                     Toast.makeText(this, "Registration failed – check your connection", Toast.LENGTH_LONG).show();
                     btnSignUp.setEnabled(true);

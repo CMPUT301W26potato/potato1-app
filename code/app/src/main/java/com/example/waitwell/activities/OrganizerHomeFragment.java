@@ -1,6 +1,5 @@
 package com.example.waitwell.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,10 +9,11 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
@@ -22,11 +22,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
-/**
- * Karina's Contribution:
- * Organizer home: "My Events" list and "Create New Event" button.
- * Only used inside OrganizerEntryActivity!
- * User stories: US 02.01.01 (Create Event), US 02.04.01/02 (Poster), etc.
+/** Karina's features:
+ * stories: creating new events and seeing their current status (US 02.01.01,
+ *  02.03.01, 02.04.01, 02.04.02).
+ * Fragment that acts as the home screen for organizers.
+ * This is Organizer-only and lives inside {@link OrganizerEntryActivity},
+ * showing the organizer's events plus a button to create new ones.
+ * It supports user stories around listing and managing events, including
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
+
  */
 public class OrganizerHomeFragment extends Fragment {
 
@@ -34,6 +39,11 @@ public class OrganizerHomeFragment extends Fragment {
     private LinearLayout eventsList;
     private String organizerId;
 
+    /**
+     * Grabs the device based organizer id once when the fragment is created.
+     * We assume DeviceUtils is already wired to give a stable id per device,
+     * and that this fragment is only used for organizer accounts.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +51,19 @@ public class OrganizerHomeFragment extends Fragment {
     }
 
     @Nullable
+    /**
+     * Inflates the organizer home layout which holds the "My Events" list
+     * and the actions row (create button + hamburger).
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_home, container, false);
     }
 
+    /**
+     * Wires up click listeners and does the first load for the organizer's events.
+     * This is the main entry point once the view hierarchy is ready.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -53,54 +71,38 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
-        View hamburger = view.findViewById(R.id.btnHamburger);
-        hamburger.setOnClickListener(this::showHamburgerMenu);
-
         loadMyEvents();
     }
 
+    /**
+     * Refreshes the events list whenever the fragment comes back into view.
+     * Nice for when an organizer edits an event and returns to this screen.
+     */
     @Override
     public void onResume() {
         super.onResume();
         loadMyEvents();
     }
 
-    /** Opens the create-event flow (Organizer-only). */
+    /**
+     * Navigates to the organizer create‑event form while staying inside
+     * the organizer‑only entry activity / back stack.
+     */
     private void openCreateEvent() {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerCreateEventFragment());
         }
     }
 
-    /** Shows a small popup menu from the organizer hamburger with a Log out action. */
-    private void showHamburgerMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(requireContext(), anchor);
-        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_logout) {
-                logoutToRegister();
-                return true;
-            }
-            return false;
-        });
-        popup.show();
-    }
-
     /**
-     * "Log out" for device-based accounts: returns to RegisterActivity
-     * and clears the Organizer back stack so the user can choose a role again.
-     * Existing entrant/admin flows remain untouched.
+     * Loads only events created by this organizer from Firestore and feeds
+     * the result into {@link #onEventsLoaded(QuerySnapshot)} for rendering.
      */
-    private void logoutToRegister() {
-        if (getActivity() == null) return;
-        Intent intent = new Intent(getActivity(), RegisterActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        getActivity().finish();
-    }
-
     private void loadMyEvents() {
         eventsList.removeAllViews();
+
+        Log.d(TAG, "Loading events for organizerId: " + organizerId);
+
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
                 .whereEqualTo("organizerId", organizerId)
@@ -112,52 +114,77 @@ public class OrganizerHomeFragment extends Fragment {
                 });
     }
 
+    /**
+     * Renders all organizer events into the vertical list, applying
+     * status badges and wiring the Manage button for each row.
+     * Also auto‑closes events whose registration deadline has passed.
+     */
     private void onEventsLoaded(QuerySnapshot snapshot) {
         eventsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
+
         for (DocumentSnapshot doc : snapshot.getDocuments()) {
             String title = doc.getString("title");
             if (title == null) title = "Untitled Event";
+
             String status = doc.getString("status");
             if (status == null) status = "open";
+
             String eventId = doc.getId();
 
+            // Auto‑update "status" field to closed once the registration
+            // deadline is in the past; this keeps organizer views honest
+            // even if a background job is not running.
             Date registrationClose = doc.getDate("registrationClose");
             Date now = new Date();
+
             if (registrationClose != null && registrationClose.before(now)) {
                 status = "closed";
                 doc.getReference().update("status", "closed");
             }
 
+            // Inflate a single "My Events" row (title + status badge + Manage).
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
+
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
             TextView statusBadge = row.findViewById(R.id.item_organizer_event_status);
             Button manageBtn = row.findViewById(R.id.item_organizer_btn_manage);
 
             titleView.setText(title);
             applyStatusBadge(statusBadge, status);
+
             manageBtn.setOnClickListener(v -> onManageClicked(eventId));
 
             eventsList.addView(row);
         }
     }
 
+    /**
+     * Converts the raw status string into the styled pill shown in the UI.
+     * Status values are stored as plain strings in Firestore (open/closed/completed).
+     */
     private void applyStatusBadge(TextView badge, String status) {
         if ("completed".equalsIgnoreCase(status)) {
             badge.setText(getString(R.string.organizer_status_completed));
             badge.setBackgroundResource(R.drawable.bg_status_completed);
             badge.setTextColor(getResources().getColor(R.color.status_completed_text, null));
-        } else if ("closed".equalsIgnoreCase(status)) {
+        }
+        else if ("closed".equalsIgnoreCase(status)) {
             badge.setText(getString(R.string.organizer_status_closed));
             badge.setBackgroundResource(R.drawable.bg_status_closed);
             badge.setTextColor(getResources().getColor(R.color.status_closed_text, null));
-        } else {
+        }
+        else {
             badge.setText(getString(R.string.organizer_status_open));
             badge.setBackgroundResource(R.drawable.bg_status_open);
             badge.setTextColor(getResources().getColor(R.color.status_open_text, null));
         }
     }
 
+    /**
+     * Handles the "Manage" button for a specific event by pushing the
+     * organizer‑only event detail / manage fragment onto the stack.
+     */
     private void onManageClicked(String eventId) {
         if (getActivity() instanceof OrganizerEntryActivity) {
             OrganizerEventDetailFragment fragment = OrganizerEventDetailFragment.newInstance(eventId);

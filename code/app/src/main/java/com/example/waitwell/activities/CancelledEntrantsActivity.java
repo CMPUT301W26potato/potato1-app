@@ -17,12 +17,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 /**
- * (Rehaan's addition)
- * Displays the list of entrants who have been cancelled for a specific event.
- * US 02.06.02: As an organizer I want to see a list of all the cancelled entrants.
- * Expects an intent extra event_id containing the Firestore document ID of the event.
- * Queries the waitlist_entries collection for entries matching the event with status cancelled.
- * For each entry, fetches the user's name and email from the users collection.
+ * CancelledEntrantsActivity.java
+ * Shows the organizer a list of entrants who cancelled or were cancelled (US 02.06.02).
+ * Gets the event_id from the intent, queries waitlist_entries where status = "cancelled",
+ * then loads each user's name and email from the users collection.
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class CancelledEntrantsActivity extends AppCompatActivity {
 
@@ -55,7 +54,10 @@ public class CancelledEntrantsActivity extends AppCompatActivity {
         loadCancelledEntrants();
     }
 
-
+    /**
+     * Queries Firestore for all waitlist entries with status "cancelled" for this event.
+     * Shows a loading indicator while the query runs.
+     */
     private void loadCancelledEntrants() {
         txtLoading.setVisibility(View.VISIBLE);
         txtEmpty.setVisibility(View.GONE);
@@ -70,7 +72,12 @@ public class CancelledEntrantsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show();
                 });
     }
-
+    /**
+     * Called when the waitlist_entries query finishes.
+     * For each entry, looks up the user doc to get their name and email,
+     * then adds a row with a red cancelled badge to the list.
+     * @param snapshot the query results from Firestore
+     */
     private void onEntriesLoaded(QuerySnapshot snapshot) {
         txtLoading.setVisibility(View.GONE);
 

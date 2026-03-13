@@ -31,6 +31,7 @@ public class Event implements Serializable {
     private String status; // "open" or "closed"
     private double rating;
     private List<String> waitlistEntrantIds;
+    private List<String> AttendingEntrants;
     private Integer waitlistLimit; // null = no limit
     private String qrCodeData;
 
@@ -177,6 +178,14 @@ public class Event implements Serializable {
 
     public void setWaitlistEntrantIds(List<String> waitlistEntrantIds) {
         this.waitlistEntrantIds = waitlistEntrantIds;
+    }
+
+    public List<String> getAttendingEntrants(){
+        return AttendingEntrants;
+    }
+
+    public void setAttendingEntrants(List<String> AttendingEntrants){
+        this.AttendingEntrants = AttendingEntrants;
     }
 
     public Integer getWaitlistLimit() {
