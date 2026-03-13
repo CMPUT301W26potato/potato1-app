@@ -27,7 +27,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
  *  * waits longer than necessary.
  */
 public class SplashActivity extends AppCompatActivity {
-
     private static final String TAG = "SplashActivity";
     private static final int SPLASH_DELAY_MS = 2000;
 

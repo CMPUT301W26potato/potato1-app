@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.waitwell.DeviceUtils;
+import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -215,20 +216,21 @@ public class WaitListActivity extends AppCompatActivity {
                 .show();
     }
 
-
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         // Highlight the waitlist tab (middle)
         nav.setSelectedItemId(R.id.nav_waitlist);
+
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
-                return true;}
-            if (id == R.id.nav_waitlist) return true;
+                return true;
+            }
+            if (id == R.id.nav_waitlist) return true; // already here
             if (id == R.id.nav_notifications) {
-                Toast.makeText(this, "Notifications",
+                Toast.makeText(this, "Notifications – coming soon",
                         Toast.LENGTH_SHORT).show();
                 return true;
             }

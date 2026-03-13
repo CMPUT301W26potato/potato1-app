@@ -73,6 +73,7 @@ public class FirebaseHelper {
      * This is a  so two things happen atomically:
      * 1. The user's ID is added to the event's waitlistEntrantIds array
      * 2. A WaitlistEntry document is created for tracking
+     *  Troubleshoot with the help from Claude (claude.ai)
      */
     public void joinWaitlist(String userId, String eventId, String eventTitle, OnCompleteListener<Void> listener) {
         String entryId = userId + "_" + eventId;
@@ -146,6 +147,7 @@ public class FirebaseHelper {
      * @param eventId Firestore document ID of the event
      * @param status  the status to filter by e.g. "selected", "cancelled"
      * @return query task with matching waitlist_entries documents
+     *
      */
     public Task<QuerySnapshot> getEntriesByEventAndStatus(String eventId, String status) {
         return db.collection("waitlist_entries")
