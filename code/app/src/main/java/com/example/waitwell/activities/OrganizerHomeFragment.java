@@ -101,6 +101,7 @@ public class OrganizerHomeFragment extends Fragment {
 
     private void loadMyEvents() {
         eventsList.removeAllViews();
+        Log.d(TAG, "Loading events for organizerId: " + organizerId);
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
                 .whereEqualTo("organizerId", organizerId)

@@ -79,6 +79,7 @@ public class OrganizerEventDetailFragment extends Fragment {
         Button btnViewCanceledEntrants = view.findViewById(R.id.btnViewCanceledEntrants);
         Button btnViewInvitedEntrants = view.findViewById(R.id.btnViewInvitedEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
+        Button btnDrawReplacement = view.findViewById(R.id.btnDrawReplacement);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
 
         Bundle args = getArguments();
@@ -100,12 +101,24 @@ public class OrganizerEventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewFinalEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewCanceledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewInvitedEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+//       Rehaan's addition
+        btnViewCanceledEntrants.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    CancelledEntrantsActivity.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+//        Rehaan's addition
+        btnViewInvitedEntrants.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    InvitedEntrantsActivity.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
 //        Rehaan's addition for 02.05.02
         btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
+        // rehaan 02.05.03 - draw one replacement from waiting list
+        btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
 //        btnViewSampledEntrants.setOnClickListener(v ->
 //                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
 
@@ -274,6 +287,34 @@ public class OrganizerEventDetailFragment extends Fragment {
                 android.util.Log.e("LotteryDebug", "Lottery failed", e);
                 Toast.makeText(requireContext(),
                         getString(R.string.lottery_error_failed),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    // shows a confirm dialog before drawing a replacement - rehaan 02.05.03
+    private void showDrawReplacementDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.replacement_dialog_title))
+                .setMessage(getString(R.string.replacement_dialog_message))
+                .setPositiveButton(getString(R.string.replacement_dialog_confirm), (dialog, which) ->
+                        drawReplacement())
+                .setNegativeButton(getString(R.string.lottery_dialog_cancel), null)
+                .show();
+    }
+
+    // calls firebase to pick one waiting entrant as replacement - rehaan 02.05.03
+    private void drawReplacement() {
+        Toast.makeText(requireContext(), getString(R.string.replacement_running), Toast.LENGTH_SHORT).show();
+        FirebaseHelper.getInstance().drawReplacementApplicant(eventId, task -> {
+            if (!isAdded()) return;
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(),
+                        getString(R.string.replacement_success),
+                        Toast.LENGTH_LONG).show();
+            } else {
+                android.util.Log.e(TAG, "drawReplacement failed", task.getException());
+                Toast.makeText(requireContext(),
+                        getString(R.string.replacement_error_failed),
                         Toast.LENGTH_LONG).show();
             }
         });

@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         View hamburger = findViewById(R.id.btnHamburger);
         hamburger.setOnClickListener(this::showHamburgerMenu);
 
+
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
                 startActivity(new Intent(this, AllEventsActivity.class)));
