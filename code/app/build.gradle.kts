@@ -34,25 +34,38 @@ android {
     }
 }
 
+// Prevents the test APK from pulling the wrong protobuf (NoSuchMethodError: registerDefaultInstance).
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-javalite:3.25.3")
+        force("com.google.protobuf:protobuf-java:3.25.3")
+    }
+}
+
 dependencies {
     implementation("com.google.zxing:core:3.5.3")
-    implementation("com.google.firebase:firebase-storage")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // Firebase BOM (manages versions for all Firebase libs)
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    // Firestore
+    // Espresso Intents so we can assert navigation between activities
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    // Espresso contrib for RecyclerViewActions and stuff
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
+    // Firebase BOM first – all Firebase libs use compatible versions (no versions on Firebase deps)
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-firestore")
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.firebase:firebase-auth")
-
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-database")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    // Explicit protobuf-javalite so Firestore and tests share a compatible version
+    implementation("com.google.protobuf:protobuf-javalite:3.25.3")
+    // Force test APK to use the same protobuf (fixes NoSuchMethodError: registerDefaultInstance in instrumentation)
+    androidTestImplementation("com.google.protobuf:protobuf-javalite:3.25.3")
 }

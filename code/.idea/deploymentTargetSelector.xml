@@ -13,7 +13,10 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="AllEventsActivityUiTest">
+      <SelectionState runConfigName="WaitWellFullUITest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="WaitWellUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
