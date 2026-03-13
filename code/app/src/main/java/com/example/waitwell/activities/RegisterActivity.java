@@ -29,6 +29,7 @@ import java.util.Map;
  *   - a createdAt timestamp
  * Admin accounts:
  * Admins are added manually in the Firebase Console by creating a user document with role = "admin".
+ * Troubleshoot with the help from Claude (claude.ai)
  */
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";

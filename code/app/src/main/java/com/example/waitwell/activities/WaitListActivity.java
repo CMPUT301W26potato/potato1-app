@@ -218,21 +218,20 @@ public class WaitListActivity extends AppCompatActivity {
 
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
+        // Highlight the waitlist tab (middle)
+        nav.setSelectedItemId(R.id.nav_waitlist);
+
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
                 return true;
-            } else if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
-                return true;
-            } else if (id == R.id.nav_notifications) {
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
-
-                //go to the notifications screen
-                //use intent to do this
-                Intent intent = new Intent(this, EntrantNotificationScreen.class);
-                startActivity(intent);
-
+            }
+            if (id == R.id.nav_waitlist) return true; // already here
+            if (id == R.id.nav_notifications) {
+                Toast.makeText(this, "Notifications – coming soon",
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
             return false;

@@ -45,6 +45,7 @@ import java.util.Set;
  *   category: "Swimming"
  *   category: "Dance"
  * The search bar and the active filter combine — the entrant can pick "Swimming" and then type "beginner" to narrow down their search.
+ *  Logic written with help from Claude (claude.ai)
  */
 public class AllEventsActivity extends AppCompatActivity {
     private static final String TAG = "AllEventsActivity";
