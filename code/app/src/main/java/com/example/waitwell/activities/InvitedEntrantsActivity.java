@@ -17,12 +17,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 /**
- * (Rehaan's addition)
- * Displays the list of entrants who have been invited (chosen) for a specific event.
- * US 02.06.01: As an organizer I want to view a list of all chosen entrants who are invited to apply.
- * Expects an intent extra event_id containing the Firestore document ID of the event.
- * Queries the waitlist_entries collection for entries matching the event with status selected.
- * For each entry, fetches the user's name and email from the users collection.
+ * InvitedEntrantsActivity.java
+ * Shows the organizer a list of entrants who were selected in the lottery (US 02.06.01).
+ * Gets the event_id from the intent, queries waitlist_entries where status = "selected",
+ * then loads each user's name and email from the users collection.
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class InvitedEntrantsActivity extends AppCompatActivity {
 
@@ -55,6 +54,10 @@ public class InvitedEntrantsActivity extends AppCompatActivity {
         loadInvitedEntrants();
     }
 
+    /**
+     * Queries Firestore for all waitlist entries with status "selected" for this event.
+     * Shows a loading indicator while the query runs.
+     */
 
     private void loadInvitedEntrants() {
         txtLoading.setVisibility(View.VISIBLE);
@@ -71,7 +74,15 @@ public class InvitedEntrantsActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Called when the waitlist_entries query finishes.
+     * For each entry, looks up the user doc to get their name and email,
+     * then adds a row to the list.
+     * Learned about chaining Firestore reads from:
+     * https://stackoverflow.com/questions/46589757/firestore-get-multiple-documents
+     *
+     * @param snapshot the query results from Firestore
+     */
     private void onEntriesLoaded(QuerySnapshot snapshot) {
         txtLoading.setVisibility(View.GONE);
 
