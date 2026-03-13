@@ -13,12 +13,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.example.waitwell.Profile;
 
 import java.util.Date;
 
@@ -33,6 +37,8 @@ public class OrganizerHomeFragment extends Fragment {
     private static final String TAG = "OrganizerHomeFragment";
     private LinearLayout eventsList;
     private String organizerId;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,8 +59,24 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
+        //View hamburger = view.findViewById(R.id.btnHamburger);
+        //hamburger.setOnClickListener(this::showHamburgerMenu);
+        drawerLayout = requireActivity().findViewById(R.id.drawer_layout);
+        navigationView = requireActivity().findViewById(R.id.navigation_view);
+
         View hamburger = view.findViewById(R.id.btnHamburger);
-        hamburger.setOnClickListener(this::showHamburgerMenu);
+        hamburger.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(requireContext(), Profile.class));
+            } else if (id == R.id.nav_logout) {
+                logoutToRegister();
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
 
         loadMyEvents();
     }
@@ -70,20 +92,6 @@ public class OrganizerHomeFragment extends Fragment {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerCreateEventFragment());
         }
-    }
-
-    /** Shows a small popup menu from the organizer hamburger with a Log out action. */
-    private void showHamburgerMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(requireContext(), anchor);
-        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_logout) {
-                logoutToRegister();
-                return true;
-            }
-            return false;
-        });
-        popup.show();
     }
 
     /**

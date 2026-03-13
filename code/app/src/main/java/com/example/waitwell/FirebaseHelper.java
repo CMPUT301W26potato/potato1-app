@@ -187,20 +187,27 @@ public class FirebaseHelper {
     public Task<Void> deleteUser(String userId) {
         WriteBatch batch = db.batch();
 
-        // delete waitlist entries for this user
-        db.collection("waitlist_entries")
+        // get all waitlist entries for this user
+        return db.collection("waitlist_entries")
                 .whereEqualTo("userId", userId)
                 .get()
-                .addOnSuccessListener(snapshot -> {
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    // delete all waitlist entries
+                    for (DocumentSnapshot doc : task.getResult().getDocuments()) {
                         batch.delete(doc.getReference());
                     }
+
                     // delete the user document
                     batch.delete(db.collection("users").document(userId));
-                    batch.commit();
-                });
 
-        return Tasks.forResult(null);
+                    // commit batch and return as Task<Void>
+                    return batch.commit();
+                });
+    }
     // rehaan 02.05.03 - draws one replacement from waiting list when someone cancels/rejects
     public void drawReplacementApplicant(String eventId, OnCompleteListener<Void> listener) {
         executeLotterySampling(eventId, 1, listener);
