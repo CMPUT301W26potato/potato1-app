@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.SharedPreferences;
+import androidx.appcompat.widget.PopupMenu;
 
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
@@ -169,9 +170,10 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(v ->
                 Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
 
-        // Hamburger menu
-        //findViewById(R.id.btnHamburger).setOnClickListener(v ->
-        //        Toast.makeText(this, "Settings menu ", Toast.LENGTH_SHORT).show());
+        // Hamburger menu -> small overflow with Log out
+        View hamburger = findViewById(R.id.btnHamburger);
+        hamburger.setOnClickListener(this::showHamburgerMenu);
+
 
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
@@ -185,6 +187,23 @@ public class MainActivity extends AppCompatActivity {
         tabMostViewed.setOnClickListener(v -> selectTab(tabMostViewed, tabNearby, tabLatest));
         tabNearby.setOnClickListener(v -> selectTab(tabNearby, tabMostViewed, tabLatest));
         tabLatest.setOnClickListener(v -> selectTab(tabLatest, tabMostViewed, tabNearby));
+    }
+
+    /** Shows a popup anchored to the hamburger with a Log out action. */
+    private void showHamburgerMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logout) {
+                Intent intent = new Intent(this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
     /**
      * Visually selects one tab and deselects the others.

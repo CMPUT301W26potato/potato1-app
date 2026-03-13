@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
@@ -50,6 +52,10 @@ public class OrganizerHomeFragment extends Fragment {
         eventsList = view.findViewById(R.id.organizer_events_list);
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
+
+        View hamburger = view.findViewById(R.id.btnHamburger);
+        hamburger.setOnClickListener(this::showHamburgerMenu);
+
         loadMyEvents();
     }
 
@@ -59,15 +65,43 @@ public class OrganizerHomeFragment extends Fragment {
         loadMyEvents();
     }
 
-
+    /** Opens the create-event flow (Organizer-only). */
     private void openCreateEvent() {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerCreateEventFragment());
         }
     }
 
+    /** Shows a small popup menu from the organizer hamburger with a Log out action. */
+    private void showHamburgerMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(requireContext(), anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logout) {
+                logoutToRegister();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
+
+    /**
+     * "Log out" for device-based accounts: returns to RegisterActivity
+     * and clears the Organizer back stack so the user can choose a role again.
+     * Existing entrant/admin flows remain untouched.
+     */
+    private void logoutToRegister() {
+        if (getActivity() == null) return;
+        Intent intent = new Intent(getActivity(), RegisterActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        getActivity().finish();
+    }
+
     private void loadMyEvents() {
         eventsList.removeAllViews();
+        Log.d(TAG, "Loading events for organizerId: " + organizerId);
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
                 .whereEqualTo("organizerId", organizerId)
@@ -108,7 +142,6 @@ public class OrganizerHomeFragment extends Fragment {
             eventsList.addView(row);
         }
     }
-
 
     private void applyStatusBadge(TextView badge, String status) {
         if ("completed".equalsIgnoreCase(status)) {

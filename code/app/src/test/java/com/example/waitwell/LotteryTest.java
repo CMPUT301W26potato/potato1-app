@@ -85,4 +85,12 @@ public class LotteryTest {
         long distinctCount = result.stream().distinct().count();
         assertEquals(result.size(), distinctCount);
     }
+    // US 02.05.03 - replacement draw should always pick exactly one person
+    @Test
+    public void testDrawReplacementSelectsExactlyOne() {
+        List<String> waiting = Arrays.asList("user1", "user2", "user3", "user4");
+        List<String> result = Lottery.sample(waiting, 1);
+        assertEquals(1, result.size());
+        assertTrue(waiting.contains(result.get(0)));
+    }
 }
