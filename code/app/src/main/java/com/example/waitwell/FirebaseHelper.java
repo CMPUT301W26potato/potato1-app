@@ -12,7 +12,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * FirebaseHelper.java
@@ -159,48 +161,181 @@ public class FirebaseHelper {
      * Used a single loop to build both lists to avoid double-adding userIds.
      * Referenced Firestore batch writes from:
      * https://stackoverflow.com/questions/53335104/firestore-batch-update-in-android
+    /**
+     * Create a notification for a user.
+     *
+     * @param userId The device ID of the recipient
+     * @param eventId The event ID this notification is about
+     * @param eventName The event title for display
+     * @param message The notification message
+     * @param type The type of notification (CHOSEN, NOT_CHOSEN, etc.)
+     * @param listener Callback when complete
+     */
+    public void createNotification(String userId, String eventId, String eventName,
+                                   String message, String type, OnCompleteListener<Void> listener) {
+        Notification notification = new Notification(userId, eventId, eventName, message, type);
+
+        db.collection("notifications")
+                .add(notification)
+                .addOnSuccessListener(docRef -> {
+                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
+    }
+
+    /**
+     * Create multiple notifications in a batch.
+     * More efficient for creating many notifications at once.
+     *
+     * @param notifications List of notifications to create
+     * @param listener Callback when complete
+     */
+    public void createNotificationsBatch(List<Notification> notifications, OnCompleteListener<Void> listener) {
+        if (notifications.isEmpty()) {
+            if (listener != null) listener.onComplete(Tasks.forResult(null));
+            return;
+        }
+
+        WriteBatch batch = db.batch();
+        for (Notification notification : notifications) {
+            DocumentReference docRef = db.collection("notifications").document();
+            batch.set(docRef, notification);
+        }
+
+        batch.commit()
+                .addOnSuccessListener(v -> {
+                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
+    }
+
+    /**
+     * Get all notifications for a specific user.
+     *
+     * @param userId The device ID to get notifications for
+     * @return Task containing the query results
+     */
+    public Task<QuerySnapshot> getUserNotifications(String userId) {
+        return db.collection("notifications")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("responded", false)  // Only show unresponded notifications
+                .get();
+    }
+
+    /**
+     * Mark a notification as responded.
+     *
+     * @param notificationId The notification document ID
+     * @param listener Callback when complete
+     */
+    public void markNotificationResponded(String notificationId, OnCompleteListener<Void> listener) {
+        db.collection("notifications")
+                .document(notificationId)
+                .update("responded", true)
+                .addOnSuccessListener(v -> {
+                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
+    }
+
+    /** (Rehaan's Addition)
+     * US 02.05.02: Executes lottery sampling for an event.
+     * Fetches all waiting entries for the event, randomly selects
+     *  them using the Lottery engine, and batch-updates
+     * their status to selected in Firestore.
      *
      * @param eventId    Firestore document ID of the event
      * @param sampleSize how many entrants to select
      * @param listener   called when done, check task.isSuccessful()
      */
     public void executeLotterySampling(String eventId, int sampleSize, OnCompleteListener<Void> listener) {
-        db.collection("waitlist_entries")
-                .whereEqualTo("eventId", eventId)
-                .whereEqualTo("status", "waiting")
+        // First, get the event details for the notification
+        db.collection("events")
+                .document(eventId)
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(eventDoc -> {
+                    String eventName = eventDoc.getString("title");
+                    if (eventName == null) eventName = "Event";
 
-                    List<String> waitingIds = new ArrayList<>();
-                    java.util.Map<String, DocumentReference> userIdToRef = new java.util.HashMap<>();
+                    final String finalEventName = eventName;
 
-// Rehaan's addition : Single loop: avoids double-adding userIds which would skew lottery selection
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        String userId = doc.getString("userId");
-                        if (userId != null) {
-                            waitingIds.add(userId);
-                            userIdToRef.put(userId, doc.getReference());
-                        }
-                    }
+                    // Now get all waiting entries
+                    db.collection("waitlist_entries")
+                            .whereEqualTo("eventId", eventId)
+                            .whereEqualTo("status", "waiting")
+                            .get()
+                            .addOnSuccessListener(snapshot -> {
+                                List<String> waitingIds = new ArrayList<>();
+                                java.util.Map<String, DocumentReference> userIdToRef = new java.util.HashMap<>();
 
-                    List<String> selectedIds = Lottery.sample(waitingIds, sampleSize);
+                                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                                    String userId = doc.getString("userId");
+                                    if (userId != null) {
+                                        waitingIds.add(userId);
+                                        userIdToRef.put(userId, doc.getReference());
+                                    }
+                                }
 
-                    if (selectedIds.isEmpty()) {
-                        if (listener != null) listener.onComplete(Tasks.forResult(null));
-                        return;
-                    }
+                                if (waitingIds.isEmpty()) {
+                                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                    return;
+                                }
 
-                    WriteBatch batch = db.batch();
-                    for (String userId : selectedIds) {
-                        DocumentReference ref = userIdToRef.get(userId);
-                        if (ref != null) {
-                            batch.update(ref, "status", "selected");
-                        }
-                    }
+                                // Run lottery
+                                List<String> selectedIds = Lottery.sample(waitingIds, sampleSize);
+                                Set<String> selectedSet = new HashSet<>(selectedIds);
 
-                    batch.commit()
-                            .addOnSuccessListener(v -> {
-                                if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                if (selectedIds.isEmpty()) {
+                                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                    return;
+                                }
+
+                                // Create batch for updating statuses
+                                WriteBatch batch = db.batch();
+                                for (String userId : selectedIds) {
+                                    DocumentReference ref = userIdToRef.get(userId);
+                                    if (ref != null) {
+                                        batch.update(ref, "status", "selected");
+                                    }
+                                }
+
+                                // Create notifications for selected users
+                                List<Notification> notifications = new ArrayList<>();
+                                for (String userId : selectedIds) {
+                                    String message = "Congratulations! You have been selected for " + finalEventName + ". Please accept or decline the invitation.";
+                                    Notification notification = new Notification(userId, eventId, finalEventName, message, "CHOSEN");
+                                    notifications.add(notification);
+                                }
+
+                                // Optionally create NOT_CHOSEN notifications for non-selected users
+                                // Uncomment if you want to notify non-selected users
+                                /*
+                                for (String userId : waitingIds) {
+                                    if (!selectedSet.contains(userId)) {
+                                        String message = "Unfortunately, you were not selected for " + finalEventName + " in this round. You can choose to re-enter the lottery pool for future draws.";
+                                        Notification notification = new Notification(userId, eventId, finalEventName, message, "NOT_CHOSEN");
+                                        notifications.add(notification);
+                                    }
+                                }
+                                */
+
+                                // Commit the status updates first
+                                batch.commit()
+                                        .addOnSuccessListener(v -> {
+                                            // Then create notifications
+                                            createNotificationsBatch(notifications, task -> {
+                                                if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                            });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            if (listener != null) listener.onComplete(Tasks.forException(e));
+                                        });
                             })
                             .addOnFailureListener(e -> {
                                 if (listener != null) listener.onComplete(Tasks.forException(e));
