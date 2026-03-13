@@ -54,6 +54,15 @@
         <activity
             android:name=".EntrantNotificationOptions"
             android:exported="false" />
+        <!-- Entrant Event Detail Screen -->
+        <activity android:name=".activities.EventDetailActivity"
+            android:exported="false" />
+        <activity android:name=".activities.ConfirmationActivity"
+            android:exported="false" />
+
+        <activity android:name=".activities.WaitListActivity"
+            android:exported="false" />
+
 
         <!-- Organizer-only entry: no Entrant/Admin UI -->
         <activity
@@ -72,6 +81,16 @@
         <activity
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
+
+
+    <!--US 01.02.02: Update Profile Details -->
+        <activity android:name=".Profile" />
+
+        <!-- Registration History Screen -->
+        <activity
+            android:name=".activities.RegistrationHistoryActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

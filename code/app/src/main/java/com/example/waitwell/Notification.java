@@ -19,20 +19,20 @@ public class Notification implements Serializable {
 
     @DocumentId
     private String id;
-    private String userId;          // Device ID of the recipient
-    private String eventId;         // Event this notification is about
-    private String eventName;       // Event title for display
-    private String message;         // Notification message content
-    private String type;            // "CHOSEN", "NOT_CHOSEN", etc.
+    private String userId;
+    private String eventId;
+    private String eventName;
+    private String message;
+    private String type;
 
     @ServerTimestamp
     private Date createdAt;
 
-    // Default constructor for Firestore
+
     public Notification() {
     }
 
-    // Constructor for creating new notifications
+    //creating a new notification object
     public Notification(String userId, String eventId, String eventName, String message, String type) {
         this.userId = userId;
         this.eventId = eventId;
@@ -99,7 +99,7 @@ public class Notification implements Serializable {
         this.createdAt = createdAt;
     }
 
-    // Helper method to convert to NotificationModel for adapter
+    // this is a helper method to convert to NotificationModel for adapter
     public NotificationModel toNotificationModel() {
         NotificationModel.NotificationType notifType =
             "CHOSEN".equals(type) ? NotificationModel.NotificationType.CHOSEN
