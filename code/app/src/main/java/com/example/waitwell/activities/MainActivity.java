@@ -1,6 +1,7 @@
 package com.example.waitwell.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,16 +11,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
 
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.example.waitwell.activities.RegisterActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.example.waitwell.Profile;
+//import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.google.android.material.navigation.NavigationView;
 
 /**
  * Main menu screen – now loads events from Firestore.
@@ -37,6 +47,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Drawer layout
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+
+        // hamburger button opens the drawer
+        findViewById(R.id.btnHamburger).setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.START));
+
+        // once clicking menu option
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {  // matches the id in drawer_menu.xml
+                startActivity(new Intent(MainActivity.this, Profile.class));
+            } else if (id == R.id.nav_delete_profile) {
+                // Confirm deletion
+                showDeleteProfileDialog();
+            }
+            // gonna add more items later like settings, etc in hmbrger menu
+
+            drawerLayout.closeDrawers();
+            return true;
+        });
         eventCardsContainer = findViewById(R.id.eventCardsContainer);
         popularEventsContainer = findViewById(R.id.popularEventsContainer);
 
@@ -138,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
 
         // Hamburger menu
-        findViewById(R.id.btnHamburger).setOnClickListener(v ->
-                Toast.makeText(this, "Settings menu ", Toast.LENGTH_SHORT).show());
+        //findViewById(R.id.btnHamburger).setOnClickListener(v ->
+        //        Toast.makeText(this, "Settings menu ", Toast.LENGTH_SHORT).show());
 
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
@@ -187,5 +219,49 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+    private void showDeleteProfileDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Are you sure you want to delete your profile? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteUserProfile();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    private void deleteUserProfile() {
+        // get stored user id
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
+
+            // navigate to registeractivity anyway
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // delete user from firestore
+        FirebaseHelper.getInstance().deleteUser(userId)
+                .addOnSuccessListener(aVoid -> {
+
+                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+
+                    // clear stored user ID so SplashActivity doesnt auto login
+                    prefs.edit().remove("userId").apply();
+
+                    // send user back to register screen
+                    Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 }
