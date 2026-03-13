@@ -146,14 +146,9 @@ public class FirebaseHelper {
                 .addOnSuccessListener(snapshot -> {
 
                     List<String> waitingIds = new ArrayList<>();
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        String userId = doc.getString("userId");
-                        if (userId != null) waitingIds.add(userId);
-                    }
-
-
-
                     java.util.Map<String, DocumentReference> userIdToRef = new java.util.HashMap<>();
+
+// Rehaan's addition : Single loop: avoids double-adding userIds which would skew lottery selection
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
                         String userId = doc.getString("userId");
                         if (userId != null) {
@@ -188,5 +183,9 @@ public class FirebaseHelper {
                 .addOnFailureListener(e -> {
                     if (listener != null) listener.onComplete(Tasks.forException(e));
                 });
+    }
+    // rehaan 02.05.03 - draws one replacement from waiting list when someone cancels/rejects
+    public void drawReplacementApplicant(String eventId, OnCompleteListener<Void> listener) {
+        executeLotterySampling(eventId, 1, listener);
     }
 }
