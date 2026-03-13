@@ -1,6 +1,5 @@
 package com.example.waitwell.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,37 +12,32 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
-import com.example.waitwell.Profile;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
-/**
+/** Karina's features:
+ * stories: creating new events and seeing their current status (US 02.01.01,
+ *  02.03.01, 02.04.01, 02.04.02).
  * Fragment that acts as the home screen for organizers.
  * This is Organizer-only and lives inside {@link OrganizerEntryActivity},
  * showing the organizer's events plus a button to create new ones.
  * It supports user stories around listing and managing events, including
- * creating new events and seeing their current status (US 02.01.01,
- * 02.03.01, 02.04.01, 02.04.02, and friends).
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
+
  */
 public class OrganizerHomeFragment extends Fragment {
 
     private static final String TAG = "OrganizerHomeFragment";
     private LinearLayout eventsList;
     private String organizerId;
-
-    // Added for drawer navigation
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
 
     /**
      * Grabs the device based organizer id once when the fragment is created.
@@ -77,27 +71,6 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
-        // Drawer navigation setup
-        drawerLayout = requireActivity().findViewById(R.id.drawer_layout);
-        navigationView = requireActivity().findViewById(R.id.navigation_view);
-
-        View hamburger = view.findViewById(R.id.btnHamburger);
-        hamburger.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_profile) {
-                startActivity(new Intent(requireContext(), Profile.class));
-            }
-            else if (id == R.id.nav_logout) {
-                logoutToRegister();
-            }
-
-            drawerLayout.closeDrawers();
-            return true;
-        });
-
         loadMyEvents();
     }
 
@@ -111,20 +84,20 @@ public class OrganizerHomeFragment extends Fragment {
         loadMyEvents();
     }
 
+    /**
+     * Navigates to the organizer create‑event form while staying inside
+     * the organizer‑only entry activity / back stack.
+     */
     private void openCreateEvent() {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerCreateEventFragment());
         }
     }
 
-    private void logoutToRegister() {
-        if (getActivity() == null) return;
-        Intent intent = new Intent(getActivity(), RegisterActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        getActivity().finish();
-    }
-
+    /**
+     * Loads only events created by this organizer from Firestore and feeds
+     * the result into {@link #onEventsLoaded(QuerySnapshot)} for rendering.
+     */
     private void loadMyEvents() {
         eventsList.removeAllViews();
 
@@ -141,6 +114,11 @@ public class OrganizerHomeFragment extends Fragment {
                 });
     }
 
+    /**
+     * Renders all organizer events into the vertical list, applying
+     * status badges and wiring the Manage button for each row.
+     * Also auto‑closes events whose registration deadline has passed.
+     */
     private void onEventsLoaded(QuerySnapshot snapshot) {
         eventsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
@@ -154,6 +132,9 @@ public class OrganizerHomeFragment extends Fragment {
 
             String eventId = doc.getId();
 
+            // Auto‑update "status" field to closed once the registration
+            // deadline is in the past; this keeps organizer views honest
+            // even if a background job is not running.
             Date registrationClose = doc.getDate("registrationClose");
             Date now = new Date();
 
@@ -162,6 +143,7 @@ public class OrganizerHomeFragment extends Fragment {
                 doc.getReference().update("status", "closed");
             }
 
+            // Inflate a single "My Events" row (title + status badge + Manage).
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
 
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
@@ -177,6 +159,10 @@ public class OrganizerHomeFragment extends Fragment {
         }
     }
 
+    /**
+     * Converts the raw status string into the styled pill shown in the UI.
+     * Status values are stored as plain strings in Firestore (open/closed/completed).
+     */
     private void applyStatusBadge(TextView badge, String status) {
         if ("completed".equalsIgnoreCase(status)) {
             badge.setText(getString(R.string.organizer_status_completed));
@@ -195,6 +181,10 @@ public class OrganizerHomeFragment extends Fragment {
         }
     }
 
+    /**
+     * Handles the "Manage" button for a specific event by pushing the
+     * organizer‑only event detail / manage fragment onto the stack.
+     */
     private void onManageClicked(String eventId) {
         if (getActivity() instanceof OrganizerEntryActivity) {
             OrganizerEventDetailFragment fragment = OrganizerEventDetailFragment.newInstance(eventId);
