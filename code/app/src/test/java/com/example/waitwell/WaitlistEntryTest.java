@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Rehaan;s addition
- * Unit tests for the WaitlistEntry model.
- * Verifies that status values used by InvitedEntrantsActivity are handled correctly.
+ * WaitlistEntryTest.java
+ * Unit tests for the WaitlistEntry model class.
+ * Checks that the constructor sets fields correctly and that status
+ * can be updated to the values used across the app like "selected" and "cancelled".
+ * Covers US 02.06.01 and US 02.06.02.
+ *
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class WaitlistEntryTest {
 

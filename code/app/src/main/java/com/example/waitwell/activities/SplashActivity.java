@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * Splash screen shown on app launch.
@@ -55,6 +57,17 @@ public class SplashActivity extends AppCompatActivity {
 
     private void checkDeviceRegistered() {
         String deviceId = DeviceUtils.getDeviceId(this);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // if no firebase user, always go to register
+        if (currentUser == null) {
+            destination = RegisterActivity.class;
+            checkDone = true;
+            navigateIfReady();
+            return;
+        }
+
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(deviceId)

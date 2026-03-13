@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Rehaan's addition for US 02.05.02:
- * Unit tests for the Lottery sampling engine.
-
+ * LotteryTest.java
+ * Unit tests for the Lottery sampling engine (US 02.05.02 and US 02.05.03).
+ * All tests are pure Java so no emulator needed, just run as JUnit.
+ *
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class LotteryTest {
 
@@ -94,5 +96,17 @@ public class LotteryTest {
         long distinctCount = result.stream().distinct().count();
         // Even when we ask for a lot of winners we should not see duplicates.
         assertEquals(result.size(), distinctCount);
+    }
+    /**
+     * US 02.05.03 - when drawing a replacement, exactly one person should be picked
+     * and it has to be someone actually on the waiting list.
+     */
+
+    @Test
+    public void testDrawReplacementSelectsExactlyOne() {
+        List<String> waiting = Arrays.asList("user1", "user2", "user3", "user4");
+        List<String> result = Lottery.sample(waiting, 1);
+        assertEquals(1, result.size());
+        assertTrue(waiting.contains(result.get(0)));
     }
 }
