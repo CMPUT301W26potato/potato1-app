@@ -85,6 +85,12 @@
 
     <!--US 01.02.02: Update Profile Details -->
         <activity android:name=".Profile" />
+
+        <!-- Registration History Screen -->
+        <activity
+            android:name=".activities.RegistrationHistoryActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
