@@ -7,13 +7,17 @@ import androidx.fragment.app.Fragment;
 
 import com.example.waitwell.R;
 
-/**
- * Activity that bootstraps the whole Organizer side of the app.
- * This screen never shows entrant/admin UI – it only hosts Organizer fragments
- * like {@link OrganizerHomeFragment} and {@link OrganizerCreateEventFragment}.
+/**Karina's features:
  * In terms of user stories, this is basically the entry point that lets
  * organizers reach create, manage, and QR flows (US 02.01.01, 02.01.04,
  * 02.02.03, 02.03.01, 02.04.01, 02.04.02, etc.).
+ * *
+ * Activity that bootstraps the whole Organizer side of the app.
+ * This screen never shows entrant/admin UI – it only hosts Organizer fragments
+ * like {@link OrganizerHomeFragment} and {@link OrganizerCreateEventFragment}.
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
+
  */
 public class OrganizerEntryActivity extends AppCompatActivity {
 

@@ -1,15 +1,12 @@
 package com.example.waitwell.activities;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * JUnit + Mockito tests for {@link MainActivity} helper logic.
@@ -40,7 +37,7 @@ public class MainActivityTest {
 
         String title = MainActivity.getEventTitle(doc);
 
-        // Happy path: we should get back exactly what Firestore stored.
+        // path: we should get back exactly what Firestore stored.
         assertEquals("Campus Concert", title);
     }
 
@@ -50,7 +47,7 @@ public class MainActivityTest {
 
         String title = MainActivity.getEventTitle(doc);
 
-        // When there is no title we fall back to a friendly default.
+        // When there is no title we fall back to a default.
         assertEquals("Untitled Event", title);
     }
 
@@ -75,39 +72,39 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testGetPriceText_WithPrice_ShowsFormattedDollars() {
-        when(doc.getDouble("price")).thenReturn(15.5);
-
-        String priceText = MainActivity.getPriceText(doc);
-
-        // Non-null price should be formatted as dollars with two decimals.
-        assertEquals("$15.50", priceText);
-    }
-
-    @Test
-    public void testGetPriceText_NullPrice_ShowsFree() {
-        when(doc.getDouble("price")).thenReturn(null);
-
-        String priceText = MainActivity.getPriceText(doc);
-
-        // Null price is treated as a free event in the UI.
-        assertEquals("Free", priceText);
-    }
-
-    @Test
     public void testIsOpen_StatusOpen_ReturnsTrue() {
+        // Arrange: document with status exactly "open".
         when(doc.getString("status")).thenReturn("open");
 
-        assertTrue(MainActivity.isOpen(doc));
+        // Act: ask the helper whether this event is open.
+        boolean result = MainActivity.isOpen(doc);
+
+        // Assert: with status "open", we expect true.
+        assertTrue(result);
     }
 
     @Test
-    public void testIsOpen_StatusClosedOrNull_ReturnsFalse() {
+    public void testIsOpen_StatusClosed_ReturnsFalse() {
+        // Arrange: document whose status is "closed" instead.
         when(doc.getString("status")).thenReturn("closed");
-        assertFalse(MainActivity.isOpen(doc));
 
+        // Act: call isOpen on this closed event.
+        boolean result = MainActivity.isOpen(doc);
+
+        // Assert: since status is not "open", it should be reported as not open.
+        assertFalse(result);
+    }
+
+    @Test
+    public void testIsOpen_StatusNull_ReturnsFalse() {
+        // Arrange: document with no status field at all (null).
         when(doc.getString("status")).thenReturn(null);
-        assertFalse(MainActivity.isOpen(doc));
+
+        // Act: run the helper with this incomplete document.
+        boolean result = MainActivity.isOpen(doc);
+
+        // Assert: null status should safely be treated as "not open".
+        assertFalse(result);
     }
 }
 

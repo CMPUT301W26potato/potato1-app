@@ -34,13 +34,18 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Karina's features:
+ * It mainly covers user stories 02.01.01 (Create Event & QR), 02.01.04 (Registration Period),
+ * 02.02.03 (Geolocation), 02.03.01 (Waitlist Limit), and 02.04.01/02 (Poster uploads).
+ * *
  * Fragment that handles the "create or edit event" form for organizers.
  * This lives completely inside the Organizer module and never shows up
  * for entrants or admins. It wires together title/location/date fields,
  * geolocation and waitlist toggles, and poster upload, then saves everything
  * into Firestore/Firebase Storage.
- * It mainly covers user stories 02.01.01 (Create Event & QR), 02.01.04 (Registration Period),
- * 02.02.03 (Geolocation), 02.03.01 (Waitlist Limit), and 02.04.01/02 (Poster uploads).
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
+
  */
 public class OrganizerCreateEventFragment extends Fragment {
 
@@ -144,7 +149,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         picker.setValue(initial);
         picker.setWrapSelectorWheel(false);
 
-        // Classic AlertDialog shell that just wraps the number picker.
+        // an AlertDialog shell that just wraps the number picker.
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.organizer_waitlist_limit)
                 .setView(picker)

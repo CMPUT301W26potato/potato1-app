@@ -39,9 +39,12 @@ import java.util.Locale;
  * Organizer-only event detail / manage screen.
  * Keep in mind there is eventId via arguments, loads from Firestore
  * Displays organizer actions like Edit / Delete / View Entrants, etc.
+ * *
  * Rehaan added: lottery sampling (02.05.02), draw replacement (02.05.03),
  * view invited (02.06.01), view cancelled (02.06.02).
  * Javadoc written with help from Claude (claude.ai)
+ * *
+ * Citation will be gray inline comments at where the referenced code begins.
  */
 public class OrganizerEventDetailFragment extends Fragment {
 
@@ -73,7 +76,7 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     /**
-     * Inflates the Organizer event detail layout which shows poster,
+     * Fires up the Organizer event detail layout which shows poster,
      * title, location, date range, and pricing for a single event.
      */
     @Nullable
