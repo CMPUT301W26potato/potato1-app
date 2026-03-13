@@ -164,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Search ", Toast.LENGTH_SHORT).show());
 
         // History chip
-        findViewById(R.id.chipHistory).setOnClickListener(v ->
-                Toast.makeText(this, "History", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.chipHistory).setOnClickListener(v -> openRegistrationHistory());
 
         // Scan QR Code
         Button btnScan = findViewById(R.id.btnScanQr);
@@ -271,5 +270,21 @@ public class MainActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+    private void openRegistrationHistory() {
+        // Get the user ID from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, RegisterActivity.class));
+            finish();
+            return;
+        }
+
+        Intent intent = new Intent(this, RegistrationHistoryActivity.class);
+        intent.putExtra("userId", userId);
+        startActivity(intent);
     }
 }
