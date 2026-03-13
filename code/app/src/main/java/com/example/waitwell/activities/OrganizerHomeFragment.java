@@ -14,13 +14,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.example.waitwell.Profile;
 
 import java.util.Date;
 
@@ -37,6 +41,8 @@ public class OrganizerHomeFragment extends Fragment {
     private static final String TAG = "OrganizerHomeFragment";
     private LinearLayout eventsList;
     private String organizerId;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     /**
      * Grabs the device based organizer id once when the fragment is created.
@@ -70,8 +76,24 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
+        //View hamburger = view.findViewById(R.id.btnHamburger);
+        //hamburger.setOnClickListener(this::showHamburgerMenu);
+        drawerLayout = requireActivity().findViewById(R.id.drawer_layout);
+        navigationView = requireActivity().findViewById(R.id.navigation_view);
+
         View hamburger = view.findViewById(R.id.btnHamburger);
-        hamburger.setOnClickListener(this::showHamburgerMenu);
+        hamburger.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(requireContext(), Profile.class));
+            } else if (id == R.id.nav_logout) {
+                logoutToRegister();
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
 
         loadMyEvents();
     }
@@ -92,19 +114,11 @@ public class OrganizerHomeFragment extends Fragment {
         }
     }
 
-    private void showHamburgerMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(requireContext(), anchor);
-        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_logout) {
-                logoutToRegister();
-                return true;
-            }
-            return false;
-        });
-        popup.show();
-    }
-
+    /**
+     * "Log out" for device-based accounts: returns to RegisterActivity
+     * and clears the Organizer back stack so the user can choose a role again.
+     * Existing entrant/admin flows remain untouched.
+     */
     private void logoutToRegister() {
         if (getActivity() == null) return;
         Intent intent = new Intent(getActivity(), RegisterActivity.class);
@@ -115,6 +129,7 @@ public class OrganizerHomeFragment extends Fragment {
 
     private void loadMyEvents() {
         eventsList.removeAllViews();
+        Log.d(TAG, "Loading events for organizerId: " + organizerId);
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
                 .whereEqualTo("organizerId", organizerId)

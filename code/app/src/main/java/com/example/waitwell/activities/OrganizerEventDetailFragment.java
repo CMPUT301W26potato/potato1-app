@@ -35,6 +35,13 @@ import java.util.Locale;
  * then uses to pull data from Firestore and show things like dates, price,
  * and poster. It ties into stories about managing existing events and running
  * extra flows like the lottery (US 02.05.02 plus earlier organizer stories).
+/**Karina's Contribution:
+ * Organizer-only event detail / manage screen.
+ * Keep in mind there is eventId via arguments, loads from Firestore
+ * Displays organizer actions like Edit / Delete / View Entrants, etc.
+ * Rehaan added: lottery sampling (02.05.02), draw replacement (02.05.03),
+ * view invited (02.06.01), view cancelled (02.06.02).
+ * Javadoc written with help from Claude (claude.ai)
  */
 public class OrganizerEventDetailFragment extends Fragment {
 
@@ -99,6 +106,7 @@ public class OrganizerEventDetailFragment extends Fragment {
         Button btnViewCanceledEntrants = view.findViewById(R.id.btnViewCanceledEntrants);
         Button btnViewInvitedEntrants = view.findViewById(R.id.btnViewInvitedEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
+        Button btnDrawReplacement = view.findViewById(R.id.btnDrawReplacement);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
 
         Bundle args = getArguments();
@@ -120,12 +128,24 @@ public class OrganizerEventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewFinalEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewCanceledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewInvitedEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+//       Rehaan's addition
+        btnViewCanceledEntrants.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    CancelledEntrantsActivity.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+//        Rehaan's addition
+        btnViewInvitedEntrants.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    InvitedEntrantsActivity.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
 //        Rehaan's addition for 02.05.02
         btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
+        // rehaan 02.05.03 - draw one replacement from waiting list
+        btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
 //        btnViewSampledEntrants.setOnClickListener(v ->
 //                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
 
@@ -244,9 +264,8 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     /**
-     * Rehaan's addition for 02.05.02
-     * Shows a dialog prompting the organizer to enter how many entrants to sample.
-     * On confirm, executes the lottery and updates Firestore.
+     * Shows a dialog asking the organizer how many entrants to sample (US 02.05.02).
+     * Validates the input then calls runLottery() with the given number.
      */
     private void showLotteryDialog() {
         android.widget.EditText input = new android.widget.EditText(requireContext());
@@ -276,9 +295,9 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     /**
-     * Calls FirebaseHelper to execute lottery sampling for this event.
-     * Shows a loading toast while running, then success or failure feedback.
-     * @param sampleSize number of entrants the organizer wants to select
+     * Calls FirebaseHelper to run the lottery for this event (US 02.05.02).
+     * Shows a toast while running, then tells the organizer if it worked or not.
+     * @param sampleSize how many entrants to select
      */
     private void runLottery(int sampleSize) {
         Toast.makeText(requireContext(), getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
@@ -294,6 +313,41 @@ public class OrganizerEventDetailFragment extends Fragment {
                 android.util.Log.e("LotteryDebug", "Lottery failed", e);
                 Toast.makeText(requireContext(),
                         getString(R.string.lottery_error_failed),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    /**
+     * Shows a confirmation dialog before drawing a replacement (US 02.05.03).
+     * Organizer uses this when a selected entrant cancelled or rejected.
+     */
+    private void showDrawReplacementDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.replacement_dialog_title))
+                .setMessage(getString(R.string.replacement_dialog_message))
+                .setPositiveButton(getString(R.string.replacement_dialog_confirm), (dialog, which) ->
+                        drawReplacement())
+                .setNegativeButton(getString(R.string.lottery_dialog_cancel), null)
+                .show();
+    }
+
+    /**
+     * Calls FirebaseHelper to draw one replacement applicant (US 02.05.03).
+     * Shows a toast result so the organizer knows if it worked.
+     */
+
+    private void drawReplacement() {
+        Toast.makeText(requireContext(), getString(R.string.replacement_running), Toast.LENGTH_SHORT).show();
+        FirebaseHelper.getInstance().drawReplacementApplicant(eventId, task -> {
+            if (!isAdded()) return;
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(),
+                        getString(R.string.replacement_success),
+                        Toast.LENGTH_LONG).show();
+            } else {
+                android.util.Log.e(TAG, "drawReplacement failed", task.getException());
+                Toast.makeText(requireContext(),
+                        getString(R.string.replacement_error_failed),
                         Toast.LENGTH_LONG).show();
             }
         });

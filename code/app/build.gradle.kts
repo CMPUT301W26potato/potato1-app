@@ -52,4 +52,7 @@ dependencies {
     // Firestore
     implementation("com.google.firebase:firebase-firestore")
     testImplementation("org.mockito:mockito-core:5.11.0")
+    implementation("com.google.firebase:firebase-database:20.3.0")
+    implementation("com.google.firebase:firebase-auth")
+
 }

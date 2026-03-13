@@ -81,6 +81,10 @@
         <activity
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
+
+
+    <!--US 01.02.02: Update Profile Details -->
+        <activity android:name=".Profile" />
     </application>
 
 </manifest>
