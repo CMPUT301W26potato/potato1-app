@@ -5,6 +5,10 @@
         android:title="Profile"/>
 
     <item
+        android:id="@+id/nav_notification_options"
+        android:title="Notification Settings"/>
+
+    <item
         android:id="@+id/nav_delete_profile"
         android:title="Delete Profile"/>
 

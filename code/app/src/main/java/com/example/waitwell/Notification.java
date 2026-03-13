@@ -23,6 +23,8 @@ public class Notification implements Serializable {
     private String eventName;       // Event title for display
     private String message;         // Notification message content
     private String type;            // "CHOSEN", "NOT_CHOSEN", etc.
+    private boolean responded = false;  // Whether user has responded to this notification
+    private boolean read = false;       // Whether user has read this notification
 
     @ServerTimestamp
     private Date createdAt;
@@ -99,6 +101,22 @@ public class Notification implements Serializable {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isResponded() {
+        return responded;
+    }
+
+    public void setResponded(boolean responded) {
+        this.responded = responded;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 
     /**
