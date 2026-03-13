@@ -6,6 +6,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
  * Small Organizer-only helper that wraps a bit of Firestore document reading.
  * The idea is to mirror the logic we use in the Organizer UI, but keep it
  * Android-free so it can be tested cleanly with Mockito and plain JUnit.
+ * I used ChatGPT and the Mockito guide at
+ * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
+ * as inspiration for shaping this into a testable helper.
  */
 public class OrganizerFirebaseUtils {
 

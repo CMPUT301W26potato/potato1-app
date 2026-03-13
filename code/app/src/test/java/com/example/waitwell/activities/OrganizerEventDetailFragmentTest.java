@@ -11,6 +11,7 @@ public class OrganizerEventDetailFragmentTest {
 
     @Test
     public void testOrganizerEventDetailFragment_ClassIsLoadable() {
+        // This is just a classpath sanity check so plain JUnit can see the fragment.
         assertNotNull(OrganizerEventDetailFragment.class);
     }
 }
