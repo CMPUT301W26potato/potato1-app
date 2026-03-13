@@ -385,5 +385,25 @@ public class FirebaseHelper {
                 .get()
                 .continueWith(task -> task.getResult().getDocuments());
     }
+    //    US 03.01.01 (Grace) - Admin: Remove Events
+    public Task<QuerySnapshot> getAllEvents(String eventId) {
+        return db.collection("events").get();
+    }
+    public Task<Void> removeEvent(String eventId) {
+        return db.collection("events")
+                .document(eventId)
+                .delete();
+    }
 
+    //    get all user profiles
+    public Task<QuerySnapshot> getAllProfiles() {
+        return db.collection("users").get();
+    }
+
+    //    US 03.02.01 (Grace) - Admin: Remove Profiles
+    public Task<Void> removeProfile(String userId) {
+        return db.collection("users")
+                .document(userId)
+                .delete();
+    }
 }
