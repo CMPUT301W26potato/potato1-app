@@ -10,7 +10,11 @@ import static org.mockito.Mockito.when;
 
 /**
  * Mockito-based tests for {@link OrganizerFirebaseUtils}.
- * These follow the same general style as the lab 6 example:
+ * I used ChatGPT and the article
+ * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
+ * as references for how to structure these Mockito unit tests.
+ * The actual assertions and field choices are specific to our Organizer module.
+ *  * These follow the same general style as the lab 6 example:
  * I set up a shared object in @Before, exercise a method, and then
  * assert on the result using the JUnit assert helpers.
  */
@@ -38,11 +42,11 @@ public class OrganizerFirebaseUtilsTest {
 
     @Test
     public void testGetTitleOrFallback_NullOrEmpty_UsesFallback() {
-        // First scenario: completely missing title
+        // First scenario: completely missing title should fall back.
         when(doc.getString("title")).thenReturn(null);
         assertEquals("Untitled Event", OrganizerFirebaseUtils.getTitleOrFallback(doc));
 
-        // Second scenario: title is only whitespace
+        // Second scenario: title is only whitespace and still falls back.
         when(doc.getString("title")).thenReturn("   ");
         assertEquals("Untitled Event", OrganizerFirebaseUtils.getTitleOrFallback(doc));
     }
@@ -59,7 +63,7 @@ public class OrganizerFirebaseUtilsTest {
 
     @Test
     public void testGetStatusOrDefault_NullOrEmpty_DefaultsToOpen() {
-        // Null status from Firestore
+        // Null status from Firestore should default to "open".
         when(doc.getString("status")).thenReturn(null);
         assertEquals("open", OrganizerFirebaseUtils.getStatusOrDefault(doc));
 

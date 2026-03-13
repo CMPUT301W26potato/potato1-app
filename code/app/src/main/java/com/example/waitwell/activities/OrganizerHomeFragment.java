@@ -35,6 +35,8 @@ import java.util.Date;
 public class OrganizerHomeFragment extends Fragment {
 
     private static final String TAG = "OrganizerHomeFragment";
+    // I used ChatGPT to wrap my head around how using a device-based ID
+    // as an "organizer id" works and how that id is managed across screens.
     private LinearLayout eventsList;
     private String organizerId;
 
@@ -67,9 +69,11 @@ public class OrganizerHomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         eventsList = view.findViewById(R.id.organizer_events_list);
+        // This is the "Create New Event" CTA for organizers.
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
+        // Tiny overflow menu in the top-right
         View hamburger = view.findViewById(R.id.btnHamburger);
         hamburger.setOnClickListener(this::showHamburgerMenu);
 
@@ -114,6 +118,7 @@ public class OrganizerHomeFragment extends Fragment {
     }
 
     private void loadMyEvents() {
+        // Clear anything from a previous load so we don't double up rows.
         eventsList.removeAllViews();
         FirebaseHelper.getInstance().getDb()
                 .collection("events")
@@ -127,22 +132,26 @@ public class OrganizerHomeFragment extends Fragment {
     }
 
     private void onEventsLoaded(QuerySnapshot snapshot) {
+        // Full refresh of the container every time we get fresh data.
         eventsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         for (DocumentSnapshot doc : snapshot.getDocuments()) {
             String title = doc.getString("title");
-            if (title == null) title = "Untitled Event";
+            if (title == null) title = "Untitled Event"; // keep the UI from showing "null"
             String status = doc.getString("status");
-            if (status == null) status = "open";
+            if (status == null) status = "open"; // default new events to open
             String eventId = doc.getId();
 
             Date registrationClose = doc.getDate("registrationClose");
             Date now = new Date();
             if (registrationClose != null && registrationClose.before(now)) {
                 status = "closed";
+                // i push the "closed" status back to Firestore so that
+                // other parts of the app see the same state next time they read.
                 doc.getReference().update("status", "closed");
             }
 
+            // Each event shows up as a simple row the organizer can tap "Manage" on.
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
             TextView statusBadge = row.findViewById(R.id.item_organizer_event_status);
