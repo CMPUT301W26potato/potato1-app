@@ -51,4 +51,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     // Firestore
     implementation("com.google.firebase:firebase-firestore")
+    testImplementation("org.mockito:mockito-core:5.11.0")
 }

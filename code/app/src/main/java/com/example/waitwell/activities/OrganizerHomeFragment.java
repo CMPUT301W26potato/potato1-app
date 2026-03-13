@@ -10,10 +10,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
@@ -23,10 +25,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Date;
 
 /**
- * Karina's Contribution:
- * Organizer home: "My Events" list and "Create New Event" button.
- * Only used inside OrganizerEntryActivity!
- * User stories: US 02.01.01 (Create Event), US 02.04.01/02 (Poster), etc.
+ * Fragment that acts as the home screen for organizers.
+ * This is Organizer-only and lives inside {@link OrganizerEntryActivity},
+ * showing the organizer's events plus a button to create new ones.
+ * It supports user stories around listing and managing events, including
+ * creating new events and seeing their current status (US 02.01.01,
+ * 02.03.01, 02.04.01, 02.04.02, and friends).
  */
 public class OrganizerHomeFragment extends Fragment {
 
@@ -34,6 +38,11 @@ public class OrganizerHomeFragment extends Fragment {
     private LinearLayout eventsList;
     private String organizerId;
 
+    /**
+     * Grabs the device based organizer id once when the fragment is created.
+     * We assume DeviceUtils is already wired to give a stable id per device,
+     * and that this fragment is only used for organizer accounts.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +50,19 @@ public class OrganizerHomeFragment extends Fragment {
     }
 
     @Nullable
+    /**
+     * Inflates the organizer home layout which holds the "My Events" list
+     * and the actions row (create button + hamburger).
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_home, container, false);
     }
 
+    /**
+     * Wires up click listeners and does the first load for the organizer's events.
+     * This is the main entry point once the view hierarchy is ready.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -59,20 +76,22 @@ public class OrganizerHomeFragment extends Fragment {
         loadMyEvents();
     }
 
+    /**
+     * Refreshes the events list whenever the fragment comes back into view.
+     * Nice for when an organizer edits an event and returns to this screen.
+     */
     @Override
     public void onResume() {
         super.onResume();
         loadMyEvents();
     }
 
-    /** Opens the create-event flow (Organizer-only). */
     private void openCreateEvent() {
         if (getActivity() instanceof OrganizerEntryActivity) {
             ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(new OrganizerCreateEventFragment());
         }
     }
 
-    /** Shows a small popup menu from the organizer hamburger with a Log out action. */
     private void showHamburgerMenu(View anchor) {
         PopupMenu popup = new PopupMenu(requireContext(), anchor);
         popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
@@ -86,11 +105,6 @@ public class OrganizerHomeFragment extends Fragment {
         popup.show();
     }
 
-    /**
-     * "Log out" for device-based accounts: returns to RegisterActivity
-     * and clears the Organizer back stack so the user can choose a role again.
-     * Existing entrant/admin flows remain untouched.
-     */
     private void logoutToRegister() {
         if (getActivity() == null) return;
         Intent intent = new Intent(getActivity(), RegisterActivity.class);
