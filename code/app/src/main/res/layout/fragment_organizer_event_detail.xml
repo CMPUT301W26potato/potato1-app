@@ -305,6 +305,18 @@
                 android:textAllCaps="false"
                 android:textColor="@color/black"
                 android:fontFamily="@font/poppins" />
+<!--Rehaan's addition for 02.05.02-->
+            <!-- draw a replacement when someone cancels/rejects -->
+            <Button
+                android:id="@+id/btnDrawReplacement"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_button_white_outlined"
+                android:text="@string/organizer_draw_replacement"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins" />
 
             <View
                 android:layout_width="match_parent"
