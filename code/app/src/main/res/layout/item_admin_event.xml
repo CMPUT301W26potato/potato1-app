@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="8dp"
+    android:background="@drawable/bg_event_row"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/eventImage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/waitwell_logo"/>
+
+    <TextView
+        android:id="@+id/txtEventName"
+        android:text="Event"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/txtOrganizer"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Organizer:"
+        android:textSize="12sp"
+        android:textColor="@color/text_hint"/>
+
+    <TextView
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Entrants:"
+        android:id="@+id/txtEntrants"
+        android:textSize="12sp"
+        android:textColor="@color/text_hint"/>
+
+    <TextView
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Status:"
+        android:id="@+id/txtStatus"
+        android:textSize="12sp"
+        android:textColor="@color/text_hint"/>
+
+    <Button
+        android:id="@+id/btnRemoveEvent"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:text="Remove Event"
+        android:textColor="@color/text_white"
+        android:background="@drawable/bg_button_green"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"/>
+
+</LinearLayout>

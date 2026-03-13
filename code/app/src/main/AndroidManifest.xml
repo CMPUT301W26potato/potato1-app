@@ -81,6 +81,28 @@
         <activity
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
+
+<!--        admin-->
+        <activity
+            android:name=".activities.AdminMainMenuActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".activities.AdminEventsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.AdminProfilesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.AdminEventRemovedActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.AdminProfileRemovedActivity"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>

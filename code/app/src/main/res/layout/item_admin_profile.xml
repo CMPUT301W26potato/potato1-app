@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_event_row"
+    android:padding="10dp"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:src="@drawable/waitwell_logo"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/txtName"
+        android:text="Name:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginTop="6dp"/>
+
+    <TextView
+        android:id="@+id/txtRole"
+        android:text="Role:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/txtEmail"
+        android:text="Email:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/txtID"
+        android:text="ID:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/txtStatus"
+        android:text="Status:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/txtEventsJoined"
+        android:text="Events Joined:"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"/>
+
+    <Button
+        android:id="@+id/btnRemoveProfile"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:text="Remove Profile"
+        android:textColor="@color/text_white"
+        android:background="@drawable/bg_button_green"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"/>
+
+</LinearLayout>

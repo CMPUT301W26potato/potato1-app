@@ -55,6 +55,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void checkDeviceRegistered() {
         String deviceId = DeviceUtils.getDeviceId(this);
+        Log.d("DEVICE_ID", deviceId);
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(deviceId)
@@ -63,8 +64,12 @@ public class SplashActivity extends AppCompatActivity {
                     if (doc.exists()) {
                         // Role-based routing: organizer gets isolated Organizer flow
                         String role = doc.getString("role");
+
                         if ("organizer".equalsIgnoreCase(role)) {
                             destination = OrganizerEntryActivity.class;
+
+                        } else if ("admin".equalsIgnoreCase(role)) {
+                            destination = AdminMainMenuActivity.class;
                         } else {
                             destination = MainActivity.class; // entrant, admin, or unknown
                         }
