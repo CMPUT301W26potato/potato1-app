@@ -130,8 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Search ", Toast.LENGTH_SHORT).show());
 
         // History chip
-        findViewById(R.id.chipHistory).setOnClickListener(v ->
-                Toast.makeText(this, "History", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.chipHistory).setOnClickListener(v -> openRegistrationHistory());
 
         // Scan QR Code
         Button btnScan = findViewById(R.id.btnScanQr);
@@ -205,5 +204,72 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+    private void showDeleteProfileDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Are you sure you want to delete your profile? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteUserProfile();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    private void deleteUserProfile() {
+        // get stored user id
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
+
+            // navigate to registeractivity anyway
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // delete user from firestore
+        FirebaseHelper.getInstance().deleteUser(userId)
+                .addOnSuccessListener(aVoid -> {
+
+                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+
+                    // clear stored user ID so SplashActivity doesnt auto login
+                    prefs.edit().remove("userId").apply();
+
+                    // send user back to register screen
+                    Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
+    }
+    // Add this inside MainActivity
+    private void logoutToRegister() {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+    private void openRegistrationHistory() {
+        // Get the user ID from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, RegisterActivity.class));
+            finish();
+            return;
+        }
+
+        Intent intent = new Intent(this, RegistrationHistoryActivity.class);
+        intent.putExtra("userId", userId);
+        startActivity(intent);
     }
 }

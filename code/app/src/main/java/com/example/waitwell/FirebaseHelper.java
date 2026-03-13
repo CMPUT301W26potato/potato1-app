@@ -242,5 +242,11 @@ public class FirebaseHelper {
     public void drawReplacementApplicant(String eventId, OnCompleteListener<Void> listener) {
         executeLotterySampling(eventId, 1, listener);
     }
+    public Task<List<DocumentSnapshot>> getUserRegistrations(String userId) {
+        return db.collection("registrations")
+                .whereEqualTo("userId", userId)
+                .get()
+                .continueWith(task -> task.getResult().getDocuments());
+    }
 
 }
