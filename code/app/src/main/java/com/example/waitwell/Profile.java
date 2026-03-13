@@ -21,6 +21,15 @@ public class Profile extends AppCompatActivity {
     String userId; //storing user's id
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Get stored user ID
+        userId = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
+                .getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show();
+            finish(); // go back to login/register
+            return;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
@@ -37,16 +46,14 @@ public class Profile extends AppCompatActivity {
     }
 
     private void loadProfile() {
-        if (userId != null) {
-            databaseUsers.child(userId).get().addOnSuccessListener(dataSnapshot -> {
-                User user = dataSnapshot.getValue(User.class);
-                if (user != null) {
-                    nameField.setText(user.name);
-                    emailField.setText(user.email);
-                    phoneField.setText(user.phone);
-                }
-            });
-        }
+        databaseUsers.child(userId).get().addOnSuccessListener(dataSnapshot -> {
+            User user = dataSnapshot.getValue(User.class);
+            if (user != null) {
+                nameField.setText(user.name);
+                emailField.setText(user.email);
+                phoneField.setText(user.phone);
+            }
+        });
     }
     private void saveProfile() {
 
