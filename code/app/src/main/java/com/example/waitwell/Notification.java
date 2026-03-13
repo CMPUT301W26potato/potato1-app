@@ -9,7 +9,6 @@ import java.util.Date;
 /**
  * Represents a notification in the Wait Well system.
  * Firestore collection: "notifications"
- *
  * Notifications are created when:
  * - User is selected in lottery (CHOSEN)
  * - User is not selected in lottery (NOT_CHOSEN)
@@ -32,7 +31,10 @@ public class Notification implements Serializable {
     public Notification() {
     }
 
-    // Constructor for creating new notifications
+    /**
+     *  Constructor for creating new notifications
+     */
+
     public Notification(String userId, String eventId, String eventName, String message, String type) {
         this.userId = userId;
         this.eventId = eventId;
@@ -99,7 +101,9 @@ public class Notification implements Serializable {
         this.createdAt = createdAt;
     }
 
-    // Helper method to convert to NotificationModel for adapter
+    /**
+     * Helper method to convert to NotificationModel for adapter
+     */
     public NotificationModel toNotificationModel() {
         NotificationModel.NotificationType notifType =
             "CHOSEN".equals(type) ? NotificationModel.NotificationType.CHOSEN

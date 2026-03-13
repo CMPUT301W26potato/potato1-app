@@ -31,7 +31,7 @@ public class EntrantChosenAccept extends AppCompatActivity {
 
     // UI elements for event details
     private String eventId;
-    private String notificationId;  // To mark notification as responded
+    private String notificationId;
     private ImageView imgEventPoster;
     private TextView txtEventTitle;
     private TextView txtEventLocation;
@@ -94,6 +94,9 @@ public class EntrantChosenAccept extends AppCompatActivity {
         });
     }
 
+    /**
+     *  load the event details from firestore
+     */
     private void loadEvent() {
         FirebaseFirestore.getInstance()
                 .collection("events")
@@ -106,6 +109,9 @@ public class EntrantChosenAccept extends AppCompatActivity {
                 });
     }
 
+    /**
+     *  bind the event details to the ui to be displayed
+     */
     private void bindEvent(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
             Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
@@ -159,6 +165,9 @@ public class EntrantChosenAccept extends AppCompatActivity {
         }
     }
 
+    /**
+     *  load the event poster image from firestore
+     */
     private void loadPosterImage(String url) {
         // If it's a local content/file URI, load directly from the device
         if (url.startsWith("content:") || url.startsWith("file:")) {
@@ -188,6 +197,9 @@ public class EntrantChosenAccept extends AppCompatActivity {
         }
     }
 
+    /**
+     *  handle the accept for the entrant  and update their status in the waitlist and firestore
+     */
     private void handleAcceptEvent() {
         if (TextUtils.isEmpty(eventId)) {
             Toast.makeText(this, "Event information not available", Toast.LENGTH_SHORT).show();
@@ -245,6 +257,9 @@ public class EntrantChosenAccept extends AppCompatActivity {
         });
     }
 
+    /**
+     *  handle the decline for the entrant  and update their status in the waitlist and firestore
+     */
     private void handleDeclineEvent() {
         if (TextUtils.isEmpty(eventId)) {
             Toast.makeText(this, "Event information not available", Toast.LENGTH_SHORT).show();
