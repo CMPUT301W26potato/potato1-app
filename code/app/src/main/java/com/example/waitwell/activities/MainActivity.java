@@ -30,7 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Main menu screen – now loads events from Firestore.
+ * Entrant-facing main menu screen that shows featured events and navigation.
+ * This is the default landing page for the Entrant side of the app and does
+ * not mix in Organizer or Admin views. It pulls events from Firestore and
+ * renders them as a horizontal card row plus a popular-events list.
+ * From a user story point of view this backs the general "browse and
+ * discover events" experience before an entrant decides to join.
+ * I also leaned on ChatGPT and the Mockito tutorial at
+ * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
+ * when designing the small static helper methods that MainActivityTest mocks.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -38,9 +46,15 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout eventCardsContainer;
     private LinearLayout popularEventsContainer;
 
-    /** All events fetched from Firestore. Kept in memory. */
+    /** All events fetched from Firestore. Kept in memory for quick access. */
     private List<DocumentSnapshot> allEventDocs = new ArrayList<>();
 
+    /**
+     * Standard Android lifecycle entry point. Wires up the main layout,
+     * grabs references to the key containers, attaches click listeners
+     * and bottom navigation, and finally kicks off the initial event load.
+     * This assumes the user reached here via the Entrant flow.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +94,53 @@ public class MainActivity extends AppCompatActivity {
         loadEvents();
     }
 
-    //  Firebase: Load events
+    /**
+     * Helper that mirrors the "title" fallback logic used in {@link #onEventsLoaded},
+     * but is kept static and Android-free so we can test it with Mockito.
+     */
+    static String getEventTitle(DocumentSnapshot doc) {
+        String title = doc.getString("title");
+        if (title == null) {
+            return "Untitled Event";
+        }
+        return title;
+    }
+
+    /**
+     * Helper for organizer name fallback. Null organizer becomes an empty string so
+     * the UI does not have to handle a null reference every time.
+     */
+    static String getOrganizerName(DocumentSnapshot doc) {
+        String organizer = doc.getString("organizerName");
+        if (organizer == null) {
+            return "";
+        }
+        return organizer;
+    }
+
+    /**
+     * Helper that formats the price from a Firestore document into a small
+     * user-facing string. Null price is treated as "Free".
+     */
+    static String getPriceText(DocumentSnapshot doc) {
+        Double priceObj = doc.getDouble("price");
+        return priceObj != null ? String.format("$%.2f", priceObj) : "Free";
+    }
+
+    /**
+     * Determines whether the event should be treated as open based on its
+     * stored status string. This keeps the literal "open" comparison in one place.
+     */
+    static boolean isOpen(DocumentSnapshot doc) {
+        String status = doc.getString("status");
+        return "open".equals(status);
+    }
+
+    /**
+     * Starts the async Firestore call to fetch all events. On success we
+     * hand off to {@link #onEventsLoaded(QuerySnapshot)}, and on failure
+     * we show a simple "could not load events" toast.
+     */
     private void loadEvents() {
         FirebaseHelper.getInstance().getAllEvents()
                 .addOnSuccessListener(this::onEventsLoaded)
@@ -94,7 +154,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Called when Firestore returns the events query.
-     * Builds the horizontal card row and the popular-events list rows.
+     * Builds the horizontal card row and the popular-events list rows
+     * using a small subset of fields (title, organizer, price, open/closed).
+     * This is Entrant-only – organizers have their own home screen that
+     * focuses on "My Events" instead.
      */
     private void onEventsLoaded(QuerySnapshot snapshot) {
         allEventDocs = snapshot.getDocuments();
@@ -107,20 +170,18 @@ public class MainActivity extends AppCompatActivity {
 
         for (DocumentSnapshot doc : allEventDocs) {
 
-            String title = doc.getString("title");
-            String organizer = doc.getString("organizerName");
-            Double priceObj = doc.getDouble("price");
-            String status = doc.getString("status");
+            String title = getEventTitle(doc);
+            String organizer = getOrganizerName(doc);
+            String priceText = getPriceText(doc);
+            boolean isOpen = isOpen(doc);
             String eventId = doc.getId();
 
-            if (title == null) title = "Untitled Event";
-            if (organizer == null) organizer = "";
+            //if (title == null) title = "Untitled Event";
+            //if (organizer == null) organizer = "";
 
-            String priceText = priceObj != null
-                    ? String.format("$%.2f", priceObj)
-                    : "Free";
+            //String priceText = priceObj != null ? String.format("$%.2f", priceObj): "Free";
 
-            boolean isOpen = "open".equals(status);
+            //boolean isOpen = "open".equals(status);
 
             // Build a horizontal card
             View card = inflater.inflate(R.layout.item_event_card, eventCardsContainer, false);
@@ -162,14 +223,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /** Called when user taps an event card or row. */
+    /**
+     * Called when the user taps an event card or row.
+     * We launch {@link EventDetailActivity} with the selected id so the
+     * entrant can see the full description and decide whether to join.
+     */
     private void onEventCardClicked(String eventId) {
         Intent i = new Intent(this, EventDetailActivity.class);
         i.putExtra("event_id", eventId);
         startActivity(i);
     }
 
-
+    /**
+     * Wires up all of the tappable UI pieces on the main screen –
+     * search bar, history chip, QR scanner button, "view all" link,
+     * and the three little filter tabs. Right now most of these just
+     * show toasts or simple navigation hooks.
+     */
     private void setupClickListeners() {
 
         // Search bar tap
@@ -206,7 +276,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Visually selects one tab and deselects the others.
+     * Visually selects one filter tab and deselects the others.
+     * This is purely styling – the actual event filtering behaviour
+     * can be layered on top later without changing this helper.
      */
     private void selectTab(TextView selected, TextView... others) {
 
@@ -220,6 +292,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Configures the bottom navigation bar for Entrants. Home keeps you
+     * on this screen, the waitlist item sends you to {@link WaitListActivity},
+     * and the notifications item opens {@link EntrantNotificationScreen}.
+     * Keeping this routing in one place makes it easy to see Entrant flows.
+     */
     private void setupBottomNav() {
 
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
