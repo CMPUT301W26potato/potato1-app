@@ -211,13 +211,34 @@ public class FirebaseHelper {
                 });
     }
 
+    public Task<Void> deleteUser(String userId) {
+        WriteBatch batch = db.batch();
+
+        // delete waitlist entries for this user
+        db.collection("waitlist_entries")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    // delete the user document
+                    batch.delete(db.collection("users").document(userId));
+                    batch.commit();
+                });
+
+        return Tasks.forResult(null);
+    }
+
     /**
      * Draws one replacement applicant from the waiting list (US 02.05.03).
      * Called when a previously selected entrant cancels or rejects.
      * Just reuses executeLotterySampling with sampleSize=1.
+     *
      * @param eventId  Firestore document ID of the event
      * @param listener called when done, check task.isSuccessful()
      */
+
     public void drawReplacementApplicant(String eventId, OnCompleteListener<Void> listener) {
         executeLotterySampling(eventId, 1, listener);
     }
