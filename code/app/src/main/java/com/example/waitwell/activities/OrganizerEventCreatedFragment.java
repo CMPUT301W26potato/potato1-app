@@ -42,12 +42,12 @@ public class OrganizerEventCreatedFragment extends Fragment {
     private ImageView imgQrCode;
 
     /**
-     * i made a factory method to package the fields we care about into arguments.
+     * Simple factory method to package the fields we care about into arguments.
      * We keep the event id, title, and poster URL handy so the confirmation UI
      * can render a QR code and show useful share content.
      *
      * @param eventId    Firestore id for the newly created event
-     * @param eventTitle human-friendly title to show and include in share text
+     * @param eventTitle title to show and include in share text
      * @param posterUrl  optional poster URL, kept mostly for consistency with the flow
      * @return a new {@link OrganizerEventCreatedFragment} with args set
      */
@@ -76,7 +76,7 @@ public class OrganizerEventCreatedFragment extends Fragment {
     /**
      * Pulls arguments out of the Bundle, generates the QR code, and hooks
      * up the share and navigation buttons once the view is ready.
-     * Assumes the creator fragment passed a non-empty event id.
+     * Assumes the creator fragment passed a non empty event id.
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -105,6 +105,8 @@ public class OrganizerEventCreatedFragment extends Fragment {
     }
 
     private void generateQrCode(@NonNull String content) {
+        // I learned how to wire up this QR code generation flow by asking
+        // ChatGPT to walk me through the ZXing usage step by step.
         QRCodeWriter writer = new QRCodeWriter();
         int sizePx = 800;
         try {

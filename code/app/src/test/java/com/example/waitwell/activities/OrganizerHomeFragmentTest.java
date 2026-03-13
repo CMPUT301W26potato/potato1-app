@@ -19,6 +19,8 @@ public class OrganizerHomeFragmentTest {
 
     @Test
     public void testFragment_CanBeConstructed() {
+        // Super lightweight check that the Organizer home fragment
+        // can be constructed without pulling in the Android runtime.
         assertNotNull(fragment);
     }
 }

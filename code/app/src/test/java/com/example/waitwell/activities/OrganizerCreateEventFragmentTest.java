@@ -26,6 +26,7 @@ public class OrganizerCreateEventFragmentTest {
 
     @Test
     public void testFragment_CanBeConstructed() {
+        // Just sanity-check that the fragment can be new'ed up on the JVM.
         assertNotNull(fragment);
     }
 
@@ -53,6 +54,8 @@ public class OrganizerCreateEventFragmentTest {
                 .getDeclaredMethod("parseDate", String.class);
         parseDate.setAccessible(true);
 
+        // These cases cover bad or empty input strings so the validator
+        // can handle them as "no date selected" instead of crashing.
         Object resultEmpty = parseDate.invoke(fragment, "");
         Object resultGarbage = parseDate.invoke(fragment, "not-a-date");
 

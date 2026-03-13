@@ -1,7 +1,6 @@
 package com.example.waitwell.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,26 +10,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
-import com.example.waitwell.activities.RegisterActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.example.waitwell.Profile;
-//import com.google.firebase.auth.FirebaseAuth;
-//import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
 
 /**
  * Main menu screen – now loads events from Firestore.
@@ -48,30 +38,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Drawer layout
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.navigation_view);
-
-        // hamburger button opens the drawer
-        findViewById(R.id.btnHamburger).setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.START));
-
-        // once clicking menu option
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_profile) {  // matches the id in drawer_menu.xml
-                startActivity(new Intent(MainActivity.this, Profile.class));
-            } else if (id == R.id.nav_delete_profile) {
-                // Confirm deletion
-                showDeleteProfileDialog();
-            } else if (id == R.id.nav_logout) {
-                logoutToRegister();
-            }
-            // gonna add more items later like settings, etc in hmbrger menu
-
-            drawerLayout.closeDrawers();
-            return true;
-        });
         eventCardsContainer = findViewById(R.id.eventCardsContainer);
         popularEventsContainer = findViewById(R.id.popularEventsContainer);
 
@@ -171,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(v ->
                 Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
 
+        // Hamburger menu -> small overflow with Log out
+        View hamburger = findViewById(R.id.btnHamburger);
+        hamburger.setOnClickListener(this::showHamburgerMenu);
 
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
@@ -186,6 +155,22 @@ public class MainActivity extends AppCompatActivity {
         tabLatest.setOnClickListener(v -> selectTab(tabLatest, tabMostViewed, tabNearby));
     }
 
+    /** Shows a popup anchored to the hamburger with a Log out action. */
+    private void showHamburgerMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_main_hamburger, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logout) {
+                Intent intent = new Intent(this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
     /**
      * Visually selects one tab and deselects the others.
      */
