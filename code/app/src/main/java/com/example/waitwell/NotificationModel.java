@@ -12,7 +12,9 @@ public class NotificationModel {
     private String message;
     private String buttonLabel;
     private NotificationType type;
-
+    /**
+     *  create a new notificationmodel object to be used in the adapter
+     */
     public NotificationModel(String eventId, String eventName, String message, String buttonLabel, NotificationType type){
         this.eventId = eventId;
         this.eventName = eventName;

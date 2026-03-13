@@ -52,13 +52,13 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         txtEventPrice = findViewById(R.id.txtEventPrice);
         messageText = findViewById(R.id.message);
 
-        // Get data from intent
+        // get data from intent
         eventId = getIntent().getStringExtra("eventId");
         notificationId = getIntent().getStringExtra("notificationId");
         String eventName = getIntent().getStringExtra("eventName");
         String message = getIntent().getStringExtra("message");
 
-        // Set initial values from intent
+        // set initial values from intent
         if (eventName != null) {
             txtEventTitle.setText(eventName);
         }
@@ -88,6 +88,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         redrawButton.setOnClickListener(v -> handleEnterRedraw());
     }
 
+    /**
+     * load details from firestore for events, to be displayed on the ui
+     */
     private void loadEvent() {
         FirebaseFirestore.getInstance()
                 .collection("events")
@@ -100,6 +103,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 });
     }
 
+    /**
+     *  this is for setting the event to the ui
+     */
     private void bindEvent(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
             Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
@@ -153,6 +159,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     *  load the poster image for the ui
+     */
     private void loadPosterImage(String url) {
         // If it's a local content/file URI, load directly from the device
         if (url.startsWith("content:") || url.startsWith("file:")) {
@@ -182,6 +191,10 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     *  Handle the redraw for the entrant ,. put them back into the pool of entrants
+     *  updates their status in the firestore collection back to waiting and adds them backj to the waitlistentrantids
+     */
     private void handleEnterRedraw() {
         if (TextUtils.isEmpty(eventId)) {
             Toast.makeText(this, "Event information not available", Toast.LENGTH_SHORT).show();
@@ -246,6 +259,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 });
     }
 
+    /**
+     *  create a new waitlist entry for the entrant
+     */
     private void createNewWaitlistEntry(String userId, String eventId) {
         // Get event title for the entry
         FirebaseFirestore.getInstance()

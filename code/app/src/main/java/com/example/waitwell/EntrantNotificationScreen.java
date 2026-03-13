@@ -1,5 +1,6 @@
 package com.example.waitwell;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -8,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.waitwell.activities.WaitListActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -42,6 +45,9 @@ public class EntrantNotificationScreen extends AppCompatActivity {
 
         // Load notifications from Firestore
         loadNotifications();
+
+        //setup the bottom nav bar
+        setupBottomNav();
     }
 
     private void loadNotifications() {
@@ -87,9 +93,9 @@ public class EntrantNotificationScreen extends AppCompatActivity {
     }
 
     /**
-     * Setup real-time listener for notifications.
-     * This will automatically update the UI when new notifications arrive.
-     * Uncomment if you want real-time updates.
+     * setup real-time listener for notifications.
+     *  will automatically update the ui when new notifications conme in
+     *
      */
     private void setupRealtimeListener() {
         String userId = DeviceUtils.getDeviceId(this);
@@ -125,15 +131,18 @@ public class EntrantNotificationScreen extends AppCompatActivity {
                     }
                 });
     }
-
+    /**
+     *  Refresh notifications when returning to this screen
+     */
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh notifications when returning to this screen
-        loadNotifications();
-        // Or use real-time listener: setupRealtimeListener();
-    }
 
+        loadNotifications();
+    }
+    /**
+     * when the screen is closed shut down all the listeners
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -152,5 +161,42 @@ public class EntrantNotificationScreen extends AppCompatActivity {
             return notificationIds.get(position);
         }
         return null;
+    }
+
+    /**
+     * Configures the bottom navigation bar for Entrants. Home keeps you
+     * on this screen, the waitlist item sends you to {@link WaitListActivity},
+     * and the notifications item opens {@link EntrantNotificationScreen}.
+     * Keeping this routing in one place makes it easy to see Entrant flows.
+     */
+    private void setupBottomNav() {
+
+        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
+
+        nav.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                return true;
+            }
+
+            else if (id == R.id.nav_waitlist) {
+                startActivity(new Intent(this, WaitListActivity.class));
+                return true;
+            }
+
+            else if (id == R.id.nav_notifications) {
+
+                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                startActivity(intent);
+
+                return true;
+            }
+
+            return false;
+        });
     }
 }

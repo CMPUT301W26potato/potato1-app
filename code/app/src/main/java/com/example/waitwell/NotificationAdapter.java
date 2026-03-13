@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/**
+ *  connect the notifications to the recycler view / ui
+ */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
     private List<NotificationModel> notifications;
@@ -33,6 +36,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 .inflate(R.layout.notification_card, parent, false);
         return new ViewHolder(view);
     }
+
+
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
