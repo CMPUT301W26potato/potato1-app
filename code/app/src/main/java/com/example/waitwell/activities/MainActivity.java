@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.waitwell.EntrantNotificationOptions;
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
@@ -78,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
             else if (id == R.id.nav_delete_profile) {
                 showDeleteProfileDialog();
             }
+            else if (id == R.id.nav_notification_options) {
+                startActivity(new Intent(MainActivity.this, EntrantNotificationOptions.class));
+            }
+
             else if (id == R.id.nav_logout) {
                 logoutToRegister();
             }
