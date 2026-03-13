@@ -29,6 +29,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Fragment that lets organizers peek at all the details for a single event.
+ * This is Organizer-only and is fed an event id through arguments, which it
+ * then uses to pull data from Firestore and show things like dates, price,
+ * and poster. It ties into stories about managing existing events and running
+ * extra flows like the lottery (US 02.05.02 plus earlier organizer stories).
 /**Karina's Contribution:
  * Organizer-only event detail / manage screen.
  * Keep in mind there is eventId via arguments, loads from Firestore
@@ -50,6 +56,14 @@ public class OrganizerEventDetailFragment extends Fragment {
     private TextView txtDateRange;
     private TextView txtPrice;
 
+    /**
+     * Factory method for creating a detail fragment for a specific event.
+     * We wrap the event id in a Bundle so Android can recreate the fragment
+     * cleanly across config changes.
+     *
+     * @param eventId Firestore id for the event the organizer wants to view
+     * @return a new {@link OrganizerEventDetailFragment} with arguments set
+     */
     public static OrganizerEventDetailFragment newInstance(@NonNull String eventId) {
         OrganizerEventDetailFragment fragment = new OrganizerEventDetailFragment();
         Bundle args = new Bundle();
@@ -58,12 +72,22 @@ public class OrganizerEventDetailFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Inflates the Organizer event detail layout which shows poster,
+     * title, location, date range, and pricing for a single event.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_event_detail, container, false);
     }
 
+    /**
+     * Wires up the UI widgets, resolves the event id from arguments,
+     * hooks up click listeners for all the organizer actions, and finally
+     * triggers the initial load from Firestore.
+     * Assumes that a valid {@code event_id} argument was provided.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

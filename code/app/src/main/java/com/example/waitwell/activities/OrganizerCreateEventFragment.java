@@ -34,10 +34,13 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Karina's contribution:
- * Organizer create-event form. US 02.01.01 (Create Event & QR), US 02.01.04 (Registration Period),
- * US 02.02.03 (Geolocation), US 02.03.01 (Waitlist Limit), US 02.04.01/02 (Poster).
- * Organizer module; uses Firebase Storage for poster and Firestore for event.
+ * Fragment that handles the "create or edit event" form for organizers.
+ * This lives completely inside the Organizer module and never shows up
+ * for entrants or admins. It wires together title/location/date fields,
+ * geolocation and waitlist toggles, and poster upload, then saves everything
+ * into Firestore/Firebase Storage.
+ * It mainly covers user stories 02.01.01 (Create Event & QR), 02.01.04 (Registration Period),
+ * 02.02.03 (Geolocation), 02.03.01 (Waitlist Limit), and 02.04.01/02 (Poster uploads).
  */
 public class OrganizerCreateEventFragment extends Fragment {
 
@@ -64,12 +67,22 @@ public class OrganizerCreateEventFragment extends Fragment {
                 }
             });
 
+    /**
+     * Inflates the create/edit event layout that contains all of the form fields
+     * the organizer can interact with. This is purely Organizer UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_organizer_create_event, container, false);
     }
 
+    /**
+     * Binds all views, hooks up click listeners, and optionally loads an
+     * existing event into the form if an {@code event_id} argument is present.
+     * Assumes this fragment is only hosted by {@link OrganizerEntryActivity}
+     * inside the Organizer flow.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
