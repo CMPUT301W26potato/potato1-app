@@ -279,7 +279,8 @@ public class EntrantChosenAccept extends AppCompatActivity {
         db.runTransaction(transaction -> {
             // Update WaitlistEntry status to "rejected"
             DocumentReference entryRef = db.collection("waitlist_entries").document(entryId);
-            transaction.update(entryRef, "status", "rejected");
+            transaction.update(entryRef, "status", "cancelled");
+            //changing status from "rejected" to "cancelled" to fix bug
 
             // Remove from waitlistEntrantIds
             DocumentReference eventRef = db.collection("events").document(eventId);

@@ -24,14 +24,16 @@ import java.util.Date;
 
 /** Karina's features:
  * stories: creating new events and seeing their current status (US 02.01.01,
- *  02.03.01, 02.04.01, 02.04.02).
+ * 02.03.01, 02.04.01, 02.04.02).
  * Fragment that acts as the home screen for organizers.
  * This is Organizer-only and lives inside {@link OrganizerEntryActivity},
  * showing the organizer's events plus a button to create new ones.
  * It supports user stories around listing and managing events, including
  * *
  * Citation will be gray inline comments at where the referenced code begins.
-
+ *
+ * Modified by Rehaan: Added bridge logic to connect the hamburger button to the
+ * Activity-level Navigation Drawer.
  */
 public class OrganizerHomeFragment extends Fragment {
 
@@ -71,6 +73,26 @@ public class OrganizerHomeFragment extends Fragment {
         Button btnCreate = view.findViewById(R.id.btnCreateNewEvent);
         btnCreate.setOnClickListener(v -> openCreateEvent());
 
+        // ---------------------------------------------------------
+        // REHAAN'S ADDITION START
+        // Bridging Fragment UI to Activity Drawer:
+        // The hamburger button physically exists in this fragment's XML,
+        // but the DrawerLayout logic belongs to OrganizerEntryActivity.
+        // ---------------------------------------------------------
+        View btnHamburger = view.findViewById(R.id.btnHamburger);
+        if (btnHamburger != null) {
+            btnHamburger.setOnClickListener(v -> {
+                // Call the helper method in the parent activity to slide the drawer open
+                if (getActivity() instanceof OrganizerEntryActivity) {
+                    ((OrganizerEntryActivity) getActivity()).openDrawer();
+                } else {
+                    Log.w(TAG, "getActivity() is not an instance of OrganizerEntryActivity");
+                }
+            });
+        }
+        // REHAAN'S ADDITION END
+        // ---------------------------------------------------------
+
         loadMyEvents();
     }
 
@@ -99,6 +121,7 @@ public class OrganizerHomeFragment extends Fragment {
      * the result into {@link #onEventsLoaded(QuerySnapshot)} for rendering.
      */
     private void loadMyEvents() {
+        // ... (Karina's original code remains unchanged)
         eventsList.removeAllViews();
 
         Log.d(TAG, "Loading events for organizerId: " + organizerId);
@@ -120,6 +143,7 @@ public class OrganizerHomeFragment extends Fragment {
      * Also auto‑closes events whose registration deadline has passed.
      */
     private void onEventsLoaded(QuerySnapshot snapshot) {
+        // ... (Karina's original code remains unchanged)
         eventsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
 
@@ -132,9 +156,6 @@ public class OrganizerHomeFragment extends Fragment {
 
             String eventId = doc.getId();
 
-            // Auto‑update "status" field to closed once the registration
-            // deadline is in the past; this keeps organizer views honest
-            // even if a background job is not running.
             Date registrationClose = doc.getDate("registrationClose");
             Date now = new Date();
 
@@ -143,7 +164,6 @@ public class OrganizerHomeFragment extends Fragment {
                 doc.getReference().update("status", "closed");
             }
 
-            // Inflate a single "My Events" row (title + status badge + Manage).
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
 
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
@@ -164,6 +184,7 @@ public class OrganizerHomeFragment extends Fragment {
      * Status values are stored as plain strings in Firestore (open/closed/completed).
      */
     private void applyStatusBadge(TextView badge, String status) {
+        // ... (Karina's original code remains unchanged)
         if ("completed".equalsIgnoreCase(status)) {
             badge.setText(getString(R.string.organizer_status_completed));
             badge.setBackgroundResource(R.drawable.bg_status_completed);
