@@ -12,9 +12,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * FirebaseHelper.java
@@ -157,12 +155,22 @@ public class FirebaseHelper {
     }
 
     /**
+     * Callback when lottery sampling finishes; {@code actualSampledCount} is how many
+     * {@code waitlist_entries} were set to {@code selected} (0 if none or on failure).
+     */
+    public interface LotterySamplingCallback {
+        void onLotteryComplete(Task<Void> task, int actualSampledCount);
+    }
+
+    /**
      * Runs the lottery for an event (US 02.05.02).
      * Grabs all waiting entries, randomly picks sampleSize of them using
      * Lottery.sample(), then batch updates their status to "selected".
      * Used a single loop to build both lists to avoid double-adding userIds.
      * Referenced Firestore batch writes from:
      * https://stackoverflow.com/questions/53335104/firestore-batch-update-in-android
+     */
+
     /**
      * Create a notification for a user.
      *
@@ -257,6 +265,18 @@ public class FirebaseHelper {
      * @param listener   called when done, check task.isSuccessful()
      */
     public void executeLotterySampling(String eventId, int sampleSize, OnCompleteListener<Void> listener) {
+        executeLotterySampling(eventId, sampleSize, (task, actualSampledCount) -> {
+            if (listener != null) {
+                listener.onComplete(task);
+            }
+        });
+    }
+
+    /**
+     * Same as {@link #executeLotterySampling(String, int, OnCompleteListener)} but reports
+     * how many entrants were actually set to {@code selected} (after {@link Lottery#sample}).
+     */
+    public void executeLotterySampling(String eventId, int sampleSize, LotterySamplingCallback callback) {
         // First, get the event details for the notification
         db.collection("events")
                 .document(eventId)
@@ -285,18 +305,23 @@ public class FirebaseHelper {
                                 }
 
                                 if (waitingIds.isEmpty()) {
-                                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                    if (callback != null) {
+                                        callback.onLotteryComplete(Tasks.forResult(null), 0);
+                                    }
                                     return;
                                 }
 
                                 // Run lottery
                                 List<String> selectedIds = Lottery.sample(waitingIds, sampleSize);
-                                Set<String> selectedSet = new HashSet<>(selectedIds);
 
                                 if (selectedIds.isEmpty()) {
-                                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                    if (callback != null) {
+                                        callback.onLotteryComplete(Tasks.forResult(null), 0);
+                                    }
                                     return;
                                 }
+
+                                final int actualSampledCount = selectedIds.size();
 
                                 // Create batch for updating statuses
                                 WriteBatch batch = db.batch();
@@ -319,7 +344,7 @@ public class FirebaseHelper {
                                 // Uncomment if you want to notify non-selected users
                                 /*
                                 for (String userId : waitingIds) {
-                                    if (!selectedSet.contains(userId)) {
+                                    if (!selectedIds.contains(userId)) {
                                         String message = "Unfortunately, you were not selected for " + finalEventName + " in this round. You can choose to re-enter the lottery pool for future draws.";
                                         Notification notification = new Notification(userId, eventId, finalEventName, message, "NOT_CHOSEN");
                                         notifications.add(notification);
@@ -332,19 +357,27 @@ public class FirebaseHelper {
                                         .addOnSuccessListener(v -> {
                                             // Then create notifications
                                             createNotificationsBatch(notifications, task -> {
-                                                if (listener != null) listener.onComplete(Tasks.forResult(null));
+                                                if (callback != null) {
+                                                    callback.onLotteryComplete(Tasks.forResult(null), actualSampledCount);
+                                                }
                                             });
                                         })
                                         .addOnFailureListener(e -> {
-                                            if (listener != null) listener.onComplete(Tasks.forException(e));
+                                            if (callback != null) {
+                                                callback.onLotteryComplete(Tasks.forException(e), 0);
+                                            }
                                         });
                             })
                             .addOnFailureListener(e -> {
-                                if (listener != null) listener.onComplete(Tasks.forException(e));
+                                if (callback != null) {
+                                    callback.onLotteryComplete(Tasks.forException(e), 0);
+                                }
                             });
                 })
                 .addOnFailureListener(e -> {
-                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                    if (callback != null) {
+                        callback.onLotteryComplete(Tasks.forException(e), 0);
+                    }
                 });
     }
 
