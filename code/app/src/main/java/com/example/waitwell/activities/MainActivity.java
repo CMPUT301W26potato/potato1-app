@@ -18,6 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.waitwell.EntrantNotificationOptions;
 import com.example.waitwell.EntrantNotificationScreen;
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
@@ -133,12 +134,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Determines whether the event should be treated as open based on its
-     * stored status string. This keeps the literal "open" comparison in one place.
+     * Whether registration is still open, derived from event date and registration deadline
+     * ({@link EventStatusUtils}), not only the stored {@code status} field.
      */
     static boolean isOpen(DocumentSnapshot doc) {
-        String status = doc.getString("status");
-        return "open".equals(status);
+        return "open".equals(EventStatusUtils.computeStatus(doc));
     }
 
     /**
@@ -178,7 +178,8 @@ public class MainActivity extends AppCompatActivity {
             String title = getEventTitle(doc);
             String organizer = getOrganizerName(doc);
             String priceText = getPriceText(doc);
-            boolean isOpen = isOpen(doc);
+            String lifecycle = EventStatusUtils.computeStatus(doc);
+            boolean isOpen = "open".equals(lifecycle);
             String eventId = doc.getId();
 
             //if (title == null) title = "Untitled Event";
@@ -207,7 +208,11 @@ public class MainActivity extends AppCompatActivity {
 
             TextView badge = row.findViewById(R.id.txtRowStatus);
 
-            if (isOpen) {
+            if ("completed".equals(lifecycle)) {
+                badge.setText(R.string.organizer_status_completed);
+                badge.setBackgroundResource(R.drawable.bg_status_completed);
+                badge.setTextColor(getColor(R.color.status_completed_text));
+            } else if (isOpen) {
                 badge.setText("Open");
                 badge.setBackgroundResource(R.drawable.bg_status_open);
                 badge.setTextColor(getColor(R.color.status_open_text));
@@ -259,6 +264,10 @@ public class MainActivity extends AppCompatActivity {
         Button btnScan = findViewById(R.id.btnScanQr);
         btnScan.setOnClickListener(v ->
                 Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
+
+        // Calendar View (chip row next to Latest)
+        findViewById(R.id.btnCalendarView).setOnClickListener(v ->
+                startActivity(new Intent(this, EntrantCalendarActivity.class)));
 
         // "View all" link
         findViewById(R.id.btnViewAll).setOnClickListener(v ->

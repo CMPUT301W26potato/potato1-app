@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -222,11 +223,9 @@ public class AllEventsActivity extends AppCompatActivity {
         List<DocumentSnapshot> filtered = new ArrayList<>();
         for (DocumentSnapshot doc : allDocs) {
             String title    = doc.getString("title");
-            String status   = doc.getString("status");
             String category = doc.getString("category");
 
             if (title == null) title = "";
-            if (status == null) status = "";
             if (category == null) category = "";
 
             //text search on title
@@ -235,7 +234,7 @@ public class AllEventsActivity extends AppCompatActivity {
             }
             switch (filterMode) {
                 case "open":
-                    if (!"open".equals(status)) continue;
+                    if (!"open".equals(EventStatusUtils.computeStatus(doc))) continue;
                     break;
                 case "category":
                     if (!category.equalsIgnoreCase(selectedCategory)) continue;
@@ -274,16 +273,15 @@ public class AllEventsActivity extends AppCompatActivity {
 
             String title= doc.getString("title");
             String location = doc.getString("location");
-            String status = doc.getString("status");
             Double price = doc.getDouble("price");
             String eventId = doc.getId();
 
             if (title == null) title = "Untitled";
             if (location == null) location = "";
-            if (status == null) status = "open";
             if (price == null) price = 0.0;
 
-            boolean isOpen = "open".equals(status);
+            String lifecycle = EventStatusUtils.computeStatus(doc);
+            boolean isOpen = "open".equals(lifecycle);
 
             ((TextView) row.findViewById(R.id.txtEventTitle)).setText(title);
             ((TextView) row.findViewById(R.id.txtEventLocation)).setText(location);
@@ -298,7 +296,11 @@ public class AllEventsActivity extends AppCompatActivity {
 
             //status badge
             TextView badge = row.findViewById(R.id.txtEventStatus);
-            if (isOpen) {
+            if ("completed".equals(lifecycle)) {
+                badge.setText(R.string.organizer_status_completed);
+                badge.setBackgroundResource(R.drawable.bg_status_completed);
+                badge.setTextColor(getColor(R.color.status_completed_text));
+            } else if (isOpen) {
                 badge.setText("Open");
                 badge.setBackgroundResource(R.drawable.bg_status_open);
                 badge.setTextColor(getColor(R.color.status_open_text));

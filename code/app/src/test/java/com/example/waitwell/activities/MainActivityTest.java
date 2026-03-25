@@ -5,6 +5,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -23,6 +25,7 @@ public class MainActivityTest {
     public void setUp() {
         // Mockito gives us a fake DocumentSnapshot.
         doc = mock(DocumentSnapshot.class);
+        when(doc.exists()).thenReturn(true);
     }
 
     @Test
@@ -72,39 +75,49 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testIsOpen_StatusOpen_ReturnsTrue() {
-        // Arrange: document with status exactly "open".
-        when(doc.getString("status")).thenReturn("open");
+    public void testIsOpen_DeadlineStillFuture_ReturnsTrue() {
+        when(doc.getDate("eventDate")).thenReturn(null);
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, 2);
+        when(doc.getDate("registrationClose")).thenReturn(c.getTime());
 
-        // Act: ask the helper whether this event is open.
-        boolean result = MainActivity.isOpen(doc);
-
-        // Assert: with status "open", we expect true.
-        assertTrue(result);
+        assertTrue(MainActivity.isOpen(doc));
     }
 
     @Test
-    public void testIsOpen_StatusClosed_ReturnsFalse() {
-        // Arrange: document whose status is "closed" instead.
-        when(doc.getString("status")).thenReturn("closed");
+    public void testIsOpen_DeadlinePassedButEventDayNotPast_ReturnsFalse() {
+        Calendar close = Calendar.getInstance();
+        close.add(Calendar.DAY_OF_MONTH, -2);
+        when(doc.getDate("registrationClose")).thenReturn(close.getTime());
+        Calendar ev = Calendar.getInstance();
+        ev.add(Calendar.DAY_OF_MONTH, 5);
+        when(doc.getDate("eventDate")).thenReturn(ev.getTime());
 
-        // Act: call isOpen on this closed event.
-        boolean result = MainActivity.isOpen(doc);
-
-        // Assert: since status is not "open", it should be reported as not open.
-        assertFalse(result);
+        assertFalse(MainActivity.isOpen(doc));
     }
 
     @Test
-    public void testIsOpen_StatusNull_ReturnsFalse() {
-        // Arrange: document with no status field at all (null).
-        when(doc.getString("status")).thenReturn(null);
+    public void testIsOpen_EventDayPassed_ReturnsFalse() {
+        Calendar ev = Calendar.getInstance();
+        ev.add(Calendar.DAY_OF_MONTH, -3);
+        when(doc.getDate("eventDate")).thenReturn(ev.getTime());
+        when(doc.getDate("registrationClose")).thenReturn(ev.getTime());
 
-        // Act: run the helper with this incomplete document.
-        boolean result = MainActivity.isOpen(doc);
+        assertFalse(MainActivity.isOpen(doc));
+    }
 
-        // Assert: null status should safely be treated as "not open".
-        assertFalse(result);
+    @Test
+    public void testIsOpen_NoCloseDate_ReturnsTrue() {
+        when(doc.getDate("eventDate")).thenReturn(null);
+        when(doc.getDate("registrationClose")).thenReturn(null);
+
+        assertTrue(MainActivity.isOpen(doc));
+    }
+
+    @Test
+    public void testIsOpen_DocMissing_ReturnsFalse() {
+        when(doc.exists()).thenReturn(false);
+
+        assertFalse(MainActivity.isOpen(doc));
     }
 }
-

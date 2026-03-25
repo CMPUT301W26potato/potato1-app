@@ -35,7 +35,7 @@ import java.util.Locale;
  * then uses to pull data from Firestore and show things like dates, price,
  * and poster. It ties into stories about managing existing events and running
  * extra flows like the lottery (US 02.05.02 plus earlier organizer stories).
-/**Karina's Contribution:
+ * Karina's Contribution:
  * Organizer-only event detail / manage screen.
  * Keep in mind there is eventId via arguments, loads from Firestore
  * Displays organizer actions like Edit / Delete / View Entrants, etc.
@@ -45,6 +45,7 @@ import java.util.Locale;
  * Javadoc written with help from Claude (claude.ai)
  * *
  * Citation will be gray inline comments at where the referenced code begins.
+ * *
  */
 public class OrganizerEventDetailFragment extends Fragment {
 
@@ -57,6 +58,8 @@ public class OrganizerEventDetailFragment extends Fragment {
     private TextView txtTitle;
     private TextView txtLocation;
     private TextView txtDateRange;
+    private TextView txtBannerEventDate;
+    private TextView txtBannerEventTime;
     private TextView txtPrice;
 
     /**
@@ -99,6 +102,8 @@ public class OrganizerEventDetailFragment extends Fragment {
         txtTitle = view.findViewById(R.id.txtEventTitle);
         txtLocation = view.findViewById(R.id.txtEventLocation);
         txtDateRange = view.findViewById(R.id.txtEventDateRange);
+        txtBannerEventDate = view.findViewById(R.id.txtBannerEventDate);
+        txtBannerEventTime = view.findViewById(R.id.txtBannerEventTime);
         txtPrice = view.findViewById(R.id.txtEventPrice);
 
         Button btnDelete = view.findViewById(R.id.btnDeleteEvent);
@@ -109,7 +114,6 @@ public class OrganizerEventDetailFragment extends Fragment {
         Button btnViewCanceledEntrants = view.findViewById(R.id.btnViewCanceledEntrants);
         Button btnViewInvitedEntrants = view.findViewById(R.id.btnViewInvitedEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
-        Button btnDrawReplacement = view.findViewById(R.id.btnDrawReplacement);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
 
         Bundle args = getArguments();
@@ -131,26 +135,12 @@ public class OrganizerEventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewFinalEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-//       Rehaan's addition
-        btnViewCanceledEntrants.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(requireContext(),
-                    CancelledEntrantsActivity.class);
-            intent.putExtra("event_id", eventId);
-            startActivity(intent);
-        });
-//        Rehaan's addition
-        btnViewInvitedEntrants.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(requireContext(),
-                    InvitedEntrantsActivity.class);
-            intent.putExtra("event_id", eventId);
-            startActivity(intent);
-        });
-//        Rehaan's addition for 02.05.02
-        btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
-        // rehaan 02.05.03 - draw one replacement from waiting list
-        btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
-//        btnViewSampledEntrants.setOnClickListener(v ->
-//                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewCanceledEntrants.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewInvitedEntrants.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewSampledEntrants.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
 
         btnEdit.setOnClickListener(v -> openEditEvent());
 
@@ -208,6 +198,17 @@ public class OrganizerEventDetailFragment extends Fragment {
         }
         txtDateRange.setText(dateText);
 
+        Date eventWhen = doc.getDate("eventDate");
+        SimpleDateFormat eventDayFmt = new SimpleDateFormat("EEE, MMM d, yyyy", Locale.getDefault());
+        SimpleDateFormat eventTimeFmt = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        if (eventWhen != null) {
+            txtBannerEventDate.setText(eventDayFmt.format(eventWhen));
+            txtBannerEventTime.setText(eventTimeFmt.format(eventWhen));
+        } else {
+            txtBannerEventDate.setText(getString(R.string.event_detail_event_date_not_set));
+            txtBannerEventTime.setText("");
+        }
+
         Double priceObj = doc.getDouble("price");
         String priceText;
         if (priceObj == null || priceObj == 0.0) {
@@ -227,7 +228,7 @@ public class OrganizerEventDetailFragment extends Fragment {
     }
 
     private void loadPosterImage(@NonNull String url) {
-        // If it's a local content/file URI, load directly from the device.
+        // Load a local image from the android device (Not sure if it works yet)
         if (url.startsWith("content:") || url.startsWith("file:")) {
             try {
                 imgPoster.setImageURI(android.net.Uri.parse(url));
@@ -237,7 +238,7 @@ public class OrganizerEventDetailFragment extends Fragment {
             return;
         }
 
-        // Fallback for remote storage URLs (legacy behavior).
+        // In case the first solution doens't work
         try {
             StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(url);
             final long ONE_MB = 1024 * 1024;

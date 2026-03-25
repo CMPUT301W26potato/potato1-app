@@ -1,6 +1,7 @@
 package com.example.waitwell.activities;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,11 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.waitwell.DeviceUtils;
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,7 +56,10 @@ public class OrganizerCreateEventFragment extends Fragment {
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String ARG_EVENT_ID = "event_id";
 
-    private EditText editEventName, editLocation, editRegistrationStart, editRegistrationDeadline;
+    private EditText editEventName, editLocation, editRegistrationStart, editRegistrationDeadline, editEventDate, editEventTime;
+    /** Picked event time; {@code -1} means not chosen yet. */
+    private int eventTimeHour = -1;
+    private int eventTimeMinute;
     private EditText editWaitlistLimit, editPrice, editDescription;
     private androidx.appcompat.widget.SwitchCompat switchGeolocation;
     private TextView txtPosterStatus;
@@ -97,6 +103,8 @@ public class OrganizerCreateEventFragment extends Fragment {
         editLocation = view.findViewById(R.id.editLocation);
         editRegistrationStart = view.findViewById(R.id.editRegistrationStart);
         editRegistrationDeadline = view.findViewById(R.id.editRegistrationDeadline);
+        editEventDate = view.findViewById(R.id.editEventDate);
+        editEventTime = view.findViewById(R.id.editEventTime);
         editWaitlistLimit = view.findViewById(R.id.editWaitlistLimit);
         editPrice = view.findViewById(R.id.editPrice);
         editDescription = view.findViewById(R.id.editDescription);
@@ -120,6 +128,8 @@ public class OrganizerCreateEventFragment extends Fragment {
         // for a proper Calendar style DatePicker so organizers choose real dates.
         editRegistrationStart.setOnClickListener(v -> showDatePicker(editRegistrationStart));
         editRegistrationDeadline.setOnClickListener(v -> showDatePicker(editRegistrationDeadline));
+        editEventDate.setOnClickListener(v -> showDatePicker(editEventDate));
+        editEventTime.setOnClickListener(v -> showEventTimePicker());
         editWaitlistLimit.setOnClickListener(v -> showWaitlistLimitPicker());
 
         Bundle args = getArguments();
@@ -179,7 +189,42 @@ public class OrganizerCreateEventFragment extends Fragment {
             String formatted = new SimpleDateFormat(DATE_FORMAT, Locale.US).format(cal.getTime());
             target.setText(formatted);
         }, year, month, day);
+        if (target == editRegistrationStart) {
+            picker.getDatePicker().setMinDate(EventStatusUtils.startOfToday().getTime());
+        } else if (target == editRegistrationDeadline) {
+            Date start = parseDate(editRegistrationStart.getText().toString().trim());
+            long minMillis = EventStatusUtils.startOfToday().getTime();
+            if (start != null) {
+                minMillis = Math.max(minMillis, EventStatusUtils.startOfDay(start).getTime());
+            }
+            picker.getDatePicker().setMinDate(minMillis);
+        } else if (target == editEventDate) {
+            Date deadline = parseDate(editRegistrationDeadline.getText().toString().trim());
+            if (deadline != null) {
+                picker.getDatePicker().setMinDate(EventStatusUtils.startOfDay(deadline).getTime());
+            }
+        }
         picker.show();
+    }
+
+    private void showEventTimePicker() {
+        int h = eventTimeHour >= 0 ? eventTimeHour : Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int m = eventTimeHour >= 0 ? eventTimeMinute : 0;
+        boolean is24h = android.text.format.DateFormat.is24HourFormat(requireContext());
+        new TimePickerDialog(requireContext(), (tp, hourOfDay, minute) -> {
+            eventTimeHour = hourOfDay;
+            eventTimeMinute = minute;
+            editEventTime.setText(formatTimeLabel(hourOfDay, minute));
+        }, h, m, is24h).show();
+    }
+
+    private String formatTimeLabel(int hourOfDay, int minute) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        c.set(Calendar.MINUTE, minute);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(c.getTime());
     }
 
     private void submitEvent() {
@@ -187,13 +232,19 @@ public class OrganizerCreateEventFragment extends Fragment {
         String location = editLocation.getText().toString().trim();
         String startStr = editRegistrationStart.getText().toString().trim();
         String deadlineStr = editRegistrationDeadline.getText().toString().trim();
+        String eventDateStr = editEventDate.getText().toString().trim();
         String waitlistStr = editWaitlistLimit.getText().toString().trim();
         String priceStr = editPrice.getText().toString().trim();
         String description = editDescription.getText().toString().trim();
 
         // Basic "all required fields filled in" check for the path.
-        if (title.isEmpty() || location.isEmpty() || startStr.isEmpty() || deadlineStr.isEmpty() || priceStr.isEmpty()) {
+        if (title.isEmpty() || location.isEmpty() || startStr.isEmpty() || deadlineStr.isEmpty()
+                || eventDateStr.isEmpty() || priceStr.isEmpty()) {
             Toast.makeText(requireContext(), R.string.organizer_error_fill_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (eventTimeHour < 0) {
+            Toast.makeText(requireContext(), R.string.organizer_error_event_time, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -213,15 +264,31 @@ public class OrganizerCreateEventFragment extends Fragment {
         // Parse dates from the string fields using a consistent yyyy-MM-dd format.
         Date registrationOpen = parseDate(startStr);
         Date registrationClose = parseDate(deadlineStr);
-        if (registrationOpen == null || registrationClose == null) {
+        Date eventDate = parseDate(eventDateStr);
+        if (registrationOpen == null || registrationClose == null || eventDate == null) {
             Toast.makeText(requireContext(), "Use date format: " + DATE_FORMAT, Toast.LENGTH_SHORT).show();
             return;
         }
-        // Deadline must be strictly after the registration open date.
-        if (!registrationClose.after(registrationOpen)) {
+        if (EventStatusUtils.isCalendarDayBefore(registrationOpen, EventStatusUtils.startOfToday())) {
+            Toast.makeText(requireContext(), R.string.organizer_error_registration_start_past, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (EventStatusUtils.isCalendarDayBefore(registrationClose, registrationOpen)) {
             Toast.makeText(requireContext(), R.string.organizer_error_dates, Toast.LENGTH_SHORT).show();
             return;
         }
+        if (EventStatusUtils.isCalendarDayBefore(eventDate, registrationClose)) {
+            Toast.makeText(requireContext(), R.string.organizer_error_event_after_deadline, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Calendar eventCal = Calendar.getInstance();
+        eventCal.setTime(eventDate);
+        eventCal.set(Calendar.HOUR_OF_DAY, eventTimeHour);
+        eventCal.set(Calendar.MINUTE, eventTimeMinute);
+        eventCal.set(Calendar.SECOND, 0);
+        eventCal.set(Calendar.MILLISECOND, 0);
+        Date eventDateTime = eventCal.getTime();
 
         Integer waitlistLimit = null;
         if (!waitlistStr.isEmpty()) {
@@ -249,10 +316,10 @@ public class OrganizerCreateEventFragment extends Fragment {
         // If we already have an id we treat this as an edit, otherwise it’s a brand new event.
         if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
             updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
-                    geolocationRequired, registrationOpen, registrationClose, waitlistLimit, price, posterUrlForSave);
+                    geolocationRequired, registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
         } else {
             saveEventToFirestore(organizerId, title, description, location, geolocationRequired,
-                    registrationOpen, registrationClose, waitlistLimit, price, posterUrlForSave);
+                    registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
         }
     }
 
@@ -267,6 +334,7 @@ public class OrganizerCreateEventFragment extends Fragment {
 
     private void saveEventToFirestore(String organizerId, String title, String description, String location,
                                       boolean geolocationRequired, Date registrationOpen, Date registrationClose,
+                                      Date eventDate,
                                       Integer waitlistLimit, double price, @Nullable String posterUrl) {
         Map<String, Object> event = new HashMap<>();
         event.put("title", title);
@@ -275,6 +343,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         event.put("geolocationRequired", geolocationRequired);
         event.put("registrationOpen", registrationOpen);
         event.put("registrationClose", registrationClose);
+        event.put("eventDate", eventDate);
         if (waitlistLimit != null) event.put("waitlistLimit", waitlistLimit);
         event.put("price", price);
         event.put("organizerId", organizerId);
@@ -306,6 +375,7 @@ public class OrganizerCreateEventFragment extends Fragment {
 
     private void updateEventInFirestore(String eventId, String organizerId, String title, String description, String location,
                                         boolean geolocationRequired, Date registrationOpen, Date registrationClose,
+                                        Date eventDate,
                                         Integer waitlistLimit, double price, @Nullable String posterUrl) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("title", title);
@@ -314,6 +384,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         updates.put("geolocationRequired", geolocationRequired);
         updates.put("registrationOpen", registrationOpen);
         updates.put("registrationClose", registrationClose);
+        updates.put("eventDate", eventDate);
         if (waitlistLimit != null) {
             updates.put("waitlistLimit", waitlistLimit);
         } else {
@@ -368,6 +439,18 @@ public class OrganizerCreateEventFragment extends Fragment {
                     if (geoRequired != null) switchGeolocation.setChecked(geoRequired);
                     if (regOpen != null) editRegistrationStart.setText(fmt.format(regOpen));
                     if (regClose != null) editRegistrationDeadline.setText(fmt.format(regClose));
+                    Date evDate = doc.getDate("eventDate");
+                    if (evDate != null) {
+                        editEventDate.setText(fmt.format(evDate));
+                        Calendar tc = Calendar.getInstance();
+                        tc.setTime(evDate);
+                        eventTimeHour = tc.get(Calendar.HOUR_OF_DAY);
+                        eventTimeMinute = tc.get(Calendar.MINUTE);
+                        editEventTime.setText(formatTimeLabel(eventTimeHour, eventTimeMinute));
+                    } else {
+                        eventTimeHour = -1;
+                        editEventTime.setText("");
+                    }
                     if (waitlist != null) {
                         int w = waitlist.intValue();
                         if (w > 0) {

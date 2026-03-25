@@ -160,6 +160,39 @@
             android:fontFamily="@font/poppins"
             android:textColorHint="@color/text_hint" />
 
+        <!-- Date the event actually happens (shown on entrant event detail + calendar) -->
+        <EditText
+            android:id="@+id/editEventDate"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_event_date"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
+        <EditText
+            android:id="@+id/editEventTime"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/organizer_event_time"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins"
+            android:textColorHint="@color/text_hint" />
+
         <!-- Waitlist Limit optional – number selector on tap (US 02.03.01) -->
         <EditText
             android:id="@+id/editWaitlistLimit"

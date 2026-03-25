@@ -23,4 +23,11 @@
 
     <color name="status_waiting_bg">#FFF9C4</color>
     <color name="status_waiting_text">#F9A825</color>
+
+    <!-- Calendar day cells (match open/closed status pill tones) -->
+    <color name="calendar_date_has_events_bg">#C8E6C9</color>
+    <color name="calendar_date_no_events_bg">#FFCDD2</color>
+
+    <color name="event_detail_cta_background">#1E1E1E</color>
+    <color name="event_detail_floating_pill">#99404040</color>
 </resources>

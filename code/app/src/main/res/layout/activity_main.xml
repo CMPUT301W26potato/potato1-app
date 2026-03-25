@@ -135,9 +135,6 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
                         app:backgroundTint="@null" />
-
-
-                        android:textSize="13sp" />
                 </LinearLayout>
                 <!-- "Title >" section header -->
 
@@ -213,6 +210,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
@@ -257,6 +255,22 @@
                         android:textSize="13sp"
                         android:fontFamily="@font/inter24ptregular"
                         />
+
+                    <TextView
+                        android:id="@+id/btnCalendarView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="@string/calendar_view"
+                        android:textColor="@color/text_hint"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/inter24ptregular" />
                 </LinearLayout>
 
                 <!-- Popular events list – filled dynamically from Firestore. -->

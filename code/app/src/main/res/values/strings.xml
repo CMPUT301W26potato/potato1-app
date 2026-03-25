@@ -34,6 +34,11 @@
     <string name="organizer_geolocation_required">Require geolocation for registration</string>
     <string name="organizer_registration_start">Registration Start Date</string>
     <string name="organizer_registration_deadline">Registration Deadline</string>
+    <string name="organizer_event_date">Date of event</string>
+    <string name="organizer_event_time">Time of event</string>
+    <string name="organizer_error_event_date">Choose the date of the event</string>
+    <string name="organizer_error_event_after_deadline">Event date must be on or after the registration deadline</string>
+    <string name="organizer_error_event_time">Choose a time for the event</string>
     <string name="organizer_waitlist_limit">Waitlist Limit (optional)</string>
     <string name="organizer_price">Price</string>
     <string name="organizer_description">Description</string>
@@ -43,7 +48,8 @@
     <string name="organizer_event_created">Event created successfully</string>
     <string name="organizer_error_fill_required">Please fill all required fields</string>
     <string name="organizer_error_invalid_price">Enter a valid price (0 or more)</string>
-    <string name="organizer_error_dates">Registration deadline must be after start date</string>
+    <string name="organizer_error_dates">Registration deadline must be on or after the registration start date</string>
+    <string name="organizer_error_registration_start_past">Registration start date cannot be in the past</string>
     <string name="organizer_error_upload">Poster upload failed</string>
     <string name="organizer_error_save">Failed to save event</string>
     <string name="organizer_event_poster">Event poster</string>
@@ -92,5 +98,32 @@
     <string name="replacement_running">Drawing replacement…</string>
     <string name="replacement_success">Done:1 replacement selected</string>
     <string name="replacement_error_failed">Draw failed, please try again</string>
+    <string name="calendar_view">Calendar</string>
+    <string name="entrant_calendar_title">Event Calendar</string>
+    <string name="events_on_selected_date">Events on selected date</string>
+    <string name="dates_with_events">Dates with events</string>
+    <string name="no_events_on_date">No events on this date</string>
+    <string name="calendar_prev_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_tap_month_year">Tap to choose month and year</string>
+    <string name="calendar_pick_month_year_title">Jump to month</string>
+    <string name="event_detail_overview">Overview</string>
+    <string name="event_detail_when_heading">When it\'s happening</string>
+    <string name="event_detail_event_date_label">Date</string>
+    <string name="event_detail_event_time_label">Time</string>
+    <string name="event_detail_event_date_not_set">Not set</string>
+    <string name="event_detail_status_completed">Event completed</string>
+    <string name="event_detail_join_waitlist">Join Waitlist Now</string>
+    <string name="event_detail_bookmark">Bookmark event</string>
+    <string name="event_detail_open_for_days">Open to register for %1$d more days</string>
+    <string name="event_detail_open_one_day">Open to register for 1 more day</string>
+    <string name="event_detail_closes_today">Registration closes today</string>
+    <string name="calendar_weekday_sun">S</string>
+    <string name="calendar_weekday_mon">M</string>
+    <string name="calendar_weekday_tue">T</string>
+    <string name="calendar_weekday_wed">W</string>
+    <string name="calendar_weekday_thu">T</string>
+    <string name="calendar_weekday_fri">F</string>
+    <string name="calendar_weekday_sat">S</string>
 </resources>
 

@@ -15,12 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.waitwell.DeviceUtils;
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.Date;
 
 /** Karina's features:
  * stories: creating new events and seeing their current status (US 02.01.01,
@@ -156,12 +155,10 @@ public class OrganizerHomeFragment extends Fragment {
 
             String eventId = doc.getId();
 
-            Date registrationClose = doc.getDate("registrationClose");
-            Date now = new Date();
-
-            if (registrationClose != null && registrationClose.before(now)) {
-                status = "closed";
-                doc.getReference().update("status", "closed");
+            String computed = EventStatusUtils.computeStatus(doc);
+            if (!computed.equalsIgnoreCase(status)) {
+                status = computed;
+                doc.getReference().update("status", computed);
             }
 
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);

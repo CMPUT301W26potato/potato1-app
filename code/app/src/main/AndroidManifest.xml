@@ -62,6 +62,9 @@
 
         <activity android:name=".activities.WaitListActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.EntrantCalendarActivity"
+            android:exported="false" />
 
 
         <!-- Organizer-only entry: no Entrant/Admin UI -->
