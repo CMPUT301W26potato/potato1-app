@@ -10,12 +10,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.waitwell.DeviceUtils;
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Event detail screen (US 01.01.01 – join waitlist).
@@ -31,7 +36,7 @@ public class EventDetailActivity extends AppCompatActivity {
     private static final String TAG = "EventDetailActivity";
 
     private TextView txtTitle, txtLocation, txtPrice, txtRegistered;
-    private TextView txtTimeRemaining, txtRating, txtDescription;
+    private TextView txtEventDate, txtEventTime, txtTimeRemaining, txtRating, txtDescription;
     private View btnJoin;
     private String eventId, deviceId;
 
@@ -54,6 +59,8 @@ public class EventDetailActivity extends AppCompatActivity {
         txtLocation = findViewById(R.id.txtLocation);
         txtPrice = findViewById(R.id.txtPrice);
         txtRegistered = findViewById(R.id.txtRegistered);
+        txtEventDate = findViewById(R.id.txtEventDate);
+        txtEventTime = findViewById(R.id.txtEventTime);
         txtTimeRemaining = findViewById(R.id.txtTimeRemaining);
         txtRating = findViewById(R.id.txtRating);
         txtDescription = findViewById(R.id.txtDescription);
@@ -84,7 +91,6 @@ public class EventDetailActivity extends AppCompatActivity {
         String title = doc.getString("title");
         String location = doc.getString("location");
         String desc = doc.getString("description");
-        String status = doc.getString("status");
         Double price = doc.getDouble("price");
         Double rating = doc.getDouble("rating");
         List<String> waitlist = (List<String>) doc.get("waitlistEntrantIds");
@@ -98,12 +104,42 @@ public class EventDetailActivity extends AppCompatActivity {
         int count = (waitlist != null) ? waitlist.size() : 0;
         txtRegistered.setText(count + " Registered");
 
-        boolean isOpen = "open".equals(status);
-        if (isOpen) {
-            txtTimeRemaining.setText("Open to register");
+        Date eventDate = doc.getDate("eventDate");
+        if (eventDate != null) {
+            txtEventDate.setText(new SimpleDateFormat("EEEE, MMM d, yyyy", Locale.getDefault()).format(eventDate));
+            txtEventTime.setText(new SimpleDateFormat("h:mm a", Locale.getDefault()).format(eventDate));
         } else {
-            txtTimeRemaining.setText("Registration closed");
+            txtEventDate.setText(R.string.event_detail_event_date_not_set);
+            txtEventTime.setText(R.string.event_detail_event_date_not_set);
         }
+
+        String lifecycle = EventStatusUtils.computeStatus(doc);
+        if ("open".equals(lifecycle)) {
+            Date registrationClose = doc.getDate("registrationClose");
+            if (registrationClose != null) {
+                long diffMs = registrationClose.getTime() - System.currentTimeMillis();
+                if (diffMs <= 0) {
+                    txtTimeRemaining.setText(R.string.event_detail_closes_today);
+                } else {
+                    long days = TimeUnit.MILLISECONDS.toDays(diffMs);
+                    if (days == 0) {
+                        txtTimeRemaining.setText(R.string.event_detail_closes_today);
+                    } else if (days == 1) {
+                        txtTimeRemaining.setText(R.string.event_detail_open_one_day);
+                    } else {
+                        txtTimeRemaining.setText(getString(R.string.event_detail_open_for_days, days));
+                    }
+                }
+            } else {
+                txtTimeRemaining.setText("Open to register");
+            }
+        } else if ("closed".equals(lifecycle)) {
+            txtTimeRemaining.setText("Registration closed");
+        } else {
+            txtTimeRemaining.setText(R.string.event_detail_status_completed);
+        }
+
+        boolean isOpen = "open".equals(lifecycle);
 
         //Check if user is already on the waitlist
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
