@@ -82,6 +82,15 @@
             android:name=".activities.CancelledEntrantsActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.ViewRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SamplingConfirmationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SampledEntrantsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
 

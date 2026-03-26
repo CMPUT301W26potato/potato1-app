@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -131,16 +132,23 @@ public class OrganizerEventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnShare.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewRequests.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewRequests.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), ViewRequestsActivity.class);
+            i.putExtra("event_id", eventId);
+            i.putExtra("event_title", txtTitle.getText() != null ? txtTitle.getText().toString() : "");
+            startActivity(i);
+        });
         btnViewFinalEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewCanceledEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
         btnViewInvitedEntrants.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewSampledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewSampledEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), SampledEntrantsActivity.class);
+            i.putExtra(SampledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
 
         btnEdit.setOnClickListener(v -> openEditEvent());
 
@@ -306,12 +314,13 @@ public class OrganizerEventDetailFragment extends Fragment {
     private void runLottery(int sampleSize) {
         Toast.makeText(requireContext(), getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
 
-        FirebaseHelper.getInstance().executeLotterySampling(eventId, sampleSize, task -> {
+        FirebaseHelper.getInstance().executeLotterySampling(eventId, sampleSize, (task, actualSampledCount) -> {
             if (!isAdded()) return;
             if (task.isSuccessful()) {
-                Toast.makeText(requireContext(),
-                        getString(R.string.lottery_success, sampleSize),
-                        Toast.LENGTH_LONG).show();
+                Intent i = new Intent(requireContext(), SamplingConfirmationActivity.class);
+                i.putExtra(SamplingConfirmationActivity.EXTRA_EVENT_ID, eventId);
+                i.putExtra(SamplingConfirmationActivity.EXTRA_SAMPLED_COUNT, actualSampledCount);
+                startActivity(i);
             } else {
                 Exception e = task.getException();
                 android.util.Log.e("LotteryDebug", "Lottery failed", e);

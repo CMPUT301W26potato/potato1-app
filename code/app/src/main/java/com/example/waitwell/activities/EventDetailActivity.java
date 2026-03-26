@@ -8,12 +8,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.text.SimpleDateFormat;
@@ -186,6 +188,37 @@ public class EventDetailActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    /**
+     * If this user has a waitlist entry for the event with status {@code rejected} (organizer decline),
+     * show an in-screen message on the event detail view.
+     */
+    private void checkWaitlistRejectedAndNotify() {
+        String entryId = deviceId + "_" + eventId;
+        FirebaseHelper.getInstance().getDb()
+                .collection("waitlist_entries")
+                .document(entryId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        return;
+                    }
+                    String status = doc.getString("status");
+                    if (!"rejected".equals(status)) {
+                        return;
+                    }
+                    View anchor = findViewById(R.id.bottomNavigation);
+                    Snackbar sb = Snackbar.make(
+                            anchor,
+                            R.string.event_detail_registration_not_accepted,
+                            Snackbar.LENGTH_LONG);
+                    sb.setAnchorView(anchor);
+                    sb.setBackgroundTint(ContextCompat.getColor(this, R.color.bg_white));
+                    sb.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+                    sb.show();
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "waitlist status check failed", e));
     }
 
 }

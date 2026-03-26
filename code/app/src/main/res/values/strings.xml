@@ -125,5 +125,48 @@
     <string name="calendar_weekday_thu">T</string>
     <string name="calendar_weekday_fri">F</string>
     <string name="calendar_weekday_sat">S</string>
+
+    <!-- Organizer: View Requests / waiting list -->
+    <string name="waitlist_screen_title">Waiting List</string>
+    <string name="waitlist_section_label">Waiting List</string>
+    <string name="waitlist_view_map">View Map</string>
+    <string name="waitlist_notify_all">Notify All</string>
+    <string name="waitlist_sample_attendees">Sample Attendees</string>
+    <string name="waitlist_view_entrant_profile">View entrant</string>
+    <string name="waitlist_accept_entrant">Accept entrant</string>
+    <string name="waitlist_decline_entrant">Decline entrant</string>
+    <string name="waitlist_profile_preview_placeholder">Profile preview is not available for other users.</string>
+    <string name="waitlist_chosen_notification_message">Congratulations! You have been selected for %1$s. Please accept or decline the invitation.</string>
+    <string name="waitlist_accepted_sent">Invitation sent.</string>
+    <string name="waitlist_declined_sent">Entrant declined.</string>
+    <string name="waitlist_update_failed">Could not update waitlist. Try again.</string>
+    <string name="waitlist_status_updated_notify_failed">Status updated; notification may have failed.</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="event_detail_registration_not_accepted">Unfortunately, your registration was not accepted.</string>
+
+    <!-- Firestore waitlist status values (must match existing backend strings) -->
+    <string name="firestore_waitlist_status_waiting" translatable="false">waiting</string>
+    <string name="firestore_waitlist_status_selected" translatable="false">selected</string>
+    <string name="firestore_waitlist_status_confirmed" translatable="false">confirmed</string>
+
+    <!-- Organizer: post-sampling confirmation + sampled entrants -->
+    <string name="organizer_content_desc_menu">Menu</string>
+    <string name="organizer_bottom_nav_back">Back</string>
+    <string name="organizer_nav_home">Home</string>
+    <string name="sampling_confirmation_title_line1">Sampled</string>
+    <plurals name="sampling_confirmation_count_line">
+        <item quantity="one">%1$d attendee</item>
+        <item quantity="other">%1$d attendees</item>
+    </plurals>
+    <string name="sampling_confirmation_view_sampled">View Sampled Entrants</string>
+    <string name="sampled_section_label">Sampled</string>
+    <string name="sampled_select_all">Select All</string>
+    <string name="sampled_deselect_all">Deselect All</string>
+    <string name="sampled_send_notifications">Send Notifications</string>
+    <string name="sampled_checkbox_content_desc">Select entrant</string>
+    <string name="sampled_confirm_entrant">Confirm entrant</string>
+    <string name="sampled_remove_entrant">Remove from sampled list</string>
+    <string name="sampled_confirm_success">Entrant confirmed.</string>
+    <string name="sampled_remove_success">Returned to waitlist.</string>
 </resources>
 

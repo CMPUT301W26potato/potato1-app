@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/bg_white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp">
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/checkboxSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/sampled_checkbox_content_desc"
+            android:minWidth="32dp"
+            android:minHeight="32dp"
+            app:buttonTint="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/txtEntrantName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins"
+            android:maxLines="2"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            tools:text="Jordan Smith" />
+
+        <ImageButton
+            android:id="@+id/btnConfirm"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_waitlist_icon_green"
+            android:contentDescription="@string/sampled_confirm_entrant"
+            android:padding="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_check_white" />
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="0dp" />
+
+        <ImageButton
+            android:id="@+id/btnRemoveFromSampled"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_waitlist_icon_decline"
+            android:contentDescription="@string/sampled_remove_entrant"
+            android:padding="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_minus_white" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
