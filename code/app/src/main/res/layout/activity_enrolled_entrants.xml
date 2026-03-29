@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-(Rehaan's addition)
-    Layout for viewing cancelled entrants for an event.
-    US 02.06.02
+    Rehaan's addition for US 02.06.04 — Organizer: Cancel No-Show Entrants.
+    Lists confirmed entrants so the organizer can cancel no-shows.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -30,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancelled_entrants_title"
+            android:text="@string/enrolled_entrants_title"
             android:textSize="18sp"
             android:textColor="@color/text_primary"
             android:fontFamily="@font/poppinsmedium"
@@ -67,18 +66,18 @@
         android:id="@+id/txtEmpty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_cancelled_entrants"
+        android:text="@string/no_enrolled_entrants"
         android:gravity="center"
         android:layout_marginTop="32dp"
         android:textColor="@color/text_hint"
         android:textSize="16sp"
         android:visibility="gone" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:contentDescription="@string/cancelled_entrants_list_desc">
+        android:contentDescription="@string/enrolled_entrants_list_desc">
+
 
         <LinearLayout
             android:id="@+id/entrantListContainer"

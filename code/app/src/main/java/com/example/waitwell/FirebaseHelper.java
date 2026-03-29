@@ -412,6 +412,25 @@ public class FirebaseHelper {
     public void drawReplacementApplicant(String eventId, OnCompleteListener<Void> listener) {
         executeLotterySampling(eventId, 1, listener);
     }
+
+    /**
+     * Sets a confirmed entrant's status to "cancelled" (US 02.06.04).
+     * Called when the organizer marks someone as a no-show.
+     *
+     * @param entryDocId Firestore document ID of the waitlist_entries doc
+     * @param listener   called when done, check task.isSuccessful()
+     */
+    public void cancelEnrolledEntrant(String entryDocId, OnCompleteListener<Void> listener) {
+        db.collection("waitlist_entries")
+                .document(entryDocId)
+                .update("status", "cancelled")
+                .addOnSuccessListener(v -> {
+                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
+    }
     public Task<List<DocumentSnapshot>> getUserRegistrations(String userId) {
         return db.collection("registrations")
                 .whereEqualTo("userId", userId)

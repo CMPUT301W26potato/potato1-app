@@ -79,6 +79,23 @@
     <string name="unknown_user">Unknown</string>
     <string name="status_cancelled">Cancelled</string>
 
+
+    <!-- Rehaan's addition for US 02.06.04: Enrolled entrants / cancel no-shows -->
+    <string name="enrolled_entrants_title">Enrolled Entrants</string>
+    <string name="no_enrolled_entrants">No enrolled entrants yet</string>
+    <string name="enrolled_count">%d enrolled</string>
+    <string name="enrolled_cancel_button">Cancel</string>
+    <string name="enrolled_cancel_dialog_title">Cancel Entrant</string>
+    <string name="enrolled_cancel_dialog_message">Cancel %s from this event? They will be marked as cancelled.</string>
+    <string name="enrolled_cancel_dialog_confirm">Cancel Entrant</string>
+    <string name="enrolled_cancel_success">Entrant cancelled.</string>
+
+    <!-- Rehaan's addition: accessibility content descriptions for entrant list screens -->
+    <string name="invited_entrants_list_desc">List of invited entrants</string>
+    <string name="cancelled_entrants_list_desc">List of cancelled entrants</string>
+    <string name="enrolled_entrants_list_desc">List of enrolled entrants</string>
+
+
     <!-- Rehaan's addition for US 02.05.02: -->
     <string name="lottery_dialog_title">Run Lottery</string>
     <string name="lottery_dialog_message">Enter the number of entrants to select from the waiting list.</string>
@@ -168,5 +185,13 @@
     <string name="sampled_remove_entrant">Remove from sampled list</string>
     <string name="sampled_confirm_success">Entrant confirmed.</string>
     <string name="sampled_remove_success">Returned to waitlist.</string>
+
+    <!-- Rehaan's addition for US 02.05.01: notify chosen entrants -->
+    <string name="sampled_notify_none_selected">Check at least one entrant to notify.</string>
+    <string name="sampled_notify_message">You have been selected for %1$s. Please accept or decline the invitation.</string>
+    <string name="sampled_notify_sent">Notifications sent to %1$d entrant(s).</string>
+    <string name="sampled_notify_failed">Failed to send notifications. Try again.</string>
+
+
 </resources>
 
