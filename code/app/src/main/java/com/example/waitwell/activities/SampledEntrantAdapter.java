@@ -78,6 +78,22 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
         notifyDataSetChanged();
     }
 
+    /**
+     * Returns a snapshot of all items currently checked by the organizer.
+     * Used by SampledEntrantsActivity to know who to notify.
+     *
+     * @return list of checked SampledEntrantItem objects
+     */
+    public java.util.List<SampledEntrantItem> getCheckedItems() {
+        java.util.List<SampledEntrantItem> checked = new java.util.ArrayList<>();
+        for (SampledEntrantItem item : allItems) {
+            if (item.checked) {
+                checked.add(item);
+            }
+        }
+        return checked;
+    }
+
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

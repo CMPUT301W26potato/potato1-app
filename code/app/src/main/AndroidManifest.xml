@@ -84,6 +84,10 @@
         <activity
             android:name=".activities.CancelledEntrantsActivity"
             android:exported="false" />
+        <!-- Rehaan's addition for US 02.06.04: Enrolled entrants list, organizer can cancel no-shows -->
+        <activity
+            android:name=".activities.EnrolledEntrantsActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.FinalEntrantsActivity"
             android:exported="false" />

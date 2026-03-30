@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,6 +48,9 @@ public class EventDetailActivity extends AppCompatActivity {
     private View joinButtonContainer;
     private String eventId, deviceId;
     private boolean shownWaitlistStatusSnack;
+    private EditText editComment;
+    private View btnPostComment;
+    private LinearLayout commentsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
         initViews();
         loadEvent();
+        loadComments();
         setupBottomNav();
     }
 
@@ -80,6 +87,10 @@ public class EventDetailActivity extends AppCompatActivity {
         btnJoin = findViewById(R.id.btnJoinWaitlist);
         txtJoinBlockedMessage = findViewById(R.id.txtJoinBlockedMessage);
         joinButtonContainer = findViewById(R.id.joinButtonContainer);
+        editComment = findViewById(R.id.editComment);
+        btnPostComment = findViewById(R.id.btnPostComment);
+        commentsContainer = findViewById(R.id.commentsContainer);
+        btnPostComment.setOnClickListener(v -> postComment());
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnJoin.setOnClickListener(v -> joinWaitlist());
@@ -304,6 +315,129 @@ public class EventDetailActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    /**
+     * If this user has a waitlist entry for the event with status {@code rejected} (organizer decline),
+     * show an in-screen message on the event detail view.
+     */
+    private void checkWaitlistRejectedAndNotify() {
+        String entryId = deviceId + "_" + eventId;
+        FirebaseHelper.getInstance().getDb()
+                .collection("waitlist_entries")
+                .document(entryId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        return;
+                    }
+                    String status = doc.getString("status");
+                    if (!"rejected".equals(status)) {
+                        return;
+                    }
+                    View anchor = findViewById(R.id.bottomNavigation);
+                    Snackbar sb = Snackbar.make(
+                            anchor,
+                            R.string.event_detail_registration_not_accepted,
+                            Snackbar.LENGTH_LONG);
+                    sb.setAnchorView(anchor);
+                    sb.setBackgroundTint(ContextCompat.getColor(this, R.color.bg_white));
+                    sb.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+                    sb.show();
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "waitlist status check failed", e));
+    }
+    private void postComment() {
+        String commentText = editComment.getText().toString().trim();
+        if (commentText.isEmpty()) {
+            Toast.makeText(this, "Enter a comment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Fetch username from users collection
+        FirebaseHelper.getInstance().getDb()
+                .collection("users")
+                .document(deviceId)
+                .get()
+                .addOnSuccessListener(userDoc -> {
+                    String username = "Anonymous";
+                    if (userDoc.exists()) {
+                        String name = userDoc.getString("name");
+                        if (name != null && !name.isEmpty()) username = name;
+                    }
+
+                    String commentId = FirebaseHelper.getInstance().getDb()
+                            .collection("events")
+                            .document(eventId)
+                            .collection("comments")
+                            .document()
+                            .getId();
+
+                    java.util.Map<String, Object> comment = new java.util.HashMap<>();
+                    comment.put("text", commentText);
+                    comment.put("userId", deviceId);
+                    comment.put("username", username); // store username directly
+                    comment.put("timestamp", new java.util.Date());
+
+                    FirebaseHelper.getInstance().getDb()
+                            .collection("events")
+                            .document(eventId)
+                            .collection("comments")
+                            .document(commentId)
+                            .set(comment)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Comment posted", Toast.LENGTH_SHORT).show();
+                                editComment.setText("");
+                                loadComments(); // refresh
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show());
+                });
+    }
+    private void loadComments() {
+        commentsContainer.removeAllViews();
+
+        FirebaseHelper.getInstance().getDb()
+                .collection("events")
+                .document(eventId)
+                .collection("comments")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String text = doc.getString("text");
+                        String userId = doc.getString("userId");
+                        if (text == null || userId == null) continue;
+
+                        // fetch the user's name from 'users' collection
+                        FirebaseHelper.getInstance().getDb()
+                                .collection("users")
+                                .document(userId)
+                                .get()
+                                .addOnSuccessListener(userDoc -> {
+                                    String name = "User"; // default
+                                    if (userDoc.exists()) {
+                                        String n = userDoc.getString("name");
+                                        if (n != null && !n.isEmpty()) name = n;
+                                    }
+
+                                    // create comment TextView
+                                    TextView commentView = new TextView(this);
+                                    commentView.setText(name + ": " + text);
+                                    commentView.setTextSize(14);
+                                    commentView.setPadding(16, 16, 16, 16);
+                                    commentView.setBackgroundResource(R.drawable.bg_comment_box);
+                                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                    );
+                                    params.setMargins(0, 8, 0, 8);
+                                    commentView.setLayoutParams(params);
+
+                                    commentsContainer.addView(commentView);
+                                });
+                    }
+                });
     }
 
 }
