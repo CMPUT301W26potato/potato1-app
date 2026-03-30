@@ -138,6 +138,24 @@ public class OrganizerEventDetailFragment extends Fragment {
             i.putExtra("event_title", txtTitle.getText() != null ? txtTitle.getText().toString() : "");
             startActivity(i);
         });
+        btnViewFinalEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), FinalEntrantsActivity.class);
+            i.putExtra(FinalEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        btnViewCanceledEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), CancelledEntrantsActivity.class);
+            i.putExtra(CancelledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        btnViewInvitedEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), InvitedEntrantsActivity.class);
+            i.putExtra(InvitedEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        btnViewSampledEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), SampledEntrantsActivity.class);
+            i.putExtra(SampledEntrantsActivity.EXTRA_EVENT_ID, eventId);
         // REHAAN'S ADDITION — US 02.06.04: open enrolled entrants list
         btnViewFinalEntrants.setOnClickListener(v -> {
             android.content.Intent i = new android.content.Intent(requireContext(), EnrolledEntrantsActivity.class);

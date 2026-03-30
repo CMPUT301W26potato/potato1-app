@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.waitwell.activities.InvitationResponseActivity;
+
 import java.util.List;
 
 /**
@@ -50,21 +52,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             Intent intent;
             //navigations based on the notification type
             if (n.getType() == NotificationModel.NotificationType.CHOSEN) {
-                intent = new Intent(context, EntrantChosenAccept.class);
+                intent = new Intent(context, InvitationResponseActivity.class);
             } else {
                 intent = new Intent(context, EntrantNotChosenScreen.class);
             }
 
-            // Pass all notification data to the target activity
-            intent.putExtra("eventId", n.getEventId());
-            intent.putExtra("eventName", n.getEventName());
-            intent.putExtra("message", n.getMessage());
+            intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+            intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+            intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
 
-            // Pass the notification ID so it can be marked as responded
             if (parentActivity != null) {
                 String notificationId = parentActivity.getNotificationId(position);
                 if (notificationId != null) {
-                    intent.putExtra("notificationId", notificationId);
+                    intent.putExtra(InvitationResponseActivity.EXTRA_NOTIFICATION_ID, notificationId);
                 }
             }
 

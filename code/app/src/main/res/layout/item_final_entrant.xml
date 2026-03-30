@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/invitation_screen_padding"
+    android:layout_marginEnd="@dimen/invitation_screen_padding"
+    android:layout_marginBottom="@dimen/organizer_list_row_margin_bottom"
+    app:cardBackgroundColor="@color/bg_white"
+    app:cardCornerRadius="@dimen/invitation_card_corner_radius"
+    app:cardElevation="@dimen/organizer_list_card_elevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/organizer_row_inner_padding"
+        android:paddingTop="@dimen/organizer_row_inner_padding"
+        android:paddingEnd="@dimen/organizer_row_inner_padding"
+        android:paddingBottom="@dimen/organizer_row_inner_padding">
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/checkboxSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/sampled_checkbox_content_desc"
+            android:minWidth="@dimen/organizer_checkbox_min_side"
+            android:minHeight="@dimen/organizer_checkbox_min_side"
+            app:buttonTint="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/txtEntrantName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/invitation_icon_text_gap"
+            android:layout_marginEnd="@dimen/invitation_icon_text_gap"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins"
+            android:maxLines="2"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/organizer_entrant_list_name_text_size"
+            tools:text="Jordan Smith" />
+
+        <ImageButton
+            android:id="@+id/btnViewEntrant"
+            android:layout_width="@dimen/organizer_icon_button_size"
+            android:layout_height="@dimen/organizer_icon_button_size"
+            android:background="@drawable/bg_waitlist_icon_dark"
+            android:contentDescription="@string/waitlist_view_entrant_profile"
+            android:padding="@dimen/organizer_icon_button_padding"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_visibility_eye" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -12,48 +12,52 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Cancelled entrants for an event (read-only list).
+ * Confirmed (final) entrants for an event.
  */
-public class CancelledEntrantsActivity extends AppCompatActivity implements CancelledEntrantAdapter.Listener {
+public class FinalEntrantsActivity extends AppCompatActivity implements FinalEntrantAdapter.Listener {
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
     private String eventId;
-    private CancelledEntrantAdapter adapter;
+    private FinalEntrantAdapter adapter;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
+    private String statusConfirmed;
     private String statusCancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cancelled_entrants);
+        setContentView(R.layout.activity_final_entrants);
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
-        if (eventId == null) {
-            eventId = getIntent().getStringExtra("event_id");
-        }
         if (TextUtils.isEmpty(eventId)) {
             Toast.makeText(this, R.string.no_event_specified, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        statusConfirmed = getString(R.string.firestore_waitlist_status_confirmed);
         statusCancelled = getString(R.string.firestore_waitlist_status_cancelled);
 
         ImageButton btnHamburger = findViewById(R.id.btnHamburger);
@@ -61,9 +65,9 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
         btnHamburger.setOnClickListener(v -> finish());
         imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
 
-        RecyclerView recycler = findViewById(R.id.recyclerCancelledEntrants);
+        RecyclerView recycler = findViewById(R.id.recyclerFinalEntrants);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CancelledEntrantAdapter(this);
+        adapter = new FinalEntrantAdapter(this);
         recycler.setAdapter(adapter);
 
         EditText editSearch = findViewById(R.id.editSearch);
@@ -80,12 +84,32 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
             public void afterTextChanged(Editable s) {}
         });
 
-        loadCancelledEntrants();
+        AppCompatButton btnRemoveSelected = findViewById(R.id.btnRemoveSelected);
+        btnRemoveSelected.setOnClickListener(v -> removeSelectedEntrants());
+
+        BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                finish();
+                return true;
+            }
+            if (id == R.id.nav_organizer_bottom_home) {
+                Intent i = new Intent(this, OrganizerEntryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+            }
+            return false;
+        });
+
+        loadFinalEntrants();
     }
 
-    private void loadCancelledEntrants() {
+    private void loadFinalEntrants() {
         FirebaseHelper.getInstance()
-                .getEntriesByEventAndStatus(eventId, statusCancelled)
+                .getEntriesByEventAndStatus(eventId, statusConfirmed)
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
                         adapter.setItems(Collections.emptyList());
@@ -93,7 +117,7 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
                     }
                     int total = snapshot.size();
                     AtomicInteger done = new AtomicInteger(0);
-                    List<CancelledEntrantAdapter.CancelledEntrantItem> buf =
+                    List<FinalEntrantAdapter.FinalEntrantItem> buf =
                             Collections.synchronizedList(new ArrayList<>());
 
                     for (DocumentSnapshot entryDoc : snapshot.getDocuments()) {
@@ -115,7 +139,7 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
                                             name = n;
                                         }
                                     }
-                                    buf.add(new CancelledEntrantAdapter.CancelledEntrantItem(userId, name, entryDocId));
+                                    buf.add(new FinalEntrantAdapter.FinalEntrantItem(userId, name, entryDocId));
                                     if (done.incrementAndGet() == total) {
                                         finishLoad(buf);
                                     }
@@ -126,8 +150,8 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
                         Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
-    private void finishLoad(List<CancelledEntrantAdapter.CancelledEntrantItem> buf) {
-        List<CancelledEntrantAdapter.CancelledEntrantItem> sorted = new ArrayList<>(buf);
+    private void finishLoad(List<FinalEntrantAdapter.FinalEntrantItem> buf) {
+        List<FinalEntrantAdapter.FinalEntrantItem> sorted = new ArrayList<>(buf);
         Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
         runOnUiThread(() -> {
             adapter.setItems(sorted);
@@ -136,8 +160,41 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
         });
     }
 
+    private void removeSelectedEntrants() {
+        List<FinalEntrantAdapter.FinalEntrantItem> selected =
+                new ArrayList<>(adapter.getSelectedEntrants());
+        if (selected.isEmpty()) {
+            Toast.makeText(this, R.string.final_entrants_select_first, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final int total = selected.size();
+        AtomicInteger finished = new AtomicInteger(0);
+        AtomicBoolean anyFailed = new AtomicBoolean(false);
+        for (FinalEntrantAdapter.FinalEntrantItem item : selected) {
+            DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
+            DocumentReference eventRef = db.collection("events").document(eventId);
+            db.runTransaction(transaction -> {
+                transaction.update(entryRef, "status", statusCancelled);
+                transaction.update(eventRef, "AttendingEntrants", FieldValue.arrayRemove(item.userId));
+                transaction.update(eventRef, "waitlistEntrantIds", FieldValue.arrayRemove(item.userId));
+                return null;
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    adapter.removeEntry(item.entryDocumentId);
+                } else {
+                    anyFailed.set(true);
+                }
+                if (finished.incrementAndGet() == total) {
+                    Toast.makeText(this,
+                            anyFailed.get() ? R.string.waitlist_update_failed : R.string.waitlist_declined_sent,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
     @Override
-    public void onViewProfile(@NonNull CancelledEntrantAdapter.CancelledEntrantItem item) {
+    public void onViewProfile(@NonNull FinalEntrantAdapter.FinalEntrantItem item) {
         Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
     }
 }

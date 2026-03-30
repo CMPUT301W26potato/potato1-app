@@ -44,6 +44,9 @@
         <activity
             android:name=".EntrantChosenAccept"
             android:exported="false" />
+        <activity
+            android:name=".activities.InvitationResponseActivity"
+            android:exported="false" />
 
         <!-- Entrant Not Chosen Screen -->
         <activity
@@ -84,6 +87,9 @@
         <!-- Rehaan's addition for US 02.06.04: Enrolled entrants list, organizer can cancel no-shows -->
         <activity
             android:name=".activities.EnrolledEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.FinalEntrantsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.ViewRequestsActivity"
