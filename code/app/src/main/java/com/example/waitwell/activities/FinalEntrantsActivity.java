@@ -20,16 +20,13 @@ import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,7 +40,6 @@ public class FinalEntrantsActivity extends AppCompatActivity implements FinalEnt
     private FinalEntrantAdapter adapter;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
     private String statusConfirmed;
-    private String statusCancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +54,6 @@ public class FinalEntrantsActivity extends AppCompatActivity implements FinalEnt
         }
 
         statusConfirmed = getString(R.string.firestore_waitlist_status_confirmed);
-        statusCancelled = getString(R.string.firestore_waitlist_status_cancelled);
 
         ImageButton btnHamburger = findViewById(R.id.btnHamburger);
         ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
@@ -85,7 +80,7 @@ public class FinalEntrantsActivity extends AppCompatActivity implements FinalEnt
         });
 
         AppCompatButton btnRemoveSelected = findViewById(R.id.btnRemoveSelected);
-        btnRemoveSelected.setOnClickListener(v -> removeSelectedEntrants());
+        btnRemoveSelected.setVisibility(android.view.View.GONE);
 
         BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {
@@ -158,39 +153,6 @@ public class FinalEntrantsActivity extends AppCompatActivity implements FinalEnt
             String q = ((EditText) findViewById(R.id.editSearch)).getText().toString();
             adapter.setFilterQuery(q);
         });
-    }
-
-    private void removeSelectedEntrants() {
-        List<FinalEntrantAdapter.FinalEntrantItem> selected =
-                new ArrayList<>(adapter.getSelectedEntrants());
-        if (selected.isEmpty()) {
-            Toast.makeText(this, R.string.final_entrants_select_first, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        final int total = selected.size();
-        AtomicInteger finished = new AtomicInteger(0);
-        AtomicBoolean anyFailed = new AtomicBoolean(false);
-        for (FinalEntrantAdapter.FinalEntrantItem item : selected) {
-            DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
-            DocumentReference eventRef = db.collection("events").document(eventId);
-            db.runTransaction(transaction -> {
-                transaction.update(entryRef, "status", statusCancelled);
-                transaction.update(eventRef, "AttendingEntrants", FieldValue.arrayRemove(item.userId));
-                transaction.update(eventRef, "waitlistEntrantIds", FieldValue.arrayRemove(item.userId));
-                return null;
-            }).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    adapter.removeEntry(item.entryDocumentId);
-                } else {
-                    anyFailed.set(true);
-                }
-                if (finished.incrementAndGet() == total) {
-                    Toast.makeText(this,
-                            anyFailed.get() ? R.string.waitlist_update_failed : R.string.waitlist_declined_sent,
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
     }
 
     @Override

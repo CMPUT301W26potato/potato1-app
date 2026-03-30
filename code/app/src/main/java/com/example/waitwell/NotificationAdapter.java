@@ -48,6 +48,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.actionButton.setText(n.getButtonLabel());
         holder.titleText.setText(n.getEventName());
 
+        if (n.isExpired()) {
+            holder.expiredLabel.setVisibility(View.VISIBLE);
+        } else {
+            holder.expiredLabel.setVisibility(View.GONE);
+        }
+
         holder.actionButton.setOnClickListener(v -> {
             Intent intent;
             //navigations based on the notification type
@@ -77,11 +83,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleText;
+        TextView expiredLabel;
         Button actionButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.titleText);
+            expiredLabel = itemView.findViewById(R.id.expiredLabel);
             actionButton = itemView.findViewById(R.id.actionButton);
         }
     }
