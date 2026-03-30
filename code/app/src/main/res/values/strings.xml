@@ -143,11 +143,52 @@
     <string name="waitlist_status_updated_notify_failed">Status updated; notification may have failed.</string>
     <string name="coming_soon">Coming soon</string>
     <string name="event_detail_registration_not_accepted">Unfortunately, your registration was not accepted.</string>
+    <string name="event_detail_location_not_specified">Location not specified</string>
+    <string name="event_detail_already_registered">You are already registered for this event.</string>
+    <string name="event_detail_invitation_declined">You declined this invitation.</string>
+
+    <string name="entrant_accept_event">Accept Event</string>
+    <string name="entrant_decline_event">Decline Event</string>
+    <string name="entrant_back_notifications">Back to Notifications</string>
+    <string name="invitation_price_formatted">$%1$s</string>
+    <string name="invitation_accept_success">You have accepted this invitation.</string>
+    <string name="invitation_decline_success">You have declined this invitation.</string>
+    <string name="invitation_error_no_event">Event information is not available.</string>
+    <string name="invitation_error_not_found">Event not found.</string>
+    <string name="invitation_error_load_details">Could not load event details.</string>
+    <string name="invitation_error_accept">Could not accept. Please try again.</string>
+    <string name="invitation_error_decline">Could not decline. Please try again.</string>
+    <string name="waitlist_unknown_event">Unknown Event</string>
+
+    <string name="final_entrants_section_label">Final Entrants</string>
+    <string name="cancelled_entrants_section_label">Cancelled Entrants</string>
+    <string name="no_final_entrants">No final entrants yet</string>
+    <string name="final_entrant_no_action_needed">This entrant is already confirmed.</string>
+    <string name="final_entrants_remove_selected">Remove Selected</string>
+    <string name="final_entrants_select_first">Select at least one entrant.</string>
+    <string name="invited_filter_label">Filters:</string>
+    <string name="invited_filter_enrolled">Enrolled</string>
+    <string name="invited_filter_pending">Pending</string>
+    <string name="invited_filter_cancelled">Cancelled</string>
+    <string name="invited_remove_applicants">Remove Applicants</string>
+    <string name="invited_select_applicants_first">Select at least one entrant.</string>
+    <string name="invited_status_enrolled">Enrolled</string>
+    <string name="invited_status_pending">Pending</string>
+    <string name="invited_status_cancelled_list">Cancelled</string>
+    <string name="waitlist_status_label_declined">Declined</string>
+    <string name="waitlist_status_display_waiting">Waiting</string>
+    <string name="waitlist_status_display_selected">Selected</string>
+    <string name="waitlist_status_display_confirmed">Confirmed</string>
+    <string name="waitlist_status_display_cancelled">Cancelled</string>
 
     <!-- Firestore waitlist status values (must match existing backend strings) -->
     <string name="firestore_waitlist_status_waiting" translatable="false">waiting</string>
     <string name="firestore_waitlist_status_selected" translatable="false">selected</string>
     <string name="firestore_waitlist_status_confirmed" translatable="false">confirmed</string>
+    <string name="firestore_waitlist_status_cancelled" translatable="false">cancelled</string>
+    <string name="firestore_waitlist_status_rejected" translatable="false">rejected</string>
+    <!-- Optional client-side alias if backend ever stores a separate pending label -->
+    <string name="waitlist_entry_status_pending_alias" translatable="false">pending</string>
 
     <!-- Organizer: post-sampling confirmation + sampled entrants -->
     <string name="organizer_content_desc_menu">Menu</string>

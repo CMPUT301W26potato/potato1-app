@@ -155,6 +155,19 @@ public class FirebaseHelper {
     }
 
     /**
+     * All waitlist entries for an event whose status is one of {@code statuses} (Firestore {@code whereIn}).
+     */
+    public Task<QuerySnapshot> getEntriesByEventAndStatuses(String eventId, List<String> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
+            throw new IllegalArgumentException("statuses must be non-empty");
+        }
+        return db.collection("waitlist_entries")
+                .whereEqualTo("eventId", eventId)
+                .whereIn("status", statuses)
+                .get();
+    }
+
+    /**
      * Callback when lottery sampling finishes; {@code actualSampledCount} is how many
      * {@code waitlist_entries} were set to {@code selected} (0 if none or on failure).
      */

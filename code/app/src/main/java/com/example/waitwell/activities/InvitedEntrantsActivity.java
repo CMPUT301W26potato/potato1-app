@@ -1,121 +1,218 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.Profile;
 import com.example.waitwell.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * InvitedEntrantsActivity.java
- * Shows the organizer a list of entrants who were selected in the lottery (US 02.06.01).
- * Gets the event_id from the intent, queries waitlist_entries where status = "selected",
- * then loads each user's name and email from the users collection.
- * Javadoc written with help from Claude (claude.ai)
+ * Invited / enrolled / declined entrants for an event (status {@code selected}, {@code confirmed}, {@code cancelled}).
  */
-public class InvitedEntrantsActivity extends AppCompatActivity {
+public class InvitedEntrantsActivity extends AppCompatActivity implements InvitedEntrantAdapter.Listener {
 
-    private static final String TAG = "InvitedEntrants";
-    private LinearLayout entrantListContainer;
-    private TextView txtCount;
-    private TextView txtLoading;
-    private TextView txtEmpty;
+    public static final String EXTRA_EVENT_ID = "event_id";
+
     private String eventId;
+    private InvitedEntrantAdapter adapter;
+    private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
+
+    private String statusSelected;
+    private String statusConfirmed;
+    private String statusCancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invited_entrants);
 
-        entrantListContainer = findViewById(R.id.entrantListContainer);
-        txtCount = findViewById(R.id.txtCount);
-        txtLoading = findViewById(R.id.txtLoading);
-        txtEmpty = findViewById(R.id.txtEmpty);
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        eventId = getIntent().getStringExtra("event_id");
+        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
         if (eventId == null) {
+            eventId = getIntent().getStringExtra("event_id");
+        }
+        if (TextUtils.isEmpty(eventId)) {
             Toast.makeText(this, R.string.no_event_specified, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        statusSelected = getString(R.string.firestore_waitlist_status_selected);
+        statusConfirmed = getString(R.string.firestore_waitlist_status_confirmed);
+        statusCancelled = getString(R.string.firestore_waitlist_status_cancelled);
+
+        ImageButton btnHamburger = findViewById(R.id.btnHamburger);
+        ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
+        btnHamburger.setOnClickListener(v -> finish());
+        imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+
+        RecyclerView recycler = findViewById(R.id.recyclerInvited);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new InvitedEntrantAdapter(this);
+        adapter.setStatusConstants(statusSelected, statusConfirmed, statusCancelled);
+        recycler.setAdapter(adapter);
+
+        EditText editSearch = findViewById(R.id.editSearch);
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.setFilterQuery(s != null ? s.toString() : "");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        CheckBox checkEnrolled = findViewById(R.id.checkFilterEnrolled);
+        CheckBox checkCancelled = findViewById(R.id.checkFilterCancelled);
+        CheckBox checkPending = findViewById(R.id.checkFilterPending);
+        Runnable applyFilters = () -> adapter.setStatusFilters(
+                checkEnrolled.isChecked(),
+                checkCancelled.isChecked(),
+                checkPending.isChecked());
+        checkEnrolled.setOnCheckedChangeListener((b, c) -> applyFilters.run());
+        checkCancelled.setOnCheckedChangeListener((b, c) -> applyFilters.run());
+        checkPending.setOnCheckedChangeListener((b, c) -> applyFilters.run());
+
+        findViewById(R.id.btnSendNotifications).setOnClickListener(v ->
+                Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
+
+        findViewById(R.id.btnRemoveApplicants).setOnClickListener(v -> removeSelectedApplicants());
+
+        BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                finish();
+                return true;
+            }
+            if (id == R.id.nav_organizer_bottom_home) {
+                Intent i = new Intent(this, OrganizerEntryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+            }
+            return false;
+        });
+
         loadInvitedEntrants();
     }
 
-    /**
-     * Queries Firestore for all waitlist entries with status "selected" for this event.
-     * Shows a loading indicator while the query runs.
-     */
-
     private void loadInvitedEntrants() {
-        txtLoading.setVisibility(View.VISIBLE);
-        txtEmpty.setVisibility(View.GONE);
-        entrantListContainer.removeAllViews();
-
+        List<String> statuses = Arrays.asList(statusSelected, statusConfirmed, statusCancelled);
         FirebaseHelper.getInstance()
-                .getEntriesByEventAndStatus(eventId, "selected")
-                .addOnSuccessListener(this::onEntriesLoaded)
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to load invited entrants", e);
-                    txtLoading.setVisibility(View.GONE);
-                    Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show();
-                });
+                .getEntriesByEventAndStatuses(eventId, statuses)
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        adapter.setItems(Collections.emptyList());
+                        return;
+                    }
+                    int total = snapshot.size();
+                    AtomicInteger done = new AtomicInteger(0);
+                    List<InvitedEntrantAdapter.InvitedEntrantItem> buf =
+                            Collections.synchronizedList(new ArrayList<>());
+
+                    for (DocumentSnapshot entryDoc : snapshot.getDocuments()) {
+                        String userId = entryDoc.getString("userId");
+                        String fsStatus = entryDoc.getString("status");
+                        if (userId == null || fsStatus == null) {
+                            if (done.incrementAndGet() == total) {
+                                finishLoad(buf);
+                            }
+                            continue;
+                        }
+                        String entryDocId = entryDoc.getId();
+                        db.collection("users").document(userId).get()
+                                .addOnCompleteListener(task -> {
+                                    String name = getString(R.string.unknown_user);
+                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                                        String n = task.getResult().getString("name");
+                                        if (!TextUtils.isEmpty(n)) {
+                                            name = n;
+                                        }
+                                    }
+                                    buf.add(new InvitedEntrantAdapter.InvitedEntrantItem(userId, name, entryDocId, fsStatus));
+                                    if (done.incrementAndGet() == total) {
+                                        finishLoad(buf);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Called when the waitlist_entries query finishes.
-     * For each entry, looks up the user doc to get their name and email,
-     * then adds a row to the list.
-     * Learned about chaining Firestore reads from:
-     * https://stackoverflow.com/questions/46589757/firestore-get-multiple-documents
-     *
-     * @param snapshot the query results from Firestore
-     */
-    private void onEntriesLoaded(QuerySnapshot snapshot) {
-        txtLoading.setVisibility(View.GONE);
+    private void finishLoad(List<InvitedEntrantAdapter.InvitedEntrantItem> buf) {
+        List<InvitedEntrantAdapter.InvitedEntrantItem> sorted = new ArrayList<>(buf);
+        Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
+        runOnUiThread(() -> {
+            adapter.setItems(sorted);
+            String q = ((EditText) findViewById(R.id.editSearch)).getText().toString();
+            adapter.setFilterQuery(q);
+        });
+    }
 
-        if (snapshot.isEmpty()) {
-            txtEmpty.setVisibility(View.VISIBLE);
-            txtCount.setText(getString(R.string.invited_count, 0));
+    private void removeSelectedApplicants() {
+        List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getCheckedItems();
+        if (selected.isEmpty()) {
+            Toast.makeText(this, R.string.invited_select_applicants_first, Toast.LENGTH_SHORT).show();
             return;
         }
-
-        int count = snapshot.size();
-        txtCount.setText(getString(R.string.invited_count, count));
-
-        FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (DocumentSnapshot entryDoc : snapshot.getDocuments()) {
-            String userId = entryDoc.getString("userId");
-            if (userId == null) continue;
-
-            db.collection("users").document(userId).get()
-                    .addOnSuccessListener(userDoc -> {
-                        String name = userDoc.getString("name");
-                        String email = userDoc.getString("email");
-                        if (name == null) name = "Unknown";
-                        if (email == null) email = "";
-
-                        View row = inflater.inflate(R.layout.item_entrant_row, entrantListContainer, false);
-                        ((TextView) row.findViewById(R.id.txtEntrantName)).setText(name);
-                        ((TextView) row.findViewById(R.id.txtEntrantEmail)).setText(email);
-                        entrantListContainer.addView(row);
-                    })
-                    .addOnFailureListener(e ->
-                            Log.e(TAG, "Failed to load user: " + userId, e));
+        AtomicInteger remaining = new AtomicInteger(selected.size());
+        for (InvitedEntrantAdapter.InvitedEntrantItem item : selected) {
+            db.runTransaction(transaction -> {
+                DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
+                transaction.update(entryRef, "status", statusCancelled);
+                DocumentReference eventRef = db.collection("events").document(eventId);
+                transaction.update(eventRef, "waitlistEntrantIds", FieldValue.arrayRemove(item.userId));
+                transaction.update(eventRef, "AttendingEntrants", FieldValue.arrayRemove(item.userId));
+                return null;
+            }).addOnSuccessListener(v -> {
+                adapter.removeByEntryId(item.entryDocumentId);
+                if (remaining.decrementAndGet() == 0) {
+                    Toast.makeText(this, R.string.waitlist_declined_sent, Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e ->
+                    Toast.makeText(this, R.string.waitlist_update_failed, Toast.LENGTH_SHORT).show());
         }
+    }
+
+    @Override
+    public void onViewProfile(@NonNull InvitedEntrantAdapter.InvitedEntrantItem item) {
+        Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSelectionChanged() {
+        // no-op
     }
 }

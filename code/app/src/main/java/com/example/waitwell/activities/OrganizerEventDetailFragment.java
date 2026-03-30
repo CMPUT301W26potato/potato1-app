@@ -138,12 +138,21 @@ public class OrganizerEventDetailFragment extends Fragment {
             i.putExtra("event_title", txtTitle.getText() != null ? txtTitle.getText().toString() : "");
             startActivity(i);
         });
-        btnViewFinalEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewCanceledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewInvitedEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnViewFinalEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), FinalEntrantsActivity.class);
+            i.putExtra(FinalEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        btnViewCanceledEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), CancelledEntrantsActivity.class);
+            i.putExtra(CancelledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        btnViewInvitedEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), InvitedEntrantsActivity.class);
+            i.putExtra(InvitedEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
         btnViewSampledEntrants.setOnClickListener(v -> {
             Intent i = new Intent(requireContext(), SampledEntrantsActivity.class);
             i.putExtra(SampledEntrantsActivity.EXTRA_EVENT_ID, eventId);

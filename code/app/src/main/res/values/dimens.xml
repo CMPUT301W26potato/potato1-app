@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="invitation_button_corner_radius">16dp</dimen>
+    <dimen name="invitation_card_corner_radius">12dp</dimen>
+    <dimen name="status_pill_corner_radius">20dp</dimen>
+    <dimen name="invitation_screen_padding">16dp</dimen>
+    <dimen name="invitation_back_link_padding_top">4dp</dimen>
+    <dimen name="invitation_back_link_padding_bottom">12dp</dimen>
+    <dimen name="invitation_card_inner_padding">16dp</dimen>
+    <dimen name="invitation_icon_row_margin_top">12dp</dimen>
+    <dimen name="invitation_date_row_margin_top">10dp</dimen>
+    <dimen name="invitation_message_margin_top">24dp</dimen>
+    <dimen name="invitation_button_margin_top_first">24dp</dimen>
+    <dimen name="invitation_button_margin_top_stack">12dp</dimen>
+    <dimen name="invitation_scroll_bottom_spacer">24dp</dimen>
+    <dimen name="entrant_toolbar_height">56dp</dimen>
+    <dimen name="invitation_toolbar_icon_size">40dp</dimen>
+    <dimen name="invitation_toolbar_logo_size">36dp</dimen>
+    <dimen name="invitation_row_icon_size">18dp</dimen>
+    <dimen name="invitation_card_title_price_gap">12dp</dimen>
+    <dimen name="invitation_icon_text_gap">8dp</dimen>
+    <dimen name="invitation_price_value_margin_top">2dp</dimen>
+    <dimen name="invitation_cta_height">52dp</dimen>
+    <dimen name="invitation_toolbar_title_text_size">22sp</dimen>
+    <dimen name="invitation_back_link_text_size">16sp</dimen>
+    <dimen name="organizer_list_row_margin_bottom">10dp</dimen>
+    <dimen name="organizer_footer_button_height">48dp</dimen>
+    <dimen name="organizer_row_inner_padding">12dp</dimen>
+    <dimen name="organizer_icon_button_size">44dp</dimen>
+    <dimen name="organizer_list_card_elevation">2dp</dimen>
+    <dimen name="organizer_checkbox_min_side">32dp</dimen>
+    <dimen name="organizer_icon_button_padding">10dp</dimen>
+    <dimen name="organizer_entrant_list_name_text_size">15sp</dimen>
+</resources>

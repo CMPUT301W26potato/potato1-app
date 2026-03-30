@@ -44,6 +44,9 @@
         <activity
             android:name=".EntrantChosenAccept"
             android:exported="false" />
+        <activity
+            android:name=".activities.InvitationResponseActivity"
+            android:exported="false" />
 
         <!-- Entrant Not Chosen Screen -->
         <activity
@@ -80,6 +83,9 @@
 <!--Rehaan's addition for US 02.06.02 Cancelled entrants list for organizers -->
         <activity
             android:name=".activities.CancelledEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.FinalEntrantsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.ViewRequestsActivity"

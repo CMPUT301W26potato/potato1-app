@@ -17,6 +17,7 @@ import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,7 +41,10 @@ public class EventDetailActivity extends AppCompatActivity {
     private TextView txtTitle, txtLocation, txtPrice, txtRegistered;
     private TextView txtEventDate, txtEventTime, txtTimeRemaining, txtRating, txtDescription;
     private View btnJoin;
+    private TextView txtJoinBlockedMessage;
+    private View joinButtonContainer;
     private String eventId, deviceId;
+    private boolean shownWaitlistStatusSnack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,13 @@ public class EventDetailActivity extends AppCompatActivity {
         setupBottomNav();
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        shownWaitlistStatusSnack = false;
+        loadEvent();
+    }
+
     private void initViews() {
         txtTitle= findViewById(R.id.txtTitle);
         txtLocation = findViewById(R.id.txtLocation);
@@ -67,6 +78,8 @@ public class EventDetailActivity extends AppCompatActivity {
         txtRating = findViewById(R.id.txtRating);
         txtDescription = findViewById(R.id.txtDescription);
         btnJoin = findViewById(R.id.btnJoinWaitlist);
+        txtJoinBlockedMessage = findViewById(R.id.txtJoinBlockedMessage);
+        joinButtonContainer = findViewById(R.id.joinButtonContainer);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnJoin.setOnClickListener(v -> joinWaitlist());
@@ -143,32 +156,112 @@ public class EventDetailActivity extends AppCompatActivity {
 
         boolean isOpen = "open".equals(lifecycle);
 
-        //Check if user is already on the waitlist
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
 
-        if (alreadyJoined || !isOpen) {
-            // Hide join button, show status text instead
-            findViewById(R.id.joinButtonContainer).setVisibility(View.GONE);
-            //Maybe add message that "You already joined the waitlist"
-            //TODO
+        String entryDocId = deviceId + "_" + eventId;
+        FirebaseFirestore.getInstance()
+                .collection("waitlist_entries")
+                .document(entryDocId)
+                .get()
+                .addOnSuccessListener(entryDoc -> {
+                    String entryStatus = entryDoc.exists() ? entryDoc.getString("status") : null;
+                    applyJoinAvailability(isOpen, alreadyJoined, entryStatus);
+                    maybeShowWaitlistStatusSnack(entryStatus);
+                })
+                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, null));
+    }
+
+    /**
+     * Firestore statuses that mean the entrant must not join the waitlist again from this screen.
+     * Uses existing strings: {@code selected} (invited), {@code confirmed} (final), {@code rejected} (organizer decline).
+     */
+    private static boolean blocksWaitlistRejoin(String status) {
+        return "selected".equals(status) || "confirmed".equals(status) || "rejected".equals(status);
+    }
+
+    private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray, String entryStatus) {
+        if (joinButtonContainer == null) {
+            return;
         }
+        if (!isOpen) {
+            joinButtonContainer.setVisibility(View.GONE);
+            return;
+        }
+        if (alreadyOnWaitlistArray) {
+            joinButtonContainer.setVisibility(View.GONE);
+            return;
+        }
+        joinButtonContainer.setVisibility(View.VISIBLE);
+        if (blocksWaitlistRejoin(entryStatus)) {
+            btnJoin.setVisibility(View.GONE);
+            txtJoinBlockedMessage.setVisibility(View.VISIBLE);
+            txtJoinBlockedMessage.setText(R.string.event_detail_already_registered);
+        } else {
+            txtJoinBlockedMessage.setVisibility(View.GONE);
+            btnJoin.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void maybeShowWaitlistStatusSnack(String entryStatus) {
+        if (shownWaitlistStatusSnack) {
+            return;
+        }
+        if ("rejected".equals(entryStatus)) {
+            shownWaitlistStatusSnack = true;
+            showWaitlistMessageSnack(R.string.event_detail_registration_not_accepted);
+        } else if ("cancelled".equals(entryStatus)) {
+            shownWaitlistStatusSnack = true;
+            showWaitlistMessageSnack(R.string.event_detail_invitation_declined);
+        }
+    }
+
+    private void showWaitlistMessageSnack(int messageRes) {
+        View anchor = findViewById(R.id.bottomNavigation);
+        Snackbar sb = Snackbar.make(anchor, messageRes, Snackbar.LENGTH_LONG);
+        sb.setAnchorView(anchor);
+        sb.setBackgroundTint(ContextCompat.getColor(this, R.color.bg_white));
+        sb.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        sb.show();
     }
 
     // Join Waitlist (US 01.01.01)
     private void joinWaitlist() {
         btnJoin.setEnabled(false);
         String title = txtTitle.getText().toString();
+        String entryDocId = deviceId + "_" + eventId;
+        FirebaseFirestore.getInstance()
+                .collection("waitlist_entries")
+                .document(entryDocId)
+                .get()
+                .addOnSuccessListener(entryDoc -> {
+                    String st = entryDoc.exists() ? entryDoc.getString("status") : null;
+                    if (blocksWaitlistRejoin(st)) {
+                        Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
+                        btnJoin.setEnabled(true);
+                        applyJoinAvailability(true, false, st);
+                        return;
+                    }
+                    runJoinWaitlist(title);
+                })
+                .addOnFailureListener(e -> {
+                    btnJoin.setEnabled(true);
+                    Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void runJoinWaitlist(String title) {
         FirebaseHelper.getInstance().joinWaitlist(
                 deviceId, eventId, title,
                 task -> {
                     if (task.isSuccessful()) {
-                        // Go to confirmation screen
                         Intent intent = new Intent(this, ConfirmationActivity.class);
                         intent.putExtra("event_title", title);
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();btnJoin.setEnabled(true);}
+                        Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                        btnJoin.setEnabled(true);
+                    }
                 });
     }
 
@@ -188,37 +281,6 @@ public class EventDetailActivity extends AppCompatActivity {
             }
             return false;
         });
-    }
-
-    /**
-     * If this user has a waitlist entry for the event with status {@code rejected} (organizer decline),
-     * show an in-screen message on the event detail view.
-     */
-    private void checkWaitlistRejectedAndNotify() {
-        String entryId = deviceId + "_" + eventId;
-        FirebaseHelper.getInstance().getDb()
-                .collection("waitlist_entries")
-                .document(entryId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) {
-                        return;
-                    }
-                    String status = doc.getString("status");
-                    if (!"rejected".equals(status)) {
-                        return;
-                    }
-                    View anchor = findViewById(R.id.bottomNavigation);
-                    Snackbar sb = Snackbar.make(
-                            anchor,
-                            R.string.event_detail_registration_not_accepted,
-                            Snackbar.LENGTH_LONG);
-                    sb.setAnchorView(anchor);
-                    sb.setBackgroundTint(ContextCompat.getColor(this, R.color.bg_white));
-                    sb.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-                    sb.show();
-                })
-                .addOnFailureListener(e -> Log.w(TAG, "waitlist status check failed", e));
     }
 
 }

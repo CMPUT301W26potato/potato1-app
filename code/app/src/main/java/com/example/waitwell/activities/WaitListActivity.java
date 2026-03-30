@@ -104,8 +104,12 @@ public class WaitListActivity extends AppCompatActivity {
             String status = doc.getString("status");
             String eventId = doc.getString("eventId");
 
-            if (title == null) title = "Unknown Event";
-            if (status == null) status = "waiting";
+            if (title == null) {
+                title = getString(R.string.waitlist_unknown_event);
+            }
+            if (status == null) {
+                status = getString(R.string.firestore_waitlist_status_waiting);
+            }
 
             ((TextView) row.findViewById(R.id.txtNumber)).setText((i + 1) + ".");
             ((TextView) row.findViewById(R.id.txtEntryTitle)).setText(title);
@@ -114,14 +118,38 @@ public class WaitListActivity extends AppCompatActivity {
             TextView badge = row.findViewById(R.id.txtEntryStatus);
             applyStatusStyle(badge, status);
 
-            // Tap row - event detail
             final String eid = eventId;
+            final String entryTitle = title;
+            final String entryStatus = status;
             row.setOnClickListener(v -> {
-                if (eid != null) {
-                    Intent intent = new Intent(this, EventDetailActivity.class);
-                    intent.putExtra("event_id", eid);
-                    startActivity(intent);
+                if (eid == null) {
+                    return;
                 }
+                String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
+                if (selectedStatus.equals(entryStatus)) {
+                    FirebaseHelper.getInstance().getEvent(eid)
+                            .addOnSuccessListener(doc -> {
+                                if (doc == null || !doc.exists()) {
+                                    Toast.makeText(this, R.string.invitation_error_not_found,
+                                            Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                Intent invitation = new Intent(this, InvitationResponseActivity.class);
+                                invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, eid);
+                                invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, entryTitle);
+                                InvitationResponseActivity.putEventFieldsFromSnapshot(invitation, doc, this);
+                                invitation.putExtra(InvitationResponseActivity.EXTRA_MESSAGE,
+                                        getString(R.string.waitlist_chosen_notification_message, entryTitle));
+                                startActivity(invitation);
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, R.string.invitation_error_load_details,
+                                            Toast.LENGTH_SHORT).show());
+                    return;
+                }
+                Intent intent = new Intent(this, EventDetailActivity.class);
+                intent.putExtra("event_id", eid);
+                startActivity(intent);
             });
             entriesContainer.addView(row);
         }
@@ -132,32 +160,37 @@ public class WaitListActivity extends AppCompatActivity {
      * based on the entry's status string from Firestore.
      */
     private void applyStatusStyle(TextView badge, String status) {
-        switch (status) {
-            case "selected":
-                badge.setText("Selected");
-                badge.setBackgroundResource(R.drawable.bg_status_open);
-                badge.setTextColor(getColor(R.color.status_open_text));
-                break;
-            case "confirmed":
-                badge.setText("Confirmed");
-                badge.setBackgroundResource(R.drawable.bg_status_open);
-                badge.setTextColor(getColor(R.color.status_open_text));
-                break;
-            case "rejected":
-                badge.setText("Rejected");
-                badge.setBackgroundResource(R.drawable.bg_status_closed);
-                badge.setTextColor(getColor(R.color.status_closed_text));
-                break;
-            case "cancelled":
-                badge.setText("Cancelled");
-                badge.setBackgroundResource(R.drawable.bg_status_closed);
-                badge.setTextColor(getColor(R.color.status_closed_text));
-                break;
-            default: // "waiting"
-                badge.setText("Waiting");
-                badge.setBackgroundResource(R.drawable.bg_status_waiting);
-                badge.setTextColor(getColor(R.color.status_waiting_text));
-                break;
+        String waiting = getString(R.string.firestore_waitlist_status_waiting);
+        String selected = getString(R.string.firestore_waitlist_status_selected);
+        String confirmed = getString(R.string.firestore_waitlist_status_confirmed);
+        String rejected = getString(R.string.firestore_waitlist_status_rejected);
+        String cancelled = getString(R.string.firestore_waitlist_status_cancelled);
+        String s = status != null ? status : waiting;
+
+        if (waiting.equals(s) || getString(R.string.waitlist_entry_status_pending_alias).equals(s)) {
+            badge.setText(R.string.waitlist_status_display_waiting);
+            badge.setBackgroundResource(R.drawable.bg_status_waiting);
+            badge.setTextColor(getColor(R.color.status_waiting_text));
+        } else if (selected.equals(s)) {
+            badge.setText(R.string.waitlist_status_display_selected);
+            badge.setBackgroundResource(R.drawable.bg_status_selected_primary);
+            badge.setTextColor(getColor(R.color.text_white));
+        } else if (confirmed.equals(s)) {
+            badge.setText(R.string.waitlist_status_display_confirmed);
+            badge.setBackgroundResource(R.drawable.bg_status_selected_primary);
+            badge.setTextColor(getColor(R.color.text_white));
+        } else if (rejected.equals(s)) {
+            badge.setText(R.string.waitlist_status_label_declined);
+            badge.setBackgroundResource(R.drawable.bg_status_closed);
+            badge.setTextColor(getColor(R.color.status_closed_text));
+        } else if (cancelled.equals(s)) {
+            badge.setText(R.string.waitlist_status_display_cancelled);
+            badge.setBackgroundResource(R.drawable.bg_status_closed);
+            badge.setTextColor(getColor(R.color.status_closed_text));
+        } else {
+            badge.setText(R.string.waitlist_status_display_waiting);
+            badge.setBackgroundResource(R.drawable.bg_status_waiting);
+            badge.setTextColor(getColor(R.color.status_waiting_text));
         }
     }
 
@@ -174,7 +207,7 @@ public class WaitListActivity extends AppCompatActivity {
             if ("waiting".equals(doc.getString("status"))) {
                 quittable.add(doc);
                 String t = doc.getString("eventTitle");
-                names.add(t != null ? t : "Unknown");
+                names.add(t != null ? t : getString(R.string.waitlist_unknown_event));
             }
         }
 
@@ -230,8 +263,7 @@ public class WaitListActivity extends AppCompatActivity {
             }
             if (id == R.id.nav_waitlist) return true; // already here
             if (id == R.id.nav_notifications) {
-                Toast.makeText(this, "Notifications – coming soon",
-                        Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, EntrantNotificationScreen.class));
                 return true;
             }
             return false;
