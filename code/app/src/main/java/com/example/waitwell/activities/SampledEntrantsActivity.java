@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -20,9 +19,7 @@ import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -40,7 +37,6 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
 
     private String eventId;
     private SampledEntrantAdapter adapter;
-    private Button btnSelectAll;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
 
     @Override
@@ -68,7 +64,6 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.setFilterQuery(s != null ? s.toString() : "");
-                updateSelectAllButtonLabel();
             }
 
             @Override
@@ -80,14 +75,8 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
         adapter = new SampledEntrantAdapter(this);
         recycler.setAdapter(adapter);
 
-        btnSelectAll = findViewById(R.id.btnSelectAll);
-        btnSelectAll.setOnClickListener(v -> {
-            adapter.toggleSelectAll();
-            updateSelectAllButtonLabel();
-        });
-
-        Button btnSend = findViewById(R.id.btnSendNotifications);
-        btnSend.setOnClickListener(v -> Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
+        findViewById(R.id.btnSelectAll).setVisibility(android.view.View.GONE);
+        findViewById(R.id.btnSendNotifications).setVisibility(android.view.View.GONE);
 
         BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {
@@ -109,14 +98,6 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
         loadSelectedEntrants();
     }
 
-    private void updateSelectAllButtonLabel() {
-        if (adapter.areAllChecked()) {
-            btnSelectAll.setText(R.string.sampled_deselect_all);
-        } else {
-            btnSelectAll.setText(R.string.sampled_select_all);
-        }
-    }
-
     private void loadSelectedEntrants() {
         String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
         FirebaseHelper.getInstance()
@@ -124,7 +105,6 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
                         adapter.setItems(Collections.emptyList());
-                        updateSelectAllButtonLabel();
                         return;
                     }
                     int total = snapshot.size();
@@ -170,43 +150,11 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
             adapter.setItems(sorted);
             String q = ((EditText) findViewById(R.id.editSearch)).getText().toString();
             adapter.setFilterQuery(q);
-            updateSelectAllButtonLabel();
         });
     }
 
     @Override
-    public void onConfirm(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
-        String confirmed = getString(R.string.firestore_waitlist_status_confirmed);
-        db.runTransaction(transaction -> {
-            DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
-            transaction.update(entryRef, "status", confirmed);
-            DocumentReference eventRef = db.collection("events").document(eventId);
-            transaction.update(eventRef, "AttendingEntrants", FieldValue.arrayUnion(item.userId));
-            transaction.update(eventRef, "waitlistEntrantIds", FieldValue.arrayRemove(item.userId));
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            Toast.makeText(this, R.string.sampled_confirm_success, Toast.LENGTH_SHORT).show();
-            adapter.removeEntry(item.entryDocumentId);
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, R.string.waitlist_update_failed, Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onRemoveFromSampled(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
-        String waiting = getString(R.string.firestore_waitlist_status_waiting);
-        db.collection("waitlist_entries")
-                .document(item.entryDocumentId)
-                .update("status", waiting)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, R.string.sampled_remove_success, Toast.LENGTH_SHORT).show();
-                    adapter.removeEntry(item.entryDocumentId);
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.waitlist_update_failed, Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onSelectionChanged() {
-        runOnUiThread(this::updateSelectAllButtonLabel);
+    public void onViewProfile(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
+        Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
     }
 }

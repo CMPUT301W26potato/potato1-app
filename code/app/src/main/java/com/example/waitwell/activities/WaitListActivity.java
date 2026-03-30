@@ -128,8 +128,8 @@ public class WaitListActivity extends AppCompatActivity {
                 String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
                 if (selectedStatus.equals(entryStatus)) {
                     FirebaseHelper.getInstance().getEvent(eid)
-                            .addOnSuccessListener(doc -> {
-                                if (doc == null || !doc.exists()) {
+                            .addOnSuccessListener(eventDoc -> {
+                                if (eventDoc == null || !eventDoc.exists()) {
                                     Toast.makeText(this, R.string.invitation_error_not_found,
                                             Toast.LENGTH_SHORT).show();
                                     return;
@@ -137,7 +137,7 @@ public class WaitListActivity extends AppCompatActivity {
                                 Intent invitation = new Intent(this, InvitationResponseActivity.class);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, eid);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, entryTitle);
-                                InvitationResponseActivity.putEventFieldsFromSnapshot(invitation, doc, this);
+                                InvitationResponseActivity.putEventFieldsFromSnapshot(invitation, eventDoc, this);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_MESSAGE,
                                         getString(R.string.waitlist_chosen_notification_message, entryTitle));
                                 startActivity(invitation);

@@ -78,6 +78,16 @@ public class FirebaseHelper {
         db.runTransaction(transaction -> {
             DocumentReference eventRef = db.collection("events").document(eventId);
             DocumentReference entryRef = db.collection("waitlist_entries").document(entryId);
+
+            // Hard guard: once an entrant is confirmed for this event, they cannot rejoin its waitlist.
+            DocumentSnapshot existingEntry = transaction.get(entryRef);
+            if (existingEntry.exists()) {
+                String existingStatus = existingEntry.getString("status");
+                if ("confirmed".equals(existingStatus)) {
+                    throw new IllegalStateException("Confirmed entrants cannot rejoin this waitlist");
+                }
+            }
+
             //Add userId to the event's array of waitlist entrant IDs
             transaction.update(eventRef,
                     "waitlistEntrantIds", FieldValue.arrayUnion(userId));

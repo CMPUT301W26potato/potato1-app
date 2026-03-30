@@ -12,6 +12,8 @@ public class NotificationModel {
     private String message;
     private String buttonLabel;
     private NotificationType type;
+    private boolean expired;
+
     /**
      *  create a new notificationmodel object to be used in the adapter
      */
@@ -43,4 +45,11 @@ public class NotificationModel {
         return type;
     }
 
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
 }

@@ -209,5 +209,6 @@
     <string name="sampled_remove_entrant">Remove from sampled list</string>
     <string name="sampled_confirm_success">Entrant confirmed.</string>
     <string name="sampled_remove_success">Returned to waitlist.</string>
+    <string name="notification_invite_expired">Invite expired</string>
 </resources>
 
