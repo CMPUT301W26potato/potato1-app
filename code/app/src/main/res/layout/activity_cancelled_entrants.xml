@@ -51,6 +51,11 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="12dp">
+        android:text="@string/loading"
+        android:gravity="center"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,4 +109,14 @@
         android:clipToPadding="false"
         android:paddingTop="4dp"
         android:paddingBottom="16dp" />
+</LinearLayout>
+        android:contentDescription="@string/cancelled_entrants_list_desc">
+
+        <LinearLayout
+            android:id="@+id/entrantListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp" />
+    </ScrollView>
 </LinearLayout>

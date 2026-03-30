@@ -199,6 +199,15 @@
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
+    <TextView
+        android:id="@+id/txtLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:gravity="center"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerInvited"
@@ -232,6 +241,11 @@
         <View
             android:layout_width="12dp"
             android:layout_height="0dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:contentDescription="@string/invited_entrants_list_desc">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRemoveApplicants"

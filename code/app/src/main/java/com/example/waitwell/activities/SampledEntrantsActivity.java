@@ -86,9 +86,10 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
             updateSelectAllButtonLabel();
         });
 
-        Button btnSend = findViewById(R.id.btnSendNotifications);
-        btnSend.setOnClickListener(v -> Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
 
+// REHAAN'S ADDITION — US 02.05.01: send CHOSEN notifications to selected entrants
+        Button btnSend = findViewById(R.id.btnSendNotifications);
+        btnSend.setOnClickListener(v -> sendNotificationsToChecked());
         BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -208,5 +209,66 @@ public class SampledEntrantsActivity extends AppCompatActivity implements Sample
     @Override
     public void onSelectionChanged() {
         runOnUiThread(this::updateSelectAllButtonLabel);
+    }
+
+    /**
+     * Sends a CHOSEN notification to every checked entrant in the sampled list (US 02.05.01).
+     * If no entrants are checked, shows an error toast instead of sending nothing.
+     * Fetches the event title from Firestore first so the message is accurate.
+     */
+    private void sendNotificationsToChecked() {
+        // collect checked items from the adapter
+        java.util.List<SampledEntrantAdapter.SampledEntrantItem> targets = new java.util.ArrayList<>();
+        for (SampledEntrantAdapter.SampledEntrantItem item : adapter.getCheckedItems()) {
+            targets.add(item);
+        }
+
+        if (targets.isEmpty()) {
+            Toast.makeText(this, R.string.sampled_notify_none_selected, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // fetch event title so the notification message is meaningful
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    String eventTitle = eventDoc.getString("title");
+                    if (eventTitle == null || eventTitle.trim().isEmpty()) {
+                        eventTitle = getString(R.string.app_name);
+                    }
+                    dispatchNotifications(targets, eventTitle);
+                })
+                .addOnFailureListener(e -> {
+                    // fall back to a generic title rather than blocking the send
+                    dispatchNotifications(targets, getString(R.string.app_name));
+                });
+    }
+
+    /**
+     * Creates one CHOSEN notification per target entrant using a batch write.
+     *
+     * @param targets    entrants to notify
+     * @param eventTitle event title used in the notification message
+     */
+    private void dispatchNotifications(
+            java.util.List<SampledEntrantAdapter.SampledEntrantItem> targets,
+            String eventTitle) {
+
+        java.util.List<com.example.waitwell.Notification> notifications = new java.util.ArrayList<>();
+        String message = getString(R.string.sampled_notify_message, eventTitle);
+
+        for (SampledEntrantAdapter.SampledEntrantItem item : targets) {
+            notifications.add(new com.example.waitwell.Notification(
+                    item.userId, eventId, eventTitle, message, "CHOSEN"));
+        }
+
+        FirebaseHelper.getInstance().createNotificationsBatch(notifications, task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this,
+                        getString(R.string.sampled_notify_sent, targets.size()),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.sampled_notify_failed, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
