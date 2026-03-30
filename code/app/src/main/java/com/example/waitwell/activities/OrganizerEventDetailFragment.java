@@ -138,18 +138,29 @@ public class OrganizerEventDetailFragment extends Fragment {
             i.putExtra("event_title", txtTitle.getText() != null ? txtTitle.getText().toString() : "");
             startActivity(i);
         });
-        btnViewFinalEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewCanceledEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewInvitedEntrants.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnViewSampledEntrants.setOnClickListener(v -> {
-            Intent i = new Intent(requireContext(), SampledEntrantsActivity.class);
-            i.putExtra(SampledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+        // REHAAN'S ADDITION — US 02.06.04: open enrolled entrants list
+        btnViewFinalEntrants.setOnClickListener(v -> {
+            android.content.Intent i = new android.content.Intent(requireContext(), EnrolledEntrantsActivity.class);
+            i.putExtra(EnrolledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+        // REHAAN'S ADDITION — US 02.06.02: wire cancelled entrants button
+        btnViewCanceledEntrants.setOnClickListener(v -> {
+            android.content.Intent i = new android.content.Intent(requireContext(), CancelledEntrantsActivity.class);
+            i.putExtra("event_id", eventId);
+            startActivity(i);
+        });
+        // REHAAN'S ADDITION — US 02.06.01: wire invited entrants button
+        btnViewInvitedEntrants.setOnClickListener(v -> {
+            android.content.Intent i = new android.content.Intent(requireContext(), InvitedEntrantsActivity.class);
+            i.putExtra("event_id", eventId);
             startActivity(i);
         });
 
+        btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
+        // REHAAN'S ADDITION — US 02.05.03: wire draw replacement button
+        Button btnDrawReplacement = view.findViewById(R.id.btnDrawReplacement);
+        btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
         btnEdit.setOnClickListener(v -> openEditEvent());
 
         btnBack.setOnClickListener(v -> {

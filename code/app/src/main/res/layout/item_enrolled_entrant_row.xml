@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rehaan's addition for US 02.06.04 — one enrolled entrant row with a cancel button. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@color/bg_white"
+    android:padding="14dp"
+    android:layout_marginBottom="8dp">
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_user"
+        android:contentDescription="@string/user_icon" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/txtEntrantName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="@font/inter24ptmedium" />
+
+        <TextView
+            android:id="@+id/txtEntrantEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnCancelEntrant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enrolled_cancel_button"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:textColor="@color/text_white"
+        android:background="@drawable/bg_button_red"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:fontFamily="@font/poppins" />
+</LinearLayout>

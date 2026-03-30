@@ -6,3 +6,4 @@
 *.iml
 local.properties
 app/google-services.json
+.DS_Store
