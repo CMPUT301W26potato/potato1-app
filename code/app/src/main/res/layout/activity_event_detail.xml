@@ -326,6 +326,44 @@
                     android:textColor="@color/text_primary"
                     android:textSize="15sp" />
             </LinearLayout>
+
+            <!-- comments section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins"
+                android:text="Comments"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/text_primary"/>
+
+            <!-- comment input -->
+            <EditText
+                android:id="@+id/editComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Write a comment..."
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppinsmedium"/>
+
+            <Button
+                android:id="@+id/btnPostComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/poppins"/>
+
+            <!-- comments list -->
+            <LinearLayout
+                android:id="@+id/commentsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins"/>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
