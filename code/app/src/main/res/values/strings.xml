@@ -210,5 +210,14 @@
     <string name="sampled_confirm_success">Entrant confirmed.</string>
     <string name="sampled_remove_success">Returned to waitlist.</string>
     <string name="notification_invite_expired">Invite expired</string>
+    <string name="enrolled_entrants_title">Enrolled Entrants</string>
+    <string name="no_enrolled_entrants">No enrolled entrants</string>
+    <string name="enrolled_entrants_list_desc">Enrolled entrants list</string>
+    <string name="enrolled_cancel_button">Cancel</string>
+    <string name="enrolled_count">%d enrolled</string>
+    <string name="enrolled_cancel_dialog_title">Cancel Entrant</string>
+    <string name="enrolled_cancel_dialog_message">Cancel %1$s?</string>
+    <string name="enrolled_cancel_dialog_confirm">Cancel</string>
+    <string name="enrolled_cancel_success">Entrant cancelled.</string>
 </resources>
 

@@ -241,12 +241,6 @@
         <View
             android:layout_width="12dp"
             android:layout_height="0dp" />
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:contentDescription="@string/invited_entrants_list_desc">
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRemoveApplicants"
             android:layout_width="0dp"
