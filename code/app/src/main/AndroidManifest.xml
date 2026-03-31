@@ -151,6 +151,10 @@
             android:name=".activities.RegistrationHistoryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.OrganizerCommentsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
