@@ -32,8 +32,27 @@ public class RegistrationAdapter extends RecyclerView.Adapter<RegistrationAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DocumentSnapshot doc = registrations.get(position);
-        holder.txtEventTitle.setText(doc.getString("eventTitle"));
-        holder.txtStatus.setText(doc.getString("status") != null ? doc.getString("status") : "Unknown");
+
+        String rawStatus = doc.getString("status");
+
+        // Only display selected or rejected events
+        if (rawStatus == null ||
+                (!rawStatus.equalsIgnoreCase("selected") && !rawStatus.equalsIgnoreCase("confirmed") &&
+                        !rawStatus.equalsIgnoreCase("rejected"))) {
+            // Hide this row by setting visibility to GONE (optional) or skip adding to list
+            holder.itemView.setVisibility(View.GONE);
+            return;
+        } else {
+            holder.itemView.setVisibility(View.VISIBLE);
+        }
+
+        // Event title
+        String title = doc.getString("eventTitle");
+        holder.txtEventTitle.setText(title != null ? title : "Unknown Event");
+
+        // Map Firestore status to display string
+        String displayStatus = rawStatus.equalsIgnoreCase("rejected") ? "Not Selected" : "Selected";
+        holder.txtStatus.setText(displayStatus);
     }
 
     @Override
