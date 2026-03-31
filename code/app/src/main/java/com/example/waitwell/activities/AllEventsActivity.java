@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
+
+import com.google.android.material.datepicker.MaterialDatePicker;
 
 import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.EntrantNotificationScreen;
@@ -23,9 +26,12 @@ import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 
@@ -51,14 +57,17 @@ import java.util.Set;
  */
 public class AllEventsActivity extends AppCompatActivity {
     private static final String TAG = "AllEventsActivity";
+    private static final String[] CAPACITY_RANGES = {"Small (1-20)", "Medium (21-50)", "Large (51+)"};
 
     private EditText editSearch;
     private LinearLayout eventsListContainer;
     private LinearLayout emptyState;
     private LinearLayout categoryIndicator;
+    private LinearLayout eventCapacityIndicator;
+    private LinearLayout dateRangeIndicator;
     private ScrollView scrollEvents;
-    private TextView txtResultCount, txtEmptyMessage, txtActiveCategory;
-    private TextView chipAll, chipOpen, chipCategory, btnClearCategory,chipAvailability,chipEventCapacity, btnClearEventCapacity;
+    private TextView txtResultCount, txtEmptyMessage, txtActiveCategory, txtEventCapacity, txtDateRange;
+    private TextView chipAll, chipOpen, chipCategory, btnClearCategory, chipDateRange, chipEventCapacity, btnClearEventCapacity, btnClearDateRange;
 
     private List<DocumentSnapshot> allDocs = new ArrayList<>();
     /** Categories collected from event data. */
@@ -67,6 +76,12 @@ public class AllEventsActivity extends AppCompatActivity {
     private String filterMode = "all";
     /** If filterMode == "category", which one. */
     private String selectedCategory = null;
+    /** If filterMode == "event_capacity" we need to select which range. */
+    private String selectedCapacityRange = null;
+    /** if filterMode == "date_range" start and end in millis. */
+    private Long startDateMillis = null, endDateMillis = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +112,14 @@ public class AllEventsActivity extends AppCompatActivity {
         chipAll = findViewById(R.id.chipAll);
         chipOpen = findViewById(R.id.chipOpen);
         chipCategory = findViewById(R.id.chipCategory);
-        chipAvailability = findViewById(R.id.chipAvailability);
+        chipDateRange = findViewById(R.id.chipDateRange);
         chipEventCapacity = findViewById(R.id.chipEventCapacity);
         btnClearEventCapacity = findViewById(R.id.btnClearEventCapacity);
+        eventCapacityIndicator = findViewById(R.id.eventCapacityIndicator);
+        txtEventCapacity = findViewById(R.id.txtEventCapacity);
+        dateRangeIndicator = findViewById(R.id.dateRangeIndicator);
+        txtDateRange = findViewById(R.id.txtDateRange);
+        btnClearDateRange = findViewById(R.id.btnClearDateRange);
 
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
@@ -111,9 +131,16 @@ public class AllEventsActivity extends AppCompatActivity {
             updateChipStyles();
             applyFilters();
         });
+        btnClearDateRange.setOnClickListener(v -> {
+            startDateMillis = null;
+            endDateMillis = null;
+            filterMode = "all";
+            updateChipStyles();
+            applyFilters();
+        });
         //do the same thing for event capacity
         btnClearEventCapacity.setOnClickListener(v -> {
-            selectedCategory = null;
+            selectedCapacityRange = null;
             filterMode = "all";
             updateChipStyles();
             applyFilters();
@@ -124,6 +151,9 @@ public class AllEventsActivity extends AppCompatActivity {
         chipAll.setOnClickListener(v -> {
             filterMode = "all";
             selectedCategory = null;
+            selectedCapacityRange = null;
+            startDateMillis = null;
+            endDateMillis = null;
             updateChipStyles();
             applyFilters();
         });
@@ -131,16 +161,14 @@ public class AllEventsActivity extends AppCompatActivity {
         chipOpen.setOnClickListener(v -> {
             filterMode = "open";
             selectedCategory = null;
+            selectedCapacityRange = null;
+            startDateMillis = null;
+            endDateMillis = null;
             updateChipStyles();
             applyFilters();
         });
 
-        chipAvailability.setOnClickListener(v -> {
-            filterMode = "availability";
-            selectedCategory = null;
-            updateChipStyles();
-            applyFilters();
-        });
+        chipDateRange.setOnClickListener(v -> showDateRangePicker());
 
         chipCategory.setOnClickListener(v -> showCategoryDialog());
         chipEventCapacity.setOnClickListener(v -> showEventCapacityDialog());
@@ -158,8 +186,9 @@ public class AllEventsActivity extends AppCompatActivity {
         chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown);
         chipCategory.setTextColor(getColor(R.color.primary));
         chipCategory.setText("Category ▾");
-        chipAvailability.setBackgroundResource(R.drawable.bg_filter_inactive);
-        chipAvailability.setTextColor(getColor(R.color.primary));
+        chipDateRange.setBackgroundResource(R.drawable.bg_filter_dropdown);
+        chipDateRange.setTextColor(getColor(R.color.primary));
+        chipDateRange.setText("Date Range ▾");
         chipEventCapacity.setBackgroundResource(R.drawable.bg_filter_dropdown);
         chipEventCapacity.setTextColor(getColor(R.color.primary));
         chipEventCapacity.setText("Event Capacity ▾");
@@ -170,12 +199,16 @@ public class AllEventsActivity extends AppCompatActivity {
                 chipAll.setBackgroundResource(R.drawable.bg_filter_active);
                 chipAll.setTextColor(getColor(R.color.text_white));
                 categoryIndicator.setVisibility(View.GONE);
+                eventCapacityIndicator.setVisibility(View.GONE);
+                dateRangeIndicator.setVisibility(View.GONE);
                 break;
 
             case "open":
                 chipOpen.setBackgroundResource(R.drawable.bg_filter_active);
                 chipOpen.setTextColor(getColor(R.color.text_white));
                 categoryIndicator.setVisibility(View.GONE);
+                eventCapacityIndicator.setVisibility(View.GONE);
+                dateRangeIndicator.setVisibility(View.GONE);
                 break;
 
             case "category":
@@ -184,19 +217,30 @@ public class AllEventsActivity extends AppCompatActivity {
                 chipCategory.setText(selectedCategory + " ▾");
                 categoryIndicator.setVisibility(View.VISIBLE);
                 txtActiveCategory.setText(selectedCategory);
+                eventCapacityIndicator.setVisibility(View.GONE);
+                dateRangeIndicator.setVisibility(View.GONE);
                 break;
-            case "availability":
-                chipAvailability.setBackgroundResource(R.drawable.bg_filter_active);
-                chipAvailability.setTextColor(getColor(R.color.text_white));
+
+            case "date_range":
+                chipDateRange.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
+                chipDateRange.setTextColor(getColor(R.color.text_white));
+                SimpleDateFormat fmt = new SimpleDateFormat("MMM d", Locale.getDefault());
+                String rangeText = fmt.format(new Date(startDateMillis)) + " – " + fmt.format(new Date(endDateMillis));
+                chipDateRange.setText(rangeText + " ▾");
                 categoryIndicator.setVisibility(View.GONE);
+                eventCapacityIndicator.setVisibility(View.GONE);
+                dateRangeIndicator.setVisibility(View.VISIBLE);
+                txtDateRange.setText(rangeText);
                 break;
 
             case "event_capacity":
-                chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
-                chipCategory.setTextColor(getColor(R.color.text_white));
-                chipCategory.setText(selectedCategory + " ▾");
-                categoryIndicator.setVisibility(View.VISIBLE);
-                txtActiveCategory.setText(selectedCategory);
+                chipEventCapacity.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
+                chipEventCapacity.setTextColor(getColor(R.color.text_white));
+                chipEventCapacity.setText(selectedCapacityRange + " ▾");
+                categoryIndicator.setVisibility(View.GONE);
+                eventCapacityIndicator.setVisibility(View.VISIBLE);
+                dateRangeIndicator.setVisibility(View.GONE);
+                txtEventCapacity.setText(selectedCapacityRange);
                 break;
         }
     }
@@ -225,18 +269,27 @@ public class AllEventsActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void showDateRangePicker() {
+        MaterialDatePicker<Pair<Long, Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("Select date range")
+                .build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            startDateMillis = selection.first;
+            endDateMillis = selection.second;
+            filterMode = "date_range";
+            updateChipStyles();
+            applyFilters();
+        });
+
+        picker.show(getSupportFragmentManager(), "dateRangePicker");
+    }
+
     private void showEventCapacityDialog() {
-        if (availableCategories.isEmpty()) {
-            Toast.makeText(this, "No categories found - add a \"category\" field to your events in Firestore", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        String[] items = availableCategories.toArray(new String[0]);
-
         new AlertDialog.Builder(this)
                 .setTitle("Filter by event capacity")
-                .setItems(items, (dialog, which) -> {
-                    selectedCategory = items[which];
+                .setItems(CAPACITY_RANGES, (dialog, which) -> {
+                    selectedCapacityRange = CAPACITY_RANGES[which];
                     filterMode = "event_capacity";
                     updateChipStyles();
                     applyFilters();
@@ -282,6 +335,7 @@ public class AllEventsActivity extends AppCompatActivity {
         availableCategories = new ArrayList<>(cats);
     }
 
+
     //Filter
     private void applyFilters() {
         String query = editSearch.getText().toString().trim().toLowerCase();
@@ -307,17 +361,19 @@ public class AllEventsActivity extends AppCompatActivity {
                 case "category":
                     if (!category.equalsIgnoreCase(selectedCategory)) continue;
                     break;
-                case "availability":
-                    //if the capacity is greater than 0 its open
-                    List<String> ids = (List<String>) doc.get("waitlistEntrantIds");
-                    Long cap = doc.getLong("capacity");
-                    int enrolled = (ids != null) ? ids.size() : 0;
-                    int maxCap = (cap != null) ? cap.intValue() : 0;
-                    if (maxCap > 0 && enrolled >= maxCap) continue;
+                case "date_range":
+                    Date eventDate = doc.getDate("eventDate");
+                    if (eventDate == null) continue;
+                    if (startDateMillis != null && eventDate.getTime() < startDateMillis) continue;
+                    if (endDateMillis != null && eventDate.getTime() > endDateMillis + 86400000L) continue;
                     break;
 
                 case "event_capacity":
-
+                    Long capVal = doc.getLong("waitlistLimit");
+                    int c = (capVal != null) ? capVal.intValue() : 0;
+                    if ("Small (1-20)".equals(selectedCapacityRange) && (c < 1 || c > 20)) continue;
+                    if ("Medium (21-50)".equals(selectedCapacityRange) && (c < 21 || c > 50)) continue;
+                    if ("Large (51+)".equals(selectedCapacityRange) && c < 51) continue;
                     break;
                 // "all" -no filtering
             }

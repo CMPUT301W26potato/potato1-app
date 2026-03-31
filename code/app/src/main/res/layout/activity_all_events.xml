@@ -112,17 +112,17 @@
             android:text="Open"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
-        <!--        availability chip: "Spots Available"-->
+        <!--        date range chip-->
         <TextView
-            android:id="@+id/chipAvailability"
+            android:id="@+id/chipDateRange"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_filter_inactive"
+            android:background="@drawable/bg_filter_dropdown"
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Spots Available"
+            android:text="Availability ▾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
@@ -140,12 +140,23 @@
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
+    </LinearLayout>
+
+    <!-- Filter Chips Row 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
         <!--event capacity        -->
         <TextView
             android:id="@+id/chipEventCapacity"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:layout_marginStart="8dp"
             android:background="@drawable/bg_filter_dropdown"
             android:gravity="center"
             android:paddingStart="14dp"
@@ -224,6 +235,46 @@
 
         <TextView
             android:id="@+id/btnClearEventCapacity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="✕"
+            android:textColor="#C62828"
+            android:textSize="16sp"
+            android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!--Active date range indicator-->
+    <LinearLayout
+        android:id="@+id/dateRangeIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Showing: "
+            android:textColor="@color/text_hint"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/txtDateRange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#2E7D32"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnClearDateRange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
