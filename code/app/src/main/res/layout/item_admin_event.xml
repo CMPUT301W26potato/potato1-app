@@ -59,4 +59,15 @@
         android:textSize="12sp"
         android:layout_marginTop="6dp"/>
 
+    <Button
+        android:id="@+id/btnRemoveComments"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:text="Comments"
+        android:textColor="@color/text_white"
+        android:background="@drawable/bg_button_green"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"/>
+
+
 </LinearLayout>
