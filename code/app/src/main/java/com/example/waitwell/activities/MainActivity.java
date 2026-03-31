@@ -260,9 +260,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupClickListeners() {
 
-        // Search bar tap
+        // Search bar tap — navigate to All Events which has a working search
         findViewById(R.id.searchBar).setOnClickListener(v ->
-                Toast.makeText(this, "Search ", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, AllEventsActivity.class)));
 
         // History chip
         findViewById(R.id.chipHistory).setOnClickListener(v ->
