@@ -37,6 +37,7 @@ public class OrganizerEventCreatedFragment extends Fragment {
     private static final String ARG_EVENT_TITLE = "event_title";
     private static final String ARG_POSTER_URL = "event_poster_url";
     private static final String ARG_IS_PRIVATE = "is_private";
+    private static final String ARG_IS_SHARE_MODE = "is_share_mode";
 
     // Values passed from the create event screen so this fragment knows
     // which event to show a QR code for and what text to include when sharing.
@@ -44,6 +45,7 @@ public class OrganizerEventCreatedFragment extends Fragment {
     private String eventTitle;
     private String eventPosterUrl;
     private boolean isPrivateEvent;
+    private boolean isShareMode;
 
     private ImageView imgQrCode;
 
@@ -111,6 +113,17 @@ public class OrganizerEventCreatedFragment extends Fragment {
         imgQrCode = view.findViewById(R.id.imgQrCode);
         Button btnShare = view.findViewById(R.id.btnShare);
         Button btnViewMyEvents = view.findViewById(R.id.btnViewMyEvents);
+
+        View btnHamburger = view.findViewById(R.id.btnHamburger);
+        if (btnHamburger != null) {
+            btnHamburger.setOnClickListener(v -> {
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
 
         if (isShareMode) {
             TextView txtEventCreatedBanner = view.findViewById(R.id.txtEventCreatedBanner);

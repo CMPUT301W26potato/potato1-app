@@ -80,10 +80,19 @@ public class Profile extends AppCompatActivity {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) startActivity(new Intent(this, MainActivity.class));
-            else if (id == R.id.nav_waitlist) startActivity(new Intent(this, WaitListActivity.class));
-            else if (id == R.id.nav_notifications)
-                startActivity(new Intent(this, EntrantNotificationScreen.class));
+            if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            } else if (id == R.id.nav_waitlist) {
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            } else if (id == R.id.nav_notifications) {
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            }
             return true; // always return true so the item shows as selected
         });
     }

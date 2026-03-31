@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EventStatusUtils;
+import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -109,7 +110,7 @@ public class EventDetailActivity extends AppCompatActivity {
     @SuppressWarnings("unchecked")
     private void populateUI(DocumentSnapshot doc) {
         if (!doc.exists()) {
-            Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.event_no_longer_available, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -303,14 +304,22 @@ public class EventDetailActivity extends AppCompatActivity {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) { finish(); return true; }
+            if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                return true;
+            }
             if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             if (id == R.id.nav_notifications) {
-                Toast.makeText(this, "Notifications ", Toast.LENGTH_SHORT).show();
-                //todo
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

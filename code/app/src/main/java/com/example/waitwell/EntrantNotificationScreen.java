@@ -44,6 +44,8 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         adapter = new NotificationAdapter(notifications);
         recyclerView.setAdapter(adapter);
 
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+
         // Load notifications from Firestore
         loadNotifications();
 
@@ -215,27 +217,29 @@ public class EntrantNotificationScreen extends AppCompatActivity {
 
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
 
+        // Notifications is the primary screen for this activity.
+        nav.setSelectedItemId(R.id.nav_notifications);
+
         nav.setOnItemSelectedListener(item -> {
 
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, com.example.waitwell.activities.MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, com.example.waitwell.activities.WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_notifications) {
-
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(this, EntrantNotificationScreen.class);
-                startActivity(intent);
-
-                return true;
+                return true; // already here
             }
 
             return false;
