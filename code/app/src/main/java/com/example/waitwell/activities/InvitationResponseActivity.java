@@ -133,12 +133,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
         applyInvitationMessage(message, eventName);
 
         ImageButton btnHamburger = findViewById(R.id.btnHamburger);
-        btnHamburger.setOnClickListener(v -> {
-            Intent i = new Intent(this, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(i);
-            finish();
-        });
+        btnHamburger.setOnClickListener(v -> finish());
 
         ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
         imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));

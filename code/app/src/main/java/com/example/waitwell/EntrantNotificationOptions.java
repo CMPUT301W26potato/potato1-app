@@ -40,6 +40,8 @@ public class EntrantNotificationOptions extends AppCompatActivity {
             prefs.edit().putBoolean("checkbox2", isChecked).apply();
         });
 
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+
         //setup the bottom nav bar
         setupBottomNav();
     }
@@ -60,21 +62,23 @@ public class EntrantNotificationOptions extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, com.example.waitwell.activities.MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_notifications) {
-
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-
                 return true;
             }
 

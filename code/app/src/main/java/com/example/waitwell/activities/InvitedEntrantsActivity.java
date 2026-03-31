@@ -46,6 +46,7 @@ public class InvitedEntrantsActivity extends AppCompatActivity implements Invite
     private String statusSelected;
     private String statusConfirmed;
     private String statusCancelled;
+    private String eventTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +103,7 @@ public class InvitedEntrantsActivity extends AppCompatActivity implements Invite
         checkCancelled.setOnCheckedChangeListener((b, c) -> applyFilters.run());
         checkPending.setOnCheckedChangeListener((b, c) -> applyFilters.run());
 
-        findViewById(R.id.btnSendNotifications).setOnClickListener(v ->
-                Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
+        findViewById(R.id.btnSendNotifications).setOnClickListener(v -> sendStatusAwareNotifications());
 
         findViewById(R.id.btnRemoveApplicants).setOnClickListener(v -> removeSelectedApplicants());
 
@@ -125,6 +125,71 @@ public class InvitedEntrantsActivity extends AppCompatActivity implements Invite
         });
 
         loadInvitedEntrants();
+        refreshEventTitleIfNeeded(null);
+    }
+
+    private void refreshEventTitleIfNeeded(Runnable then) {
+        if (!TextUtils.isEmpty(eventTitle)) {
+            if (then != null) then.run();
+            return;
+        }
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc != null && doc.exists()) {
+                        String t = doc.getString("title");
+                        eventTitle = t != null ? t : getString(R.string.app_name);
+                    } else {
+                        eventTitle = getString(R.string.app_name);
+                    }
+                    if (then != null) then.run();
+                })
+                .addOnFailureListener(e -> {
+                    eventTitle = getString(R.string.app_name);
+                    if (then != null) then.run();
+                });
+    }
+
+    private void sendStatusAwareNotifications() {
+        List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getSelectedEntrants();
+        if (selected.isEmpty()) {
+            Toast.makeText(this, R.string.invited_select_entrants_for_notifications, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        refreshEventTitleIfNeeded(() -> {
+            AtomicInteger remaining = new AtomicInteger(selected.size());
+            final boolean[] hadFailure = {false};
+            for (InvitedEntrantAdapter.InvitedEntrantItem item : selected) {
+                String message;
+                String type;
+                if (statusSelected.equals(item.firestoreStatus)) {
+                    message = getString(R.string.invited_notify_pending_message, eventTitle);
+                    type = "CHOSEN";
+                } else if (statusConfirmed.equals(item.firestoreStatus)) {
+                    message = getString(R.string.invited_notify_confirmed_message, eventTitle);
+                    type = "CHOSEN";
+                } else {
+                    message = getString(R.string.invited_notify_cancelled_message, eventTitle);
+                    type = "NOT_CHOSEN";
+                }
+                FirebaseHelper.getInstance().createNotification(
+                        item.userId,
+                        eventId,
+                        eventTitle,
+                        message,
+                        type,
+                        task -> {
+                            if (!task.isSuccessful()) {
+                                hadFailure[0] = true;
+                            }
+                            if (remaining.decrementAndGet() == 0) {
+                                int toast = hadFailure[0]
+                                        ? R.string.waitlist_status_updated_notify_failed
+                                        : R.string.invited_notifications_sent_success;
+                                Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
     }
 
     private void loadInvitedEntrants() {
@@ -182,7 +247,7 @@ public class InvitedEntrantsActivity extends AppCompatActivity implements Invite
     }
 
     private void removeSelectedApplicants() {
-        List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getCheckedItems();
+        List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getSelectedEntrants();
         if (selected.isEmpty()) {
             Toast.makeText(this, R.string.invited_select_applicants_first, Toast.LENGTH_SHORT).show();
             return;

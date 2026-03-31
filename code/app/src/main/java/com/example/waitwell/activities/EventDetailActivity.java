@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EventStatusUtils;
+import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -109,7 +110,7 @@ public class EventDetailActivity extends AppCompatActivity {
     @SuppressWarnings("unchecked")
     private void populateUI(DocumentSnapshot doc) {
         if (!doc.exists()) {
-            Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.event_no_longer_available, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -120,6 +121,7 @@ public class EventDetailActivity extends AppCompatActivity {
         Double price = doc.getDouble("price");
         Double rating = doc.getDouble("rating");
         List<String> waitlist = (List<String>) doc.get("waitlistEntrantIds");
+        List<String> attending = (List<String>) doc.get("AttendingEntrants");
 
         txtTitle.setText(title != null ? title : "");
         txtLocation.setText(location != null ? location : "");
@@ -168,6 +170,7 @@ public class EventDetailActivity extends AppCompatActivity {
         boolean isOpen = "open".equals(lifecycle);
 
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
+        boolean alreadyFinalEntrant = attending != null && attending.contains(deviceId);
 
         String entryDocId = deviceId + "_" + eventId;
         FirebaseFirestore.getInstance()
@@ -176,10 +179,10 @@ public class EventDetailActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(entryDoc -> {
                     String entryStatus = entryDoc.exists() ? entryDoc.getString("status") : null;
-                    applyJoinAvailability(isOpen, alreadyJoined, entryStatus);
+                    applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, entryStatus);
                     maybeShowWaitlistStatusSnack(entryStatus);
                 })
-                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, null));
+                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, null));
     }
 
     /**
@@ -190,7 +193,8 @@ public class EventDetailActivity extends AppCompatActivity {
         return "selected".equals(status) || "confirmed".equals(status) || "rejected".equals(status);
     }
 
-    private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray, String entryStatus) {
+    private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray,
+                                       boolean alreadyInAttendingList, String entryStatus) {
         if (joinButtonContainer == null) {
             return;
         }
@@ -198,7 +202,7 @@ public class EventDetailActivity extends AppCompatActivity {
             joinButtonContainer.setVisibility(View.GONE);
             return;
         }
-        if (alreadyOnWaitlistArray) {
+        if (alreadyOnWaitlistArray || alreadyInAttendingList) {
             joinButtonContainer.setVisibility(View.GONE);
             return;
         }
@@ -241,6 +245,21 @@ public class EventDetailActivity extends AppCompatActivity {
         String title = txtTitle.getText().toString();
         String entryDocId = deviceId + "_" + eventId;
         FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(eventDoc -> {
+                    @SuppressWarnings("unchecked")
+                    List<String> attending = eventDoc.exists()
+                            ? (List<String>) eventDoc.get("AttendingEntrants")
+                            : null;
+                    if (attending != null && attending.contains(deviceId)) {
+                        Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
+                        btnJoin.setEnabled(true);
+                        applyJoinAvailability(true, false, true, "confirmed");
+                        return;
+                    }
+                    FirebaseFirestore.getInstance()
                 .collection("waitlist_entries")
                 .document(entryDocId)
                 .get()
@@ -249,10 +268,15 @@ public class EventDetailActivity extends AppCompatActivity {
                     if (blocksWaitlistRejoin(st)) {
                         Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
-                        applyJoinAvailability(true, false, st);
+                        applyJoinAvailability(true, false, false, st);
                         return;
                     }
                     runJoinWaitlist(title);
+                })
+                .addOnFailureListener(e -> {
+                    btnJoin.setEnabled(true);
+                    Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                });
                 })
                 .addOnFailureListener(e -> {
                     btnJoin.setEnabled(true);
@@ -280,14 +304,22 @@ public class EventDetailActivity extends AppCompatActivity {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) { finish(); return true; }
+            if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                return true;
+            }
             if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             if (id == R.id.nav_notifications) {
-                Toast.makeText(this, "Notifications ", Toast.LENGTH_SHORT).show();
-                //todo
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;
@@ -378,12 +410,14 @@ public class EventDetailActivity extends AppCompatActivity {
                 .collection("events")
                 .document(eventId)
                 .collection("comments")
+                .orderBy("timestamp", Query.Direction.DESCENDING) // latest first
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String text = doc.getString("text");
                         String userId = doc.getString("userId");
+                        String role = doc.getString("role"); // gonna use for organizer role differentiation display
                         if (text == null || userId == null) continue;
 
                         // fetch the user's name from 'users' collection
@@ -396,6 +430,11 @@ public class EventDetailActivity extends AppCompatActivity {
                                     if (userDoc.exists()) {
                                         String n = userDoc.getString("name");
                                         if (n != null && !n.isEmpty()) name = n;
+                                    }
+
+                                    // only show role for organizers
+                                    if ("organizer".equalsIgnoreCase(role)) {
+                                        name = "[Organizer] " +name;
                                     }
 
                                     // create comment TextView

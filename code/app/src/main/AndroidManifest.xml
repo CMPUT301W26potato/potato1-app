@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
@@ -101,6 +104,9 @@
             android:name=".activities.SampledEntrantsActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.InviteEntrantsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
 
@@ -127,12 +133,30 @@
 
 
 
-    <!--US 01.02.02: Update Profile Details -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.waitwell.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!--US 01.02.02: Update Profile Details -->
         <activity android:name=".Profile" />
 
         <!-- Registration History Screen -->
         <activity
             android:name=".activities.RegistrationHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.OrganizerCommentsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.AdminCommentsActivity"
             android:exported="false" />
 
     </application>

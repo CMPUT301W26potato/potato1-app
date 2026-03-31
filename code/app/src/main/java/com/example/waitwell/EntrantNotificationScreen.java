@@ -3,6 +3,7 @@ package com.example.waitwell;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +15,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntrantNotificationScreen extends AppCompatActivity {
     private static final String TAG = "EntrantNotificationScreen";
@@ -43,6 +44,8 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         adapter = new NotificationAdapter(notifications);
         recyclerView.setAdapter(adapter);
 
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+
         // Load notifications from Firestore
         loadNotifications();
 
@@ -62,34 +65,75 @@ public class EntrantNotificationScreen extends AppCompatActivity {
                 .whereEqualTo("responded", false)  // Only show unresponded notifications
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    notifications.clear();
-                    notificationIds.clear();
+                    if (querySnapshot.isEmpty()) {
+                        notifications.clear();
+                        notificationIds.clear();
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    List<NotificationModel> visibleNotifications = new ArrayList<>();
+                    List<String> visibleIds = new ArrayList<>();
+                    AtomicInteger pending = new AtomicInteger(querySnapshot.size());
 
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Notification notification = doc.toObject(Notification.class);
-                        if (notification != null) {
-                            // Convert to NotificationModel for the adapter
-                            NotificationModel model = notification.toNotificationModel();
-                            notifications.add(model);
-                            notificationIds.add(doc.getId());
-
-                            // Mark as read
-                            doc.getReference().update("read", true);
+                        if (notification == null) {
+                            if (pending.decrementAndGet() == 0) {
+                                finalizeNotificationLoad(visibleNotifications, visibleIds);
+                            }
+                            continue;
                         }
-                    }
-
-                    // Update UI
-                    adapter.notifyDataSetChanged();
-
-                    // Show empty state if no notifications
-                    if (notifications.isEmpty()) {
-                        Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show();
+                        String eventId = notification.getEventId();
+                        if (TextUtils.isEmpty(eventId)) {
+                            visibleNotifications.add(notification.toNotificationModel());
+                            visibleIds.add(doc.getId());
+                            doc.getReference().update("read", true);
+                            if (pending.decrementAndGet() == 0) {
+                                finalizeNotificationLoad(visibleNotifications, visibleIds);
+                            }
+                            continue;
+                        }
+                        FirebaseFirestore.getInstance()
+                                .collection("events")
+                                .document(eventId)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    NotificationModel model = notification.toNotificationModel();
+                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                                        String lifecycle = EventStatusUtils.computeStatus(task.getResult());
+                                        if ("completed".equalsIgnoreCase(lifecycle)) {
+                                            model.setExpired(true);
+                                        }
+                                    }
+                                    visibleNotifications.add(model);
+                                    visibleIds.add(doc.getId());
+                                    // Mark as read when it appears in the feed.
+                                    doc.getReference().update("read", true);
+                                    if (pending.decrementAndGet() == 0) {
+                                        finalizeNotificationLoad(visibleNotifications, visibleIds);
+                                    }
+                                });
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to load notifications", e);
                     Toast.makeText(this, "Failed to load notifications", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void finalizeNotificationLoad(List<NotificationModel> visibleNotifications, List<String> visibleIds) {
+        runOnUiThread(() -> {
+            notifications.clear();
+            notifications.addAll(visibleNotifications);
+            notificationIds.clear();
+            notificationIds.addAll(visibleIds);
+            adapter.notifyDataSetChanged();
+
+            if (notifications.isEmpty()) {
+                Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -173,27 +217,29 @@ public class EntrantNotificationScreen extends AppCompatActivity {
 
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
 
+        // Notifications is the primary screen for this activity.
+        nav.setSelectedItemId(R.id.nav_notifications);
+
         nav.setOnItemSelectedListener(item -> {
 
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
+                Intent intent = new Intent(this, com.example.waitwell.activities.MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, com.example.waitwell.activities.WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_notifications) {
-
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(this, EntrantNotificationScreen.class);
-                startActivity(intent);
-
-                return true;
+                return true; // already here
             }
 
             return false;

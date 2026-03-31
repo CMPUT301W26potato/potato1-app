@@ -57,6 +57,7 @@ public class WaitListActivity extends AppCompatActivity {
         scrollEntries = findViewById(R.id.scrollEntries);
         btnQuit = findViewById(R.id.btnQuit);
 
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
         btnQuit.setOnClickListener(v -> showQuitDialog());
         setupBottomNav();
     }
@@ -128,8 +129,8 @@ public class WaitListActivity extends AppCompatActivity {
                 String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
                 if (selectedStatus.equals(entryStatus)) {
                     FirebaseHelper.getInstance().getEvent(eid)
-                            .addOnSuccessListener(doc -> {
-                                if (doc == null || !doc.exists()) {
+                            .addOnSuccessListener(eventDoc -> {
+                                if (eventDoc == null || !eventDoc.exists()) {
                                     Toast.makeText(this, R.string.invitation_error_not_found,
                                             Toast.LENGTH_SHORT).show();
                                     return;
@@ -137,7 +138,7 @@ public class WaitListActivity extends AppCompatActivity {
                                 Intent invitation = new Intent(this, InvitationResponseActivity.class);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, eid);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, entryTitle);
-                                InvitationResponseActivity.putEventFieldsFromSnapshot(invitation, doc, this);
+                                InvitationResponseActivity.putEventFieldsFromSnapshot(invitation, eventDoc, this);
                                 invitation.putExtra(InvitationResponseActivity.EXTRA_MESSAGE,
                                         getString(R.string.waitlist_chosen_notification_message, entryTitle));
                                 startActivity(invitation);
@@ -257,13 +258,16 @@ public class WaitListActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             if (id == R.id.nav_waitlist) return true; // already here
             if (id == R.id.nav_notifications) {
-                startActivity(new Intent(this, EntrantNotificationScreen.class));
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

@@ -21,21 +21,10 @@
         android:paddingEnd="@dimen/organizer_row_inner_padding"
         android:paddingBottom="@dimen/organizer_row_inner_padding">
 
-        <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/checkboxSelect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/sampled_checkbox_content_desc"
-            android:minWidth="@dimen/organizer_checkbox_min_side"
-            android:minHeight="@dimen/organizer_checkbox_min_side"
-            app:buttonTint="@color/text_secondary" />
-
         <TextView
             android:id="@+id/txtEntrantName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/invitation_icon_text_gap"
-            android:layout_marginEnd="@dimen/invitation_icon_text_gap"
             android:layout_weight="1"
             android:ellipsize="end"
             android:fontFamily="@font/poppins"
@@ -48,6 +37,7 @@
             android:id="@+id/btnViewEntrant"
             android:layout_width="@dimen/organizer_icon_button_size"
             android:layout_height="@dimen/organizer_icon_button_size"
+            android:layout_marginStart="@dimen/invitation_icon_text_gap"
             android:background="@drawable/bg_waitlist_icon_dark"
             android:contentDescription="@string/waitlist_view_entrant_profile"
             android:padding="@dimen/organizer_icon_button_padding"

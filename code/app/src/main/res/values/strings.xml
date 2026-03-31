@@ -57,6 +57,12 @@
     <string name="organizer_price_free">Free</string>
     <string name="organizer_date_not_set">Registration dates not set</string>
     <string name="organizer_delete_event">Delete Event</string>
+    <string name="organizer_delete_event_title">Delete Event</string>
+    <string name="organizer_delete_event_message">Are you sure you want to delete this event? This action cannot be undone.</string>
+    <string name="organizer_delete_confirm">Delete</string>
+    <string name="organizer_event_deleted_success">Event deleted successfully</string>
+    <string name="organizer_event_delete_failed">Failed to delete event. Please try again.</string>
+    <string name="event_no_longer_available">This event is no longer available</string>
     <string name="organizer_edit_event">Edit Event</string>
     <string name="organizer_share">Share</string>
     <string name="organizer_view_requests">View Requests</string>
@@ -65,6 +71,7 @@
     <string name="organizer_view_invited_entrants">View Invited Entrants</string>
     <string name="organizer_view_sampled_entrants">View Sampled Entrants</string>
     <string name="organizer_event_created_title">Event Created</string>
+    <string name="organizer_share_event_title">Share this Event</string>
     <string name="organizer_view_my_events">View My Events</string>
     <string name="qr_code">QR code</string>
     <string name="invited_count">%d invited</string>
@@ -78,23 +85,6 @@
     <string name="could_not_load_entrants">Could not load entrants</string>
     <string name="unknown_user">Unknown</string>
     <string name="status_cancelled">Cancelled</string>
-
-
-    <!-- Rehaan's addition for US 02.06.04: Enrolled entrants / cancel no-shows -->
-    <string name="enrolled_entrants_title">Enrolled Entrants</string>
-    <string name="no_enrolled_entrants">No enrolled entrants yet</string>
-    <string name="enrolled_count">%d enrolled</string>
-    <string name="enrolled_cancel_button">Cancel</string>
-    <string name="enrolled_cancel_dialog_title">Cancel Entrant</string>
-    <string name="enrolled_cancel_dialog_message">Cancel %s from this event? They will be marked as cancelled.</string>
-    <string name="enrolled_cancel_dialog_confirm">Cancel Entrant</string>
-    <string name="enrolled_cancel_success">Entrant cancelled.</string>
-
-    <!-- Rehaan's addition: accessibility content descriptions for entrant list screens -->
-    <string name="invited_entrants_list_desc">List of invited entrants</string>
-    <string name="cancelled_entrants_list_desc">List of cancelled entrants</string>
-    <string name="enrolled_entrants_list_desc">List of enrolled entrants</string>
-
 
     <!-- Rehaan's addition for US 02.05.02: -->
     <string name="lottery_dialog_title">Run Lottery</string>
@@ -183,6 +173,18 @@
     <string name="final_entrant_no_action_needed">This entrant is already confirmed.</string>
     <string name="final_entrants_remove_selected">Remove Selected</string>
     <string name="final_entrants_select_first">Select at least one entrant.</string>
+    <string name="final_entrants_export_csv">Export CSV</string>
+    <string name="export_failed_toast">Export failed. Please try again.</string>
+    <string name="export_storage_permission_required">Storage permission is required to export CSV</string>
+    <string name="export_final_entrants_chooser_title">Export Final Entrants</string>
+    <string name="csv_export_line_event">Event: %1$s</string>
+    <string name="csv_export_line_exported">Exported: %1$s</string>
+    <string name="csv_header_name">Name</string>
+    <string name="csv_header_email">Email</string>
+    <string name="csv_header_phone_number">Phone Number</string>
+    <string name="csv_header_role">Role</string>
+    <string name="csv_header_device_id">Device ID</string>
+    <string name="csv_header_account_created">Account Created</string>
     <string name="invited_filter_label">Filters:</string>
     <string name="invited_filter_enrolled">Enrolled</string>
     <string name="invited_filter_pending">Pending</string>
@@ -226,13 +228,31 @@
     <string name="sampled_remove_entrant">Remove from sampled list</string>
     <string name="sampled_confirm_success">Entrant confirmed.</string>
     <string name="sampled_remove_success">Returned to waitlist.</string>
-
-    <!-- Rehaan's addition for US 02.05.01: notify chosen entrants -->
-    <string name="sampled_notify_none_selected">Check at least one entrant to notify.</string>
-    <string name="sampled_notify_message">You have been selected for %1$s. Please accept or decline the invitation.</string>
-    <string name="sampled_notify_sent">Notifications sent to %1$d entrant(s).</string>
-    <string name="sampled_notify_failed">Failed to send notifications. Try again.</string>
-
-
+    <string name="notification_invite_expired">Invite expired</string>
+    <string name="enrolled_entrants_title">Enrolled Entrants</string>
+    <string name="no_enrolled_entrants">No enrolled entrants</string>
+    <string name="enrolled_entrants_list_desc">Enrolled entrants list</string>
+    <string name="enrolled_cancel_button">Cancel</string>
+    <string name="enrolled_count">%d enrolled</string>
+    <string name="enrolled_cancel_dialog_title">Cancel Entrant</string>
+    <string name="enrolled_cancel_dialog_message">Cancel %1$s?</string>
+    <string name="enrolled_cancel_dialog_confirm">Cancel</string>
+    <string name="enrolled_cancel_success">Entrant cancelled.</string>
+    <string name="private_event_label">Private Event</string>
+    <string name="private_event_hint">Private events are not visible on the public event listing and have no promotional QR code</string>
+    <string name="invite_entrants_title">Invite Entrants</string>
+    <string name="invite_entrants_search_hint">Search entrants</string>
+    <string name="invite_search_name">Name</string>
+    <string name="invite_search_phone">Phone</string>
+    <string name="invite_search_email">Email</string>
+    <string name="invite_entrant_toast">%1$s has been invited</string>
+    <string name="invited_select_entrants_for_notifications">Please select at least one entrant</string>
+    <string name="invited_notify_pending_message">Reminder: You have been selected for %1$s. Please accept or decline your invitation.</string>
+    <string name="invited_notify_confirmed_message">Congratulations! You are confirmed as a participant for %1$s.</string>
+    <string name="invited_notify_cancelled_message">Your cancellation for %1$s has been confirmed. You are no longer registered for this event.</string>
+    <string name="invited_notifications_sent_success">Notifications sent successfully</string>
+    <string name="waitlist_no_entrants_to_notify">No entrants to notify</string>
+    <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
+    <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
 </resources>
 

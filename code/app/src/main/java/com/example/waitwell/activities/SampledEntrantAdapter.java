@@ -7,7 +7,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.R;
@@ -22,11 +21,7 @@ import java.util.Locale;
 public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAdapter.Holder> {
 
     public interface Listener {
-        void onConfirm(@NonNull SampledEntrantItem item);
-
-        void onRemoveFromSampled(@NonNull SampledEntrantItem item);
-
-        void onSelectionChanged();
+        void onViewProfile(@NonNull SampledEntrantItem item);
     }
 
     private final Listener listener;
@@ -66,7 +61,6 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
         allItems.remove(toRemove);
         visibleItems.remove(toRemove);
         notifyDataSetChanged();
-        listener.onSelectionChanged();
     }
 
     private void applyFilter() {
@@ -82,47 +76,6 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
             }
         }
         notifyDataSetChanged();
-        listener.onSelectionChanged();
-    }
-
-    public void setAllChecked(boolean checked) {
-        for (SampledEntrantItem item : allItems) {
-            item.checked = checked;
-        }
-        notifyDataSetChanged();
-        listener.onSelectionChanged();
-    }
-
-    public boolean areAllChecked() {
-        if (allItems.isEmpty()) {
-            return false;
-        }
-        for (SampledEntrantItem item : allItems) {
-            if (!item.checked) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void toggleSelectAll() {
-        setAllChecked(!areAllChecked());
-    }
-
-    /**
-     * Returns a snapshot of all items currently checked by the organizer.
-     * Used by SampledEntrantsActivity to know who to notify.
-     *
-     * @return list of checked SampledEntrantItem objects
-     */
-    public java.util.List<SampledEntrantItem> getCheckedItems() {
-        java.util.List<SampledEntrantItem> checked = new java.util.ArrayList<>();
-        for (SampledEntrantItem item : allItems) {
-            if (item.checked) {
-                checked.add(item);
-            }
-        }
-        return checked;
     }
 
     @NonNull
@@ -137,26 +90,7 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
     public void onBindViewHolder(@NonNull Holder h, int position) {
         SampledEntrantItem item = visibleItems.get(position);
         h.txtName.setText(item.displayName != null ? item.displayName : "");
-
-        h.checkbox.setOnCheckedChangeListener(null);
-        h.checkbox.setChecked(item.checked);
-        h.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            item.checked = isChecked;
-            listener.onSelectionChanged();
-        });
-
-        h.btnConfirm.setOnClickListener(v -> {
-            int pos = h.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION) {
-                listener.onConfirm(visibleItems.get(pos));
-            }
-        });
-        h.btnRemove.setOnClickListener(v -> {
-            int pos = h.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION) {
-                listener.onRemoveFromSampled(visibleItems.get(pos));
-            }
-        });
+        h.btnEye.setOnClickListener(v -> listener.onViewProfile(item));
     }
 
     @Override
@@ -165,17 +99,13 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
     }
 
     static final class Holder extends RecyclerView.ViewHolder {
-        final AppCompatCheckBox checkbox;
         final TextView txtName;
-        final ImageButton btnConfirm;
-        final ImageButton btnRemove;
+        final ImageButton btnEye;
 
         Holder(@NonNull View itemView) {
             super(itemView);
-            checkbox = itemView.findViewById(R.id.checkboxSelect);
             txtName = itemView.findViewById(R.id.txtEntrantName);
-            btnConfirm = itemView.findViewById(R.id.btnConfirm);
-            btnRemove = itemView.findViewById(R.id.btnRemoveFromSampled);
+            btnEye = itemView.findViewById(R.id.btnViewEntrant);
         }
     }
 
@@ -183,13 +113,11 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
         public final String userId;
         public final String displayName;
         public final String entryDocumentId;
-        public boolean checked;
 
         public SampledEntrantItem(String userId, String displayName, String entryDocumentId) {
             this.userId = userId;
             this.displayName = displayName;
             this.entryDocumentId = entryDocumentId;
-            this.checked = false;
         }
     }
 }

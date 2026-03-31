@@ -98,6 +98,14 @@ public class AdminEventsActivity extends AppCompatActivity {
 
                             holder.itemView.findViewById(R.id.btnRemoveEvent)
                                     .setOnClickListener(v -> removeEvent(doc.getId()));
+
+                            holder.itemView.findViewById(R.id.btnRemoveComments)
+                                    .setOnClickListener(v -> {
+                                        Intent intent = new Intent(v.getContext(), AdminCommentsActivity.class);
+                                        v.getContext().startActivity(intent);
+                                        intent.putExtra("event_id", doc.getId());
+                                        startActivity(intent);
+                                    });
                         }
 
                         @Override

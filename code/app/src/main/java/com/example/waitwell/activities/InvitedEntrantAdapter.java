@@ -116,6 +116,11 @@ public class InvitedEntrantAdapter extends RecyclerView.Adapter<InvitedEntrantAd
         return out;
     }
 
+    @NonNull
+    public List<InvitedEntrantItem> getSelectedEntrants() {
+        return getCheckedItems();
+    }
+
     public void clearSelections() {
         checkedEntryIds.clear();
         notifyDataSetChanged();

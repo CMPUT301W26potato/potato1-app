@@ -97,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
 
         setupClickListeners();
         setupBottomNav();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadEvents();
     }
 
@@ -174,6 +179,9 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (DocumentSnapshot doc : allEventDocs) {
+            if (Boolean.TRUE.equals(doc.getBoolean("isPrivate"))) {
+                continue;
+            }
 
             String title = getEventTitle(doc);
             String organizer = getOrganizerName(doc);
@@ -316,6 +324,9 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
 
+        // Home is the primary entry screen for entrants.
+        nav.setSelectedItemId(R.id.nav_home);
+
         nav.setOnItemSelectedListener(item -> {
 
             int id = item.getItemId();
@@ -325,17 +336,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             else if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
 
             else if (id == R.id.nav_notifications) {
-
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-
                 return true;
             }
 

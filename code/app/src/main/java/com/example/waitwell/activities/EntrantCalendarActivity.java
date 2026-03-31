@@ -88,6 +88,11 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         updateSelectedKeyFromParts();
         rebuildCalendarGrid();
         renderEventsForDate(selectedDayKey);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadEvents();
     }
 

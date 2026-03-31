@@ -7,7 +7,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.R;
@@ -17,10 +16,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Final entrants list: checkbox selection, name, eye (profile placeholder).
+ * Final entrants list: read-only names.
  */
 public class FinalEntrantAdapter extends RecyclerView.Adapter<FinalEntrantAdapter.Holder> {
-
     public interface Listener {
         void onViewProfile(@NonNull FinalEntrantItem item);
     }
@@ -43,34 +41,6 @@ public class FinalEntrantAdapter extends RecyclerView.Adapter<FinalEntrantAdapte
     public void setFilterQuery(@NonNull String query) {
         filterQuery = query != null ? query.trim().toLowerCase(Locale.getDefault()) : "";
         applyFilter();
-    }
-
-    /**
-     * Entrants whose checkboxes are currently checked (tracked in {@link FinalEntrantItem#selected}).
-     */
-    @NonNull
-    public List<FinalEntrantItem> getSelectedEntrants() {
-        List<FinalEntrantItem> out = new ArrayList<>();
-        for (FinalEntrantItem item : allItems) {
-            if (item.selected) {
-                out.add(item);
-            }
-        }
-        return out;
-    }
-
-    public void removeEntry(@NonNull String entryDocumentId) {
-        FinalEntrantItem toRemove = null;
-        for (FinalEntrantItem item : allItems) {
-            if (entryDocumentId.equals(item.entryDocumentId)) {
-                toRemove = item;
-                break;
-            }
-        }
-        if (toRemove != null) {
-            allItems.remove(toRemove);
-            applyFilter();
-        }
     }
 
     private void applyFilter() {
@@ -101,9 +71,15 @@ public class FinalEntrantAdapter extends RecyclerView.Adapter<FinalEntrantAdapte
         FinalEntrantItem item = visibleItems.get(position);
         h.txtName.setText(item.displayName != null ? item.displayName : "");
 
-        h.checkbox.setOnCheckedChangeListener(null);
-        h.checkbox.setChecked(item.selected);
-        h.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> item.selected = isChecked);
+        // Defensive guard: hide any legacy action buttons if stale row layouts appear.
+        View legacyAccept = h.itemView.findViewById(R.id.btnAccept);
+        if (legacyAccept != null) {
+            legacyAccept.setVisibility(View.GONE);
+        }
+        View legacyDecline = h.itemView.findViewById(R.id.btnDecline);
+        if (legacyDecline != null) {
+            legacyDecline.setVisibility(View.GONE);
+        }
 
         h.btnEye.setOnClickListener(v -> listener.onViewProfile(item));
     }
@@ -114,13 +90,11 @@ public class FinalEntrantAdapter extends RecyclerView.Adapter<FinalEntrantAdapte
     }
 
     static final class Holder extends RecyclerView.ViewHolder {
-        final AppCompatCheckBox checkbox;
         final TextView txtName;
         final ImageButton btnEye;
 
         Holder(@NonNull View itemView) {
             super(itemView);
-            checkbox = itemView.findViewById(R.id.checkboxSelect);
             txtName = itemView.findViewById(R.id.txtEntrantName);
             btnEye = itemView.findViewById(R.id.btnViewEntrant);
         }
@@ -130,13 +104,11 @@ public class FinalEntrantAdapter extends RecyclerView.Adapter<FinalEntrantAdapte
         public final String userId;
         public final String displayName;
         public final String entryDocumentId;
-        public boolean selected;
 
         public FinalEntrantItem(String userId, String displayName, String entryDocumentId) {
             this.userId = userId;
             this.displayName = displayName;
             this.entryDocumentId = entryDocumentId;
-            this.selected = false;
         }
     }
 }
