@@ -410,12 +410,14 @@ public class EventDetailActivity extends AppCompatActivity {
                 .collection("events")
                 .document(eventId)
                 .collection("comments")
+                .orderBy("timestamp", Query.Direction.DESCENDING) // latest first
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String text = doc.getString("text");
                         String userId = doc.getString("userId");
+                        String role = doc.getString("role"); // gonna use for organizer role differentiation display
                         if (text == null || userId == null) continue;
 
                         // fetch the user's name from 'users' collection
@@ -428,6 +430,11 @@ public class EventDetailActivity extends AppCompatActivity {
                                     if (userDoc.exists()) {
                                         String n = userDoc.getString("name");
                                         if (n != null && !n.isEmpty()) name = n;
+                                    }
+
+                                    // only show role for organizers
+                                    if ("organizer".equalsIgnoreCase(role)) {
+                                        name = "[Organizer] " +name;
                                     }
 
                                     // create comment TextView

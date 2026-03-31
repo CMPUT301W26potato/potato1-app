@@ -122,6 +122,7 @@ public class OrganizerEventDetailFragment extends Fragment {
         Button btnViewInvitedEntrants = view.findViewById(R.id.btnViewInvitedEntrants);
         btnInviteEntrants = view.findViewById(R.id.btnInviteEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
+        Button btnViewComments = view.findViewById(R.id.btnViewComments);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
 
         Bundle args = getArguments();
@@ -183,6 +184,12 @@ public class OrganizerEventDetailFragment extends Fragment {
             } else if (getActivity() != null) {
                 getActivity().onBackPressed();
             }
+        });
+
+        btnViewComments.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), OrganizerCommentsActivity.class);
+            i.putExtra("event_id", eventId);
+            startActivity(i);
         });
 
         loadEvent();

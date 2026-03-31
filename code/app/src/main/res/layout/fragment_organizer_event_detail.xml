@@ -372,6 +372,16 @@
                 android:textColor="@color/black"
                 android:fontFamily="@font/poppins" />
 
+            <Button
+                android:id="@+id/btnViewComments"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="View Comments"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_button_white_outlined"
+                android:textAllCaps="false"
+                android:fontFamily="@font/poppins" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />
