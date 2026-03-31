@@ -38,6 +38,7 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
     private CancelledEntrantAdapter adapter;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
     private String statusCancelled;
+    private String eventTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +81,10 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
             public void afterTextChanged(Editable s) {}
         });
 
+        findViewById(R.id.btnSendNotifications).setOnClickListener(v -> sendCancelledNotifications());
+
         loadCancelledEntrants();
+        refreshEventTitleIfNeeded(null);
     }
 
     private void loadCancelledEntrants() {
@@ -139,5 +143,58 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
     @Override
     public void onViewProfile(@NonNull CancelledEntrantAdapter.CancelledEntrantItem item) {
         Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+    }
+
+    private void refreshEventTitleIfNeeded(Runnable then) {
+        if (!TextUtils.isEmpty(eventTitle)) {
+            if (then != null) then.run();
+            return;
+        }
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc != null && doc.exists()) {
+                        String t = doc.getString("title");
+                        eventTitle = t != null ? t : getString(R.string.app_name);
+                    } else {
+                        eventTitle = getString(R.string.app_name);
+                    }
+                    if (then != null) then.run();
+                })
+                .addOnFailureListener(e -> {
+                    eventTitle = getString(R.string.app_name);
+                    if (then != null) then.run();
+                });
+    }
+
+    private void sendCancelledNotifications() {
+        List<CancelledEntrantAdapter.CancelledEntrantItem> visible = adapter.getVisibleItemsSnapshot();
+        if (visible.isEmpty()) {
+            Toast.makeText(this, R.string.waitlist_no_entrants_to_notify, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        refreshEventTitleIfNeeded(() -> {
+            AtomicInteger remaining = new AtomicInteger(visible.size());
+            final boolean[] hadFailure = {false};
+            String message = getString(R.string.invited_notify_cancelled_message, eventTitle);
+            for (CancelledEntrantAdapter.CancelledEntrantItem item : visible) {
+                FirebaseHelper.getInstance().createNotification(
+                        item.userId,
+                        eventId,
+                        eventTitle,
+                        message,
+                        "NOT_CHOSEN",
+                        task -> {
+                            if (!task.isSuccessful()) {
+                                hadFailure[0] = true;
+                            }
+                            if (remaining.decrementAndGet() == 0) {
+                                int toast = hadFailure[0]
+                                        ? R.string.waitlist_status_updated_notify_failed
+                                        : R.string.invited_notifications_sent_success;
+                                Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
     }
 }

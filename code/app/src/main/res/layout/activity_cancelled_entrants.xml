@@ -105,6 +105,26 @@
         android:paddingTop="4dp"
         android:paddingBottom="16dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSendNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_white_outlined"
+            android:fontFamily="@font/poppinsmedium"
+            android:gravity="center"
+            android:text="@string/sampled_send_notifications"
+            android:textAllCaps="false"
+            android:textColor="@color/primary" />
+    </LinearLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/organizerBottomNavigation"
         android:layout_width="match_parent"

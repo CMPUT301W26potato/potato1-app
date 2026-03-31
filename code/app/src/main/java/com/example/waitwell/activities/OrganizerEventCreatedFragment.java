@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,19 +30,20 @@ import com.google.zxing.qrcode.QRCodeWriter;
  * It generates a QR code for the newly created event, lets the organizer share it out,
  * and offers a quick way back to the Organizer home list.
 
- * Citation will be gray inline comments at where the referenced code begins.
  */
 public class OrganizerEventCreatedFragment extends Fragment {
 
     private static final String ARG_EVENT_ID = "event_id";
     private static final String ARG_EVENT_TITLE = "event_title";
     private static final String ARG_POSTER_URL = "event_poster_url";
+    private static final String ARG_IS_PRIVATE = "is_private";
 
-    // Values passed from the create‑event screen so this fragment knows
+    // Values passed from the create event screen so this fragment knows
     // which event to show a QR code for and what text to include when sharing.
     private String eventId;
     private String eventTitle;
     private String eventPosterUrl;
+    private boolean isPrivateEvent;
 
     private ImageView imgQrCode;
 
@@ -57,12 +59,23 @@ public class OrganizerEventCreatedFragment extends Fragment {
      */
     public static OrganizerEventCreatedFragment newInstance(@NonNull String eventId,
                                                             @NonNull String eventTitle,
-                                                            @Nullable String posterUrl) {
+                                                            @Nullable String posterUrl,
+                                                            boolean isPrivateEvent) {
+        return newInstance(eventId, eventTitle, posterUrl, isPrivateEvent, false);
+    }
+
+    public static OrganizerEventCreatedFragment newInstance(@NonNull String eventId,
+                                                            @NonNull String eventTitle,
+                                                            @Nullable String posterUrl,
+                                                            boolean isPrivateEvent,
+                                                            boolean isShareMode) {
         OrganizerEventCreatedFragment fragment = new OrganizerEventCreatedFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EVENT_ID, eventId);
         args.putString(ARG_EVENT_TITLE, eventTitle);
         args.putString(ARG_POSTER_URL, posterUrl);
+        args.putBoolean(ARG_IS_PRIVATE, isPrivateEvent);
+        args.putBoolean(ARG_IS_SHARE_MODE, isShareMode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,18 +104,32 @@ public class OrganizerEventCreatedFragment extends Fragment {
             eventId = args.getString(ARG_EVENT_ID);
             eventTitle = args.getString(ARG_EVENT_TITLE);
             eventPosterUrl = args.getString(ARG_POSTER_URL);
+            isPrivateEvent = args.getBoolean(ARG_IS_PRIVATE, false);
+            isShareMode = args.getBoolean(ARG_IS_SHARE_MODE, false);
         }
 
         imgQrCode = view.findViewById(R.id.imgQrCode);
         Button btnShare = view.findViewById(R.id.btnShare);
         Button btnViewMyEvents = view.findViewById(R.id.btnViewMyEvents);
 
+        if (isShareMode) {
+            TextView txtEventCreatedBanner = view.findViewById(R.id.txtEventCreatedBanner);
+            if (txtEventCreatedBanner != null) {
+                txtEventCreatedBanner.setText(R.string.organizer_share_event_title);
+            }
+        }
+
         if (eventId == null || eventId.trim().isEmpty()) {
             Toast.makeText(requireContext(), "Missing event id", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        generateQrCode(eventId);
+        if (!isPrivateEvent) {
+            generateQrCode(eventId);
+        } else {
+            imgQrCode.setImageDrawable(null);
+            btnShare.setVisibility(View.GONE);
+        }
 
         btnShare.setOnClickListener(v -> shareEvent());
         btnViewMyEvents.setOnClickListener(v -> navigateToMyEvents());
@@ -133,7 +160,7 @@ public class OrganizerEventCreatedFragment extends Fragment {
         if (eventId == null) return;
 
         // Grab the currently rendered QR bitmap from the ImageView so we can
-        // attach it to the share intent as an image (best‑effort only).
+        // attach it to the share intent as an image
         imgQrCode.setDrawingCacheEnabled(true);
         imgQrCode.buildDrawingCache();
         Bitmap bitmap = imgQrCode.getDrawingCache();

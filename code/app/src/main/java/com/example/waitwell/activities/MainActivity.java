@@ -174,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (DocumentSnapshot doc : allEventDocs) {
+            if (Boolean.TRUE.equals(doc.getBoolean("isPrivate"))) {
+                continue;
+            }
 
             String title = getEventTitle(doc);
             String organizer = getOrganizerName(doc);

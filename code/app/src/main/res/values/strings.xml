@@ -65,6 +65,7 @@
     <string name="organizer_view_invited_entrants">View Invited Entrants</string>
     <string name="organizer_view_sampled_entrants">View Sampled Entrants</string>
     <string name="organizer_event_created_title">Event Created</string>
+    <string name="organizer_share_event_title">Share this Event</string>
     <string name="organizer_view_my_events">View My Events</string>
     <string name="qr_code">QR code</string>
     <string name="invited_count">%d invited</string>
@@ -166,6 +167,18 @@
     <string name="final_entrant_no_action_needed">This entrant is already confirmed.</string>
     <string name="final_entrants_remove_selected">Remove Selected</string>
     <string name="final_entrants_select_first">Select at least one entrant.</string>
+    <string name="final_entrants_export_csv">Export CSV</string>
+    <string name="export_failed_toast">Export failed. Please try again.</string>
+    <string name="export_storage_permission_required">Storage permission is required to export CSV</string>
+    <string name="export_final_entrants_chooser_title">Export Final Entrants</string>
+    <string name="csv_export_line_event">Event: %1$s</string>
+    <string name="csv_export_line_exported">Exported: %1$s</string>
+    <string name="csv_header_name">Name</string>
+    <string name="csv_header_email">Email</string>
+    <string name="csv_header_phone_number">Phone Number</string>
+    <string name="csv_header_role">Role</string>
+    <string name="csv_header_device_id">Device ID</string>
+    <string name="csv_header_account_created">Account Created</string>
     <string name="invited_filter_label">Filters:</string>
     <string name="invited_filter_enrolled">Enrolled</string>
     <string name="invited_filter_pending">Pending</string>
@@ -219,5 +232,21 @@
     <string name="enrolled_cancel_dialog_message">Cancel %1$s?</string>
     <string name="enrolled_cancel_dialog_confirm">Cancel</string>
     <string name="enrolled_cancel_success">Entrant cancelled.</string>
+    <string name="private_event_label">Private Event</string>
+    <string name="private_event_hint">Private events are not visible on the public event listing and have no promotional QR code</string>
+    <string name="invite_entrants_title">Invite Entrants</string>
+    <string name="invite_entrants_search_hint">Search entrants</string>
+    <string name="invite_search_name">Name</string>
+    <string name="invite_search_phone">Phone</string>
+    <string name="invite_search_email">Email</string>
+    <string name="invite_entrant_toast">%1$s has been invited</string>
+    <string name="invited_select_entrants_for_notifications">Please select at least one entrant</string>
+    <string name="invited_notify_pending_message">Reminder: You have been selected for %1$s. Please accept or decline your invitation.</string>
+    <string name="invited_notify_confirmed_message">Congratulations! You are confirmed as a participant for %1$s.</string>
+    <string name="invited_notify_cancelled_message">Your cancellation for %1$s has been confirmed. You are no longer registered for this event.</string>
+    <string name="invited_notifications_sent_success">Notifications sent successfully</string>
+    <string name="waitlist_no_entrants_to_notify">No entrants to notify</string>
+    <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
+    <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
 </resources>
 

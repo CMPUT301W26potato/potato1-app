@@ -62,6 +62,8 @@ public class OrganizerEventDetailFragment extends Fragment {
     private TextView txtBannerEventDate;
     private TextView txtBannerEventTime;
     private TextView txtPrice;
+    private Button btnInviteEntrants;
+    private Button btnShare;
 
     /**
      * Factory method for creating a detail fragment for a specific event.
@@ -109,11 +111,12 @@ public class OrganizerEventDetailFragment extends Fragment {
 
         Button btnDelete = view.findViewById(R.id.btnDeleteEvent);
         Button btnEdit = view.findViewById(R.id.btnEditEvent);
-        Button btnShare = view.findViewById(R.id.btnShare);
+        btnShare = view.findViewById(R.id.btnShare);
         Button btnViewRequests = view.findViewById(R.id.btnViewRequests);
         Button btnViewFinalEntrants = view.findViewById(R.id.btnViewFinalEntrants);
         Button btnViewCanceledEntrants = view.findViewById(R.id.btnViewCanceledEntrants);
         Button btnViewInvitedEntrants = view.findViewById(R.id.btnViewInvitedEntrants);
+        btnInviteEntrants = view.findViewById(R.id.btnInviteEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
 
@@ -130,8 +133,7 @@ public class OrganizerEventDetailFragment extends Fragment {
 
         btnDelete.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
-        btnShare.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnShare.setOnClickListener(v -> openEventQrShareFromManage());
         btnViewRequests.setOnClickListener(v -> {
             Intent i = new Intent(requireContext(), ViewRequestsActivity.class);
             i.putExtra("event_id", eventId);
@@ -156,8 +158,17 @@ public class OrganizerEventDetailFragment extends Fragment {
             i.putExtra(InvitedEntrantsActivity.EXTRA_EVENT_ID, eventId);
             startActivity(i);
         });
+        btnInviteEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), InviteEntrantsActivity.class);
+            i.putExtra(InviteEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
 
-        btnViewSampledEntrants.setOnClickListener(v -> showLotteryDialog());
+        btnViewSampledEntrants.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), SampledEntrantsActivity.class);
+            i.putExtra(SampledEntrantsActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
 
         Button btnDrawReplacement = view.findViewById(R.id.btnDrawReplacement);
         btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
@@ -244,6 +255,49 @@ public class OrganizerEventDetailFragment extends Fragment {
         if (!TextUtils.isEmpty(imageUrl)) {
             loadPosterImage(imageUrl);
         }
+        Boolean privateEvent = doc.getBoolean("isPrivate");
+        btnInviteEntrants.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.VISIBLE : View.GONE);
+        btnShare.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.GONE : View.VISIBLE);
+    }
+
+    private void openEventQrShareFromManage() {
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!isAdded()) return;
+                    if (doc == null || !doc.exists()) {
+                        Toast.makeText(requireContext(), R.string.invitation_error_not_found, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (Boolean.TRUE.equals(doc.getBoolean("isPrivate"))) {
+                        return;
+                    }
+                    String title = doc.getString("title");
+                    if (title == null) {
+                        title = "";
+                    }
+                    String posterUrl = doc.getString("imageUrl");
+                    if (posterUrl == null) {
+                        posterUrl = doc.getString("posterUrl");
+                    }
+                    boolean isPrivate = Boolean.TRUE.equals(doc.getBoolean("isPrivate"));
+                    Fragment fragment = OrganizerEventCreatedFragment.newInstance(
+                            eventId,
+                            title,
+                            posterUrl,
+                            isPrivate,
+                            true);
+                    if (getActivity() instanceof OrganizerEntryActivity) {
+                        ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(fragment);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
+                    Log.e(TAG, "Failed to load event for share", e);
+                    Toast.makeText(requireContext(), R.string.invitation_error_load_details, Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void loadPosterImage(@NonNull String url) {
@@ -286,61 +340,6 @@ public class OrganizerEventDetailFragment extends Fragment {
         }
     }
 
-    /**
-     * Shows a dialog asking the organizer how many entrants to sample (US 02.05.02).
-     * Validates the input then calls runLottery() with the given number.
-     */
-    private void showLotteryDialog() {
-        android.widget.EditText input = new android.widget.EditText(requireContext());
-        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        input.setHint(getString(R.string.lottery_dialog_hint));
-        input.setPadding(48, 24, 48, 24);
-
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.lottery_dialog_title))
-                .setMessage(getString(R.string.lottery_dialog_message))
-                .setView(input)
-                .setPositiveButton(getString(R.string.lottery_dialog_confirm), (dialog, which) -> {
-                    String raw = input.getText().toString().trim();
-                    if (raw.isEmpty()) {
-                        Toast.makeText(requireContext(), getString(R.string.lottery_error_enter_number), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    int sampleSize = Integer.parseInt(raw);
-                    if (sampleSize <= 0) {
-                        Toast.makeText(requireContext(), getString(R.string.lottery_error_positive), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    runLottery(sampleSize);
-                })
-                .setNegativeButton(getString(R.string.lottery_dialog_cancel), null)
-                .show();
-    }
-
-    /**
-     * Calls FirebaseHelper to run the lottery for this event (US 02.05.02).
-     * Shows a toast while running, then tells the organizer if it worked or not.
-     * @param sampleSize how many entrants to select
-     */
-    private void runLottery(int sampleSize) {
-        Toast.makeText(requireContext(), getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
-
-        FirebaseHelper.getInstance().executeLotterySampling(eventId, sampleSize, (task, actualSampledCount) -> {
-            if (!isAdded()) return;
-            if (task.isSuccessful()) {
-                Intent i = new Intent(requireContext(), SamplingConfirmationActivity.class);
-                i.putExtra(SamplingConfirmationActivity.EXTRA_EVENT_ID, eventId);
-                i.putExtra(SamplingConfirmationActivity.EXTRA_SAMPLED_COUNT, actualSampledCount);
-                startActivity(i);
-            } else {
-                Exception e = task.getException();
-                android.util.Log.e("LotteryDebug", "Lottery failed", e);
-                Toast.makeText(requireContext(),
-                        getString(R.string.lottery_error_failed),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-    }
     /**
      * Shows a confirmation dialog before drawing a replacement (US 02.05.03).
      * Organizer uses this when a selected entrant cancelled or rejected.
