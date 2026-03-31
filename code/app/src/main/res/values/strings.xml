@@ -57,6 +57,12 @@
     <string name="organizer_price_free">Free</string>
     <string name="organizer_date_not_set">Registration dates not set</string>
     <string name="organizer_delete_event">Delete Event</string>
+    <string name="organizer_delete_event_title">Delete Event</string>
+    <string name="organizer_delete_event_message">Are you sure you want to delete this event? This action cannot be undone.</string>
+    <string name="organizer_delete_confirm">Delete</string>
+    <string name="organizer_event_deleted_success">Event deleted successfully</string>
+    <string name="organizer_event_delete_failed">Failed to delete event. Please try again.</string>
+    <string name="event_no_longer_available">This event is no longer available</string>
     <string name="organizer_edit_event">Edit Event</string>
     <string name="organizer_share">Share</string>
     <string name="organizer_view_requests">View Requests</string>

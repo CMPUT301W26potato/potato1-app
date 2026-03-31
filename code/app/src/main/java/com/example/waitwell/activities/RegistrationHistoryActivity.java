@@ -39,15 +39,21 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                startActivity(new Intent(this, MainActivity.class));
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             if (id == R.id.nav_waitlist) {
-                startActivity(new Intent(this, WaitListActivity.class));
+                Intent intent = new Intent(this, WaitListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             if (id == R.id.nav_notifications) {
-                startActivity(new Intent(this, EntrantNotificationScreen.class));
+                Intent intent = new Intent(this, EntrantNotificationScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

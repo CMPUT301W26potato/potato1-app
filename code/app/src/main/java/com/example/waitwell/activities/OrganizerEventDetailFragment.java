@@ -16,8 +16,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.waitwell.EventDeletionHelper;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 import com.google.firebase.Timestamp;
@@ -64,6 +67,7 @@ public class OrganizerEventDetailFragment extends Fragment {
     private TextView txtPrice;
     private Button btnInviteEntrants;
     private Button btnShare;
+    private Button btnDelete;
 
     /**
      * Factory method for creating a detail fragment for a specific event.
@@ -109,7 +113,7 @@ public class OrganizerEventDetailFragment extends Fragment {
         txtBannerEventTime = view.findViewById(R.id.txtBannerEventTime);
         txtPrice = view.findViewById(R.id.txtEventPrice);
 
-        Button btnDelete = view.findViewById(R.id.btnDeleteEvent);
+        btnDelete = view.findViewById(R.id.btnDeleteEvent);
         Button btnEdit = view.findViewById(R.id.btnEditEvent);
         btnShare = view.findViewById(R.id.btnShare);
         Button btnViewRequests = view.findViewById(R.id.btnViewRequests);
@@ -131,8 +135,7 @@ public class OrganizerEventDetailFragment extends Fragment {
             return;
         }
 
-        btnDelete.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        btnDelete.setOnClickListener(v -> showDeleteEventConfirmationDialog());
         btnShare.setOnClickListener(v -> openEventQrShareFromManage());
         btnViewRequests.setOnClickListener(v -> {
             Intent i = new Intent(requireContext(), ViewRequestsActivity.class);
@@ -374,6 +377,50 @@ public class OrganizerEventDetailFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void navigateBackFromManage() {
+        if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+            getParentFragmentManager().popBackStack();
+        } else if (getActivity() != null) {
+            getActivity().onBackPressed();
+        }
+    }
+
+    private void showDeleteEventConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(R.string.organizer_delete_event_title)
+                .setMessage(R.string.organizer_delete_event_message)
+                .setPositiveButton(R.string.organizer_delete_confirm, (d, which) -> {
+                    btnDelete.setEnabled(false);
+                    EventDeletionHelper.deleteEvent(eventId, success -> {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (success) {
+                                Toast.makeText(requireContext(),
+                                        R.string.organizer_event_deleted_success,
+                                        Toast.LENGTH_SHORT).show();
+                                navigateBackFromManage();
+                            } else {
+                                btnDelete.setEnabled(true);
+                                Toast.makeText(requireContext(),
+                                        R.string.organizer_event_delete_failed,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    });
+                })
+                .setNegativeButton(R.string.lottery_dialog_cancel, null);
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(d -> {
+            Button pos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (pos != null) {
+                pos.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_closed_text));
+            }
+        });
+        dialog.show();
     }
 }
 

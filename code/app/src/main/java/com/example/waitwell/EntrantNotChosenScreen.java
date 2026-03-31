@@ -74,15 +74,12 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
             Toast.makeText(this, "Event information not available", Toast.LENGTH_SHORT).show();
         }
 
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+        findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> finish());
+
         Button backButton = findViewById(R.id.back_button);
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(EntrantNotChosenScreen.this, EntrantNotificationScreen.class);
-                startActivity(intent);
-            }
-        });
+        backButton.setOnClickListener(v -> finish());
 
         Button redrawButton = findViewById(R.id.entrantRedraw);
         redrawButton.setOnClickListener(v -> handleEnterRedraw());
