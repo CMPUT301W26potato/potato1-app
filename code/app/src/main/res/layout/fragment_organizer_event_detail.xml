@@ -338,6 +338,18 @@
                 android:fontFamily="@font/poppins" />
 
             <Button
+                android:id="@+id/btnInviteEntrants"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_button_green"
+                android:text="@string/invite_entrants_title"
+                android:textAllCaps="false"
+                android:textColor="@color/text_white"
+                android:visibility="gone"
+                android:fontFamily="@font/poppins" />
+
+            <Button
                 android:id="@+id/btnViewSampledEntrants"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"

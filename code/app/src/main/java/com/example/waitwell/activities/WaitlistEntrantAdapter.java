@@ -65,6 +65,11 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
     }
 
     @NonNull
+    public List<WaitlistEntrantItem> getVisibleItemsSnapshot() {
+        return new ArrayList<>(visibleItems);
+    }
+
+    @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())

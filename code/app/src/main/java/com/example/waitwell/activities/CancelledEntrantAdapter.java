@@ -60,6 +60,11 @@ public class CancelledEntrantAdapter extends RecyclerView.Adapter<CancelledEntra
     }
 
     @NonNull
+    public List<CancelledEntrantItem> getVisibleItemsSnapshot() {
+        return new ArrayList<>(visibleItems);
+    }
+
+    @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())

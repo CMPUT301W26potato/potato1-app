@@ -62,6 +62,7 @@ public class OrganizerCreateEventFragment extends Fragment {
     private int eventTimeMinute;
     private EditText editWaitlistLimit, editPrice, editDescription;
     private androidx.appcompat.widget.SwitchCompat switchGeolocation;
+    private androidx.appcompat.widget.SwitchCompat switchPrivateEvent;
     private TextView txtPosterStatus;
     private Uri posterUri;
 
@@ -109,6 +110,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         editPrice = view.findViewById(R.id.editPrice);
         editDescription = view.findViewById(R.id.editDescription);
         switchGeolocation = view.findViewById(R.id.switchGeolocation);
+        switchPrivateEvent = view.findViewById(R.id.switchPrivateEvent);
         txtPosterStatus = view.findViewById(R.id.txtPosterStatus);
 
         // Simple back button that just pops this fragment off the Organizer stack.
@@ -301,6 +303,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         // Device id plays the role of "organizer account" for this project.
         String organizerId = DeviceUtils.getDeviceId(requireContext());
         boolean geolocationRequired = switchGeolocation.isChecked();
+        boolean isPrivate = switchPrivateEvent.isChecked();
 
             // After running into issues with a full Firestore-driven image
             // subscription approach, I asked ChatGPT to walk me through a
@@ -316,9 +319,9 @@ public class OrganizerCreateEventFragment extends Fragment {
         // If we already have an id we treat this as an edit, otherwise it’s a brand new event.
         if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
             updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
-                    geolocationRequired, registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
+                    geolocationRequired, isPrivate, registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
         } else {
-            saveEventToFirestore(organizerId, title, description, location, geolocationRequired,
+            saveEventToFirestore(organizerId, title, description, location, geolocationRequired, isPrivate,
                     registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
         }
     }
@@ -333,7 +336,7 @@ public class OrganizerCreateEventFragment extends Fragment {
     }
 
     private void saveEventToFirestore(String organizerId, String title, String description, String location,
-                                      boolean geolocationRequired, Date registrationOpen, Date registrationClose,
+                                      boolean geolocationRequired, boolean isPrivate, Date registrationOpen, Date registrationClose,
                                       Date eventDate,
                                       Integer waitlistLimit, double price, @Nullable String posterUrl) {
         Map<String, Object> event = new HashMap<>();
@@ -349,6 +352,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         event.put("organizerId", organizerId);
         event.put("createdAt", FieldValue.serverTimestamp());
         event.put("status", "open");
+        event.put("isPrivate", isPrivate);
         event.put("waitlistEntrantIds", new ArrayList<String>());
         if (posterUrl != null) event.put("imageUrl", posterUrl); // optional banner image
 
@@ -361,7 +365,8 @@ public class OrganizerCreateEventFragment extends Fragment {
                     Fragment fragment = OrganizerEventCreatedFragment.newInstance(
                             newEventId,
                             title,
-                            posterUrl
+                            posterUrl,
+                            isPrivate
                     );
                     if (getActivity() instanceof OrganizerEntryActivity) {
                         ((OrganizerEntryActivity) getActivity()).replaceWithOrganizerFragment(fragment);
@@ -374,7 +379,7 @@ public class OrganizerCreateEventFragment extends Fragment {
     }
 
     private void updateEventInFirestore(String eventId, String organizerId, String title, String description, String location,
-                                        boolean geolocationRequired, Date registrationOpen, Date registrationClose,
+                                        boolean geolocationRequired, boolean isPrivate, Date registrationOpen, Date registrationClose,
                                         Date eventDate,
                                         Integer waitlistLimit, double price, @Nullable String posterUrl) {
         Map<String, Object> updates = new HashMap<>();
@@ -392,6 +397,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         }
         updates.put("price", price);
         updates.put("organizerId", organizerId);
+        updates.put("isPrivate", isPrivate);
         if (posterUrl != null) {
             updates.put("imageUrl", posterUrl);
         }
@@ -425,6 +431,7 @@ public class OrganizerCreateEventFragment extends Fragment {
                     String location = doc.getString("location");
                     String description = doc.getString("description");
                     Boolean geoRequired = doc.getBoolean("geolocationRequired");
+                    Boolean privateEvent = doc.getBoolean("isPrivate");
                     Date regOpen = doc.getDate("registrationOpen");
                     Date regClose = doc.getDate("registrationClose");
                     Number waitlist = doc.getLong("waitlistLimit");
@@ -437,6 +444,7 @@ public class OrganizerCreateEventFragment extends Fragment {
                     if (location != null) editLocation.setText(location);
                     if (description != null) editDescription.setText(description);
                     if (geoRequired != null) switchGeolocation.setChecked(geoRequired);
+                    switchPrivateEvent.setChecked(privateEvent != null && privateEvent);
                     if (regOpen != null) editRegistrationStart.setText(fmt.format(regOpen));
                     if (regClose != null) editRegistrationDeadline.setText(fmt.format(regClose));
                     Date evDate = doc.getDate("eventDate");

@@ -114,9 +114,21 @@
         android:paddingBottom="@dimen/invitation_screen_padding">
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnExportCsv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/organizer_footer_button_height"
+            android:background="@drawable/bg_button_white_outlined"
+            android:fontFamily="@font/poppinsmedium"
+            android:gravity="center"
+            android:text="@string/final_entrants_export_csv"
+            android:textAllCaps="false"
+            android:textColor="@color/primary" />
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRemoveSelected"
             android:layout_width="match_parent"
             android:layout_height="@dimen/organizer_footer_button_height"
+            android:layout_marginTop="@dimen/invitation_button_margin_top_stack"
             android:background="@drawable/bg_button_remove_applicants"
             android:fontFamily="@font/poppinsmedium"
             android:gravity="center"

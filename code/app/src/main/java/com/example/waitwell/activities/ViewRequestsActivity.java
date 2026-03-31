@@ -88,7 +88,7 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
         Button btnNotifyAll = findViewById(R.id.btnNotifyAll);
         Button btnSample = findViewById(R.id.btnSampleAttendees);
         btnViewMap.setOnClickListener(v -> Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
-        btnNotifyAll.setOnClickListener(v -> Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
+        btnNotifyAll.setOnClickListener(v -> notifyAllWaitingEntrants());
         btnSample.setOnClickListener(v -> showLotteryDialog());
 
         loadWaitingEntrants();
@@ -271,6 +271,38 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
                 loadWaitingEntrants();
             } else {
                 Toast.makeText(this, getString(R.string.lottery_error_failed), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void notifyAllWaitingEntrants() {
+        List<WaitlistEntrantAdapter.WaitlistEntrantItem> visible = adapter.getVisibleItemsSnapshot();
+        if (visible.isEmpty()) {
+            Toast.makeText(this, R.string.waitlist_no_entrants_to_notify, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        refreshEventTitleIfNeeded(() -> {
+            AtomicInteger remaining = new AtomicInteger(visible.size());
+            final boolean[] hadFailure = {false};
+            String message = getString(R.string.waitlist_notify_all_message, eventTitle);
+            for (WaitlistEntrantAdapter.WaitlistEntrantItem item : visible) {
+                FirebaseHelper.getInstance().createNotification(
+                        item.userId,
+                        eventId,
+                        eventTitle,
+                        message,
+                        "NOT_CHOSEN",
+                        task -> {
+                            if (!task.isSuccessful()) {
+                                hadFailure[0] = true;
+                            }
+                            if (remaining.decrementAndGet() == 0) {
+                                int toast = hadFailure[0]
+                                        ? R.string.waitlist_status_updated_notify_failed
+                                        : R.string.waitlist_notifications_sent;
+                                Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
     }

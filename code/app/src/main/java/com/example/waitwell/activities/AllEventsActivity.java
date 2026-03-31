@@ -222,6 +222,9 @@ public class AllEventsActivity extends AppCompatActivity {
         String query = editSearch.getText().toString().trim().toLowerCase();
         List<DocumentSnapshot> filtered = new ArrayList<>();
         for (DocumentSnapshot doc : allDocs) {
+            if (Boolean.TRUE.equals(doc.getBoolean("isPrivate"))) {
+                continue;
+            }
             String title    = doc.getString("title");
             String category = doc.getString("category");
 
