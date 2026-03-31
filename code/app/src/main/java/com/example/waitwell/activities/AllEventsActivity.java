@@ -57,7 +57,7 @@ public class AllEventsActivity extends AppCompatActivity {
     private LinearLayout categoryIndicator;
     private ScrollView scrollEvents;
     private TextView txtResultCount, txtEmptyMessage, txtActiveCategory;
-    private TextView chipAll, chipOpen, chipCategory, btnClearCategory;
+    private TextView chipAll, chipOpen, chipCategory, btnClearCategory,chipAvailability,chipEventCapacity, btnClearEventCapacity;
 
     private List<DocumentSnapshot> allDocs = new ArrayList<>();
     /** Categories collected from event data. */
@@ -91,6 +91,10 @@ public class AllEventsActivity extends AppCompatActivity {
         chipAll = findViewById(R.id.chipAll);
         chipOpen = findViewById(R.id.chipOpen);
         chipCategory = findViewById(R.id.chipCategory);
+        chipAvailability = findViewById(R.id.chipAvailability);
+        chipEventCapacity = findViewById(R.id.chipEventCapacity);
+        btnClearEventCapacity = findViewById(R.id.btnClearEventCapacity);
+
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
@@ -101,6 +105,14 @@ public class AllEventsActivity extends AppCompatActivity {
             updateChipStyles();
             applyFilters();
         });
+        //do the same thing for event capacity
+        btnClearEventCapacity.setOnClickListener(v -> {
+            selectedCategory = null;
+            filterMode = "all";
+            updateChipStyles();
+            applyFilters();
+        });
+
     }
     private void setupChips() {
         chipAll.setOnClickListener(v -> {
@@ -117,7 +129,15 @@ public class AllEventsActivity extends AppCompatActivity {
             applyFilters();
         });
 
+        chipAvailability.setOnClickListener(v -> {
+            filterMode = "availability";
+            selectedCategory = null;
+            updateChipStyles();
+            applyFilters();
+        });
+
         chipCategory.setOnClickListener(v -> showCategoryDialog());
+        chipEventCapacity.setOnClickListener(v -> showEventCapacityDialog());
     }
 
     /**
@@ -132,6 +152,12 @@ public class AllEventsActivity extends AppCompatActivity {
         chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown);
         chipCategory.setTextColor(getColor(R.color.primary));
         chipCategory.setText("Category ▾");
+        chipAvailability.setBackgroundResource(R.drawable.bg_filter_inactive);
+        chipAvailability.setTextColor(getColor(R.color.primary));
+        chipEventCapacity.setBackgroundResource(R.drawable.bg_filter_dropdown);
+        chipEventCapacity.setTextColor(getColor(R.color.primary));
+        chipEventCapacity.setText("Event Capacity ▾");
+
 
         switch (filterMode) {
             case "all":
@@ -147,6 +173,19 @@ public class AllEventsActivity extends AppCompatActivity {
                 break;
 
             case "category":
+                chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
+                chipCategory.setTextColor(getColor(R.color.text_white));
+                chipCategory.setText(selectedCategory + " ▾");
+                categoryIndicator.setVisibility(View.VISIBLE);
+                txtActiveCategory.setText(selectedCategory);
+                break;
+            case "availability":
+                chipAvailability.setBackgroundResource(R.drawable.bg_filter_active);
+                chipAvailability.setTextColor(getColor(R.color.text_white));
+                categoryIndicator.setVisibility(View.GONE);
+                break;
+
+            case "event_capacity":
                 chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
                 chipCategory.setTextColor(getColor(R.color.text_white));
                 chipCategory.setText(selectedCategory + " ▾");
@@ -173,6 +212,26 @@ public class AllEventsActivity extends AppCompatActivity {
                 .setItems(items, (dialog, which) -> {
                     selectedCategory = items[which];
                     filterMode = "category";
+                    updateChipStyles();
+                    applyFilters();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showEventCapacityDialog() {
+        if (availableCategories.isEmpty()) {
+            Toast.makeText(this, "No categories found - add a \"category\" field to your events in Firestore", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String[] items = availableCategories.toArray(new String[0]);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Filter by event capacity")
+                .setItems(items, (dialog, which) -> {
+                    selectedCategory = items[which];
+                    filterMode = "event_capacity";
                     updateChipStyles();
                     applyFilters();
                 })
@@ -238,6 +297,18 @@ public class AllEventsActivity extends AppCompatActivity {
                     break;
                 case "category":
                     if (!category.equalsIgnoreCase(selectedCategory)) continue;
+                    break;
+                case "availability":
+                    //if the capacity is greater than 0 its open
+                    List<String> ids = (List<String>) doc.get("waitlistEntrantIds");
+                    Long cap = doc.getLong("capacity");
+                    int enrolled = (ids != null) ? ids.size() : 0;
+                    int maxCap = (cap != null) ? cap.intValue() : 0;
+                    if (maxCap > 0 && enrolled >= maxCap) continue;
+                    break;
+
+                case "event_capacity":
+
                     break;
                 // "all" -no filtering
             }
