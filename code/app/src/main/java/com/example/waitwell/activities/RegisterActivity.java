@@ -82,7 +82,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void attemptRegister() {
-        String name  = editName.getText().toString().trim();
+        String name = editName.getText().toString().trim();
         String email = editEmail.getText().toString().trim();
         String phone = editPhone.getText().toString().trim();
         String role = spinnerType.getSelectedItem().toString().toLowerCase();
@@ -120,39 +120,85 @@ public class RegisterActivity extends AppCompatActivity {
         user.put("createdAt", com.google.firebase.firestore.FieldValue.serverTimestamp());
 
         // optional phone number
-        if (!TextUtils.isEmpty(phone)) { user.put("phone", phone);}
+        if (!TextUtils.isEmpty(phone)) {
+            user.put("phone", phone);
+        }
 
         //Save to Firestore
         // Document ID = deviceId for easier management
         // Save to Firestore
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(deviceId)
-                .set(user)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User registered: " + deviceId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                    // store locally
-                    getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
-                            .edit().putString("userId", deviceId)
-                            .apply();
+        if ("entrant".equalsIgnoreCase(role)) {
+            // entrant: 1 per device
+            user.put("deviceId", deviceId);
+            db.collection("users")
+                    .document(deviceId)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            Toast.makeText(this, "An entrant account already exists on this device", Toast.LENGTH_LONG).show();
+                            btnSignUp.setEnabled(true);
+                            btnSignUp.setText("Sign up");
+                            return;
+                        }
+                        db.collection("users")
+                                .document(deviceId)
+                                .set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    // existing success logic
+                                    Log.d(TAG, "User registered: " + deviceId);
+                                    getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
+                                            .edit().putString("userId", deviceId)
+                                            .apply();
+                                    Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
+                                    if ("organizer".equalsIgnoreCase(role)) {
+                                        startActivity(new Intent(this, OrganizerEntryActivity.class));
+                                    } else {
+                                        startActivity(new Intent(this, MainActivity.class));
+                                    }
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Registration failed", e);
+                                    Toast.makeText(this, "Registration failed – check your connection", Toast.LENGTH_LONG).show();
+                                    btnSignUp.setEnabled(true);
+                                    btnSignUp.setText("Sign up");
+                                });
+                    });
+        } else if ("organizer".equalsIgnoreCase(role)) {
+            // if organizer it can create just 1 other entrant account
+            db.collection("users")
+                    .whereEqualTo("createdByOrganizerDeviceId", deviceId)
+                    .whereEqualTo("role", "entrant")
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (!snapshot.isEmpty()) {
+                            Toast.makeText(this, "Organizer can only create one extra entrant account", Toast.LENGTH_LONG).show();
+                            btnSignUp.setEnabled(true);
+                            btnSignUp.setText("Sign up");
+                            return;
+                        }
 
-                    Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
-
-                    // navigate
-                    if ("organizer".equalsIgnoreCase(role)) {
-                        startActivity(new Intent(this, OrganizerEntryActivity.class));
-                    } else {
-                        startActivity(new Intent(this, MainActivity.class));
-                    }
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Registration failed", e);
-                    Toast.makeText(this, "Registration failed – check your connection", Toast.LENGTH_LONG).show();
-                    btnSignUp.setEnabled(true);
-                    btnSignUp.setText("Sign up");
-                });
+                        // add irganizer created entrant with auto id
+                        user.put("deviceId", deviceId); // optional reference
+                        user.put("createdByOrganizerDeviceId", deviceId);
+                        db.collection("users")
+                                .add(user)
+                                .addOnSuccessListener(docRef -> {
+                                    Log.d(TAG, "Organizer created new entrant: " + docRef.getId());
+                                    Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, OrganizerEntryActivity.class));
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Registration failed", e);
+                                    Toast.makeText(this, "Registration failed – check your connection", Toast.LENGTH_LONG).show();
+                                    btnSignUp.setEnabled(true);
+                                    btnSignUp.setText("Sign up");
+                                });
+                    });
+        }
     }
 
     /**
