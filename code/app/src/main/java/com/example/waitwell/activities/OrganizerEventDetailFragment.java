@@ -192,6 +192,15 @@ public class OrganizerEventDetailFragment extends Fragment {
             startActivity(i);
         });
 
+        // REHAAN'S ADDITION — US 02.09.01
+        Button btnAssignCoOrganizer = view.findViewById(R.id.btnAssignCoOrganizer);
+        btnAssignCoOrganizer.setOnClickListener(v -> {
+            Intent i = new Intent(requireContext(), AssignCoOrganizerActivity.class);
+            i.putExtra(AssignCoOrganizerActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(i);
+        });
+// END REHAAN'S ADDITION
+
         loadEvent();
     }
 

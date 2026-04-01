@@ -254,5 +254,15 @@
     <string name="waitlist_no_entrants_to_notify">No entrants to notify</string>
     <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
     <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
+
+
+
+    <!-- REHAAN'S ADDITION — US 02.09.01 + US 01.09.01 -->
+    <string name="co_organizer_assign_title">Assign Co-Organizer</string>
+    <string name="co_organizer_assign_button_desc">Assign as co-organizer</string>
+    <string name="co_organizer_assigned_toast">%1$s assigned as co-organizer</string>
+    <string name="co_organizer_notification_message">You have been invited to be a co-organizer for %1$s.</string>
+    <string name="organizer_assign_co_organizer">Assign Co-Organizer</string>
+    <!-- END REHAAN'S ADDITION -->
 </resources>
 
