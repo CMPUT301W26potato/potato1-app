@@ -292,7 +292,7 @@ public class AssignCoOrganizerActivity extends AppCompatActivity {
                     eventId,
                     titleForMsg,
                     message,
-                    "CO_ORGANIZER",
+                    "CHOSEN",
                     task -> {
                         if (task.isSuccessful()) {
                             excludedUserIds.add(item.userId);
