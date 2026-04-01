@@ -382,6 +382,19 @@
                 android:textAllCaps="false"
                 android:fontFamily="@font/poppins" />
 
+            <!-- REHAAN'S ADDITION — US 02.09.01 -->
+            <Button
+                android:id="@+id/btnAssignCoOrganizer"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_button_white_outlined"
+                android:text="@string/organizer_assign_co_organizer"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins" />
+            <!-- END REHAAN'S ADDITION -->
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />

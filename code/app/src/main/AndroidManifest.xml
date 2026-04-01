@@ -158,6 +158,13 @@
         <activity
             android:name=".activities.AdminCommentsActivity"
             android:exported="false" />
+        <!-- REHAAN'S ADDITION — US 02.09.01 -->
+        <activity
+            android:name=".activities.AssignCoOrganizerActivity"
+            android:exported="false" />
+        <!-- END REHAAN'S ADDITION -->
+
+
 
     </application>
 
