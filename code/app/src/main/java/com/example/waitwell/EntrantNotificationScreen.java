@@ -1,6 +1,7 @@
 package com.example.waitwell;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.text.TextUtils;
@@ -54,6 +55,20 @@ public class EntrantNotificationScreen extends AppCompatActivity {
     }
 
     private void loadNotifications() {
+        //check notification preferences before loading
+        //these are based on the checkboxes in notification preferences
+        SharedPreferences prefs = getSharedPreferences("NotificationPreferences", MODE_PRIVATE);
+        boolean accept = prefs.getBoolean("acceptNotifications", true);
+        boolean reject = prefs.getBoolean("rejectNotifications", false);
+
+        if (!accept || reject) {
+            notifications.clear();
+            notificationIds.clear();
+            adapter.notifyDataSetChanged();
+            Toast.makeText(this, "Notifications are disabled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Get current user's device ID
         String userId = DeviceUtils.getDeviceId(this);
         Log.d(TAG, "Loading notifications for Device ID: " + userId);
@@ -142,6 +157,17 @@ public class EntrantNotificationScreen extends AppCompatActivity {
      *
      */
     private void setupRealtimeListener() {
+        SharedPreferences prefs = getSharedPreferences("NotificationPreferences", MODE_PRIVATE);
+        boolean accept = prefs.getBoolean("acceptNotifications", true);
+        boolean reject = prefs.getBoolean("rejectNotifications", false);
+
+        if (!accept || reject) {
+            notifications.clear();
+            notificationIds.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
         String userId = DeviceUtils.getDeviceId(this);
 
         notificationListener = FirebaseFirestore.getInstance()

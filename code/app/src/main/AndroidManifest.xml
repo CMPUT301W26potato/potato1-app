@@ -174,7 +174,9 @@
             android:exported="false" />
         <!-- END REHAAN'S ADDITION -->
 
-
+        <activity
+            android:name=".activities.EntrantLotteryCriteria"
+            android:exported="false" />
 
     </application>
 
