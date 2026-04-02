@@ -439,6 +439,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
                                     // create comment TextView
                                     TextView commentView = new TextView(this);
+                                    commentView.setTypeface(getResources().getFont(R.font.inter));
                                     commentView.setText(name + ": " + text);
                                     commentView.setTextSize(14);
                                     commentView.setPadding(16, 16, 16, 16);
