@@ -84,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, EntrantNotificationOptions.class));
             }
 
+            else if (id == R.id.nav_lottery_selection_criteria) {
+                startActivity(new Intent(MainActivity.this, EntrantLotteryCriteria.class));
+            }
+
             drawerLayout.closeDrawers();
             return true;
         });
