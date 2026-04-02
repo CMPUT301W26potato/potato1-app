@@ -346,13 +346,24 @@ public class AllEventsActivity extends AppCompatActivity {
             }
             String title    = doc.getString("title");
             String category = doc.getString("category");
+            String description = doc.getString("description");
+            String location = doc.getString("location");
 
             if (title == null) title = "";
             if (category == null) category = "";
+            if (description == null) description = "";
+            if (location == null) location = "";
 
-            //text search on title
-            if (!query.isEmpty() && !title.toLowerCase().contains(query)) {
-                continue;
+            //text search across multiple fields, ie title, description, category, location
+            if (!query.isEmpty()) {
+                boolean matchFound = title.toLowerCase().contains(query) ||
+                                   description.toLowerCase().contains(query) ||
+                                   category.toLowerCase().contains(query) ||
+                                   location.toLowerCase().contains(query);
+
+                if (!matchFound) {
+                    continue;
+                }
             }
             switch (filterMode) {
                 case "open":

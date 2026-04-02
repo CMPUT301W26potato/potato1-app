@@ -33,11 +33,11 @@ public class EntrantNotificationOptions extends AppCompatActivity {
 
         //save on toggle
         acceptNotificationCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("checkbox1", isChecked).apply();
+            prefs.edit().putBoolean("acceptNotifications", isChecked).apply();
         });
 
         rejectNotificationCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("checkbox2", isChecked).apply();
+            prefs.edit().putBoolean("rejectNotifications", isChecked).apply();
         });
 
         findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());

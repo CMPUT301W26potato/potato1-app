@@ -67,7 +67,7 @@
             android:layout_weight="1"
             android:layout_marginStart="10dp"
             android:background="@android:color/transparent"
-            android:hint="Search events..."
+            android:hint="Search by title, description, category..."
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:textSize="15sp"
