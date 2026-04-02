@@ -68,4 +68,8 @@ dependencies {
     implementation("com.google.protobuf:protobuf-javalite:3.25.3")
     // Force test APK to use the same protobuf (fixes NoSuchMethodError: registerDefaultInstance in instrumentation)
     androidTestImplementation("com.google.protobuf:protobuf-javalite:3.25.3")
+    //
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+
 }

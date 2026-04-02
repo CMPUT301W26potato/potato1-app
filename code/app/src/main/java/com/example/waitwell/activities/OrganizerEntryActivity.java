@@ -67,12 +67,6 @@ public class OrganizerEntryActivity extends AppCompatActivity {
                     startActivity(new Intent(this, Profile.class));
                 } else if (id == R.id.nav_notification_options) {
                     startActivity(new Intent(this, EntrantNotificationOptions.class));
-                } else if (id == R.id.nav_logout) {
-                    // Navigate back to registration to switch roles
-                    Intent intent = new Intent(this, RegisterActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
                 }
                 drawerLayout.closeDrawers();
                 return true;

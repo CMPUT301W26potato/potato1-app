@@ -84,10 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, EntrantNotificationOptions.class));
             }
 
-            else if (id == R.id.nav_logout) {
-                logoutToRegister();
-            }
-
             drawerLayout.closeDrawers();
             return true;
         });
@@ -271,7 +267,8 @@ public class MainActivity extends AppCompatActivity {
         // Scan QR Code
         Button btnScan = findViewById(R.id.btnScanQr);
         btnScan.setOnClickListener(v ->
-                Toast.makeText(this, "QR Scanner", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, QrScanActivity.class)));
+
 
         // Calendar View (chip row next to Latest)
         findViewById(R.id.btnCalendarView).setOnClickListener(v ->
@@ -404,16 +401,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 
-
-    // Add this inside MainActivity
-    private void logoutToRegister() {
-
-        Intent intent = new Intent(this, RegisterActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        startActivity(intent);
-        finish();
-    }
 
 
     private void openRegistrationHistory() {

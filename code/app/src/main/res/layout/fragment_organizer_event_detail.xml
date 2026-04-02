@@ -61,7 +61,7 @@
                 android:text="@string/organizer_back"
                 android:textColor="@color/primary"
                 android:textAllCaps="false"
-                android:fontFamily="@font/poppins" />
+                android:fontFamily="@font/poppinsmedium" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -252,7 +252,7 @@
                     android:text="@string/organizer_delete_event"
                     android:textAllCaps="false"
                     android:textColor="@color/text_white"
-                    android:fontFamily="@font/poppins" />
+                    android:fontFamily="@font/poppinsmedium" />
 
                 <View
                     android:layout_width="12dp"
@@ -266,8 +266,8 @@
                     android:background="@drawable/bg_button_white_outlined"
                     android:text="@string/organizer_edit_event"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/poppins" />
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppinsmedium" />
             </LinearLayout>
 
             <LinearLayout
@@ -285,8 +285,8 @@
                     android:background="@drawable/bg_button_white_outlined"
                     android:text="@string/organizer_share"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/poppins" />
+                    android:textColor="@color/text_white"
+                    android:fontFamily="@font/poppinsmedium" />
 
                 <View
                     android:layout_width="12dp"
@@ -300,8 +300,8 @@
                     android:background="@drawable/bg_button_white_outlined"
                     android:text="@string/organizer_view_requests"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/poppins" />
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppinsmedium" />
             </LinearLayout>
 
             <Button
@@ -312,8 +312,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_view_final_entrants"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/text_white"
+                android:fontFamily="@font/poppinsmedium" />
 
             <Button
                 android:id="@+id/btnViewCanceledEntrants"
@@ -323,8 +323,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_view_canceled_entrants"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/text_white"
+                android:fontFamily="@font/poppinsmedium" />
 
             <Button
                 android:id="@+id/btnViewInvitedEntrants"
@@ -334,8 +334,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_view_invited_entrants"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppinsmedium" />
 
             <Button
                 android:id="@+id/btnInviteEntrants"
@@ -347,7 +347,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/text_white"
                 android:visibility="gone"
-                android:fontFamily="@font/poppins" />
+                android:fontFamily="@font/poppinsmedium" />
 
             <Button
                 android:id="@+id/btnViewSampledEntrants"
@@ -357,8 +357,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_view_sampled_entrants"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppinsmedium" />
 <!--Rehaan's addition for 02.05.02-->
             <!-- draw a replacement when someone cancels/rejects -->
             <Button
@@ -369,8 +369,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_draw_replacement"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppinsmedium" />
 
             <Button
                 android:id="@+id/btnViewComments"
@@ -380,7 +380,7 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_button_white_outlined"
                 android:textAllCaps="false"
-                android:fontFamily="@font/poppins" />
+                android:fontFamily="@font/poppinsmedium" />
 
             <!-- REHAAN'S ADDITION — US 02.09.01 -->
             <Button
@@ -391,8 +391,8 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_assign_co_organizer"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppinsmedium" />
             <!-- END REHAAN'S ADDITION -->
 
             <View

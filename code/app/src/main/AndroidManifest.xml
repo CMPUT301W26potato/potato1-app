@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -71,7 +73,15 @@
         <activity
             android:name=".activities.EntrantCalendarActivity"
             android:exported="false" />
-
+        <!-- QR Code Scanner (US 01.06.01) -->
+        <activity android:name=".activities.QrScanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <!-- Lock ZXing's scanner to portrait -->
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
 
         <!-- Organizer-only entry: no Entrant/Admin UI -->
         <activity
