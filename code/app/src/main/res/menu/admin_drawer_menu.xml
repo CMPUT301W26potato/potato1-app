@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_switch_entrant"
+        android:title="Switch to Entrant" />
+
+    <item
+        android:id="@+id/nav_switch_organizer"
+        android:title="Switch to Organizer" />
+
+</menu>
