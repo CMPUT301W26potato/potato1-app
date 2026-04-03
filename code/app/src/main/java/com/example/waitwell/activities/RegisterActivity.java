@@ -133,18 +133,18 @@ public class RegisterActivity extends AppCompatActivity {
             // entrant: 1 per device
             user.put("deviceId", deviceId);
             db.collection("users")
-                    .document(deviceId)
+                    .whereEqualTo("deviceId", deviceId)
+                    .whereEqualTo("role", role)
                     .get()
-                    .addOnSuccessListener(doc -> {
-                        if (doc.exists()) {
+                    .addOnSuccessListener(snapshot -> {
+                        if (!snapshot.isEmpty()) {
                             Toast.makeText(this, "An entrant account already exists on this device", Toast.LENGTH_LONG).show();
                             btnSignUp.setEnabled(true);
                             btnSignUp.setText("Sign up");
                             return;
                         }
                         db.collection("users")
-                                .document(deviceId)
-                                .set(user)
+                                .add(user)
                                 .addOnSuccessListener(aVoid -> {
                                     // existing success logic
                                     Log.d(TAG, "User registered: " + deviceId);
@@ -209,24 +209,61 @@ public class RegisterActivity extends AppCompatActivity {
      *
      */
     private void checkExistingAccount() {
+        btnAlreadyHave.setEnabled(true);
+        btnAlreadyHave.setText("Already have an account");
+
+        showRoleSelectionDialog();
+    }
+
+    private void showRoleSelectionDialog() {
+
+        String[] roles = {"Entrant", "Organizer", "Admin"};
+
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Select account type")
+                .setItems(roles, (dialog, which) -> {
+
+                    String selectedRole = roles[which].toLowerCase();
+                    checkRoleAndLogin(selectedRole);
+
+                })
+                .show();
+    }
+
+    private void checkRoleAndLogin(String role) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String deviceId = DeviceUtils.getDeviceId(this);
+
         btnAlreadyHave.setEnabled(false);
         btnAlreadyHave.setText("Checking...");
-        String deviceId = DeviceUtils.getDeviceId(this);
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(deviceId)
+
+        db.collection("users")
+                .whereEqualTo("deviceId", deviceId)
+                .whereEqualTo("role", role)
                 .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        String role = doc.getString("role");
+                .addOnSuccessListener(snapshot -> {
+
+
+
+
+                    if (!snapshot.isEmpty()) {
+
+                        // if found...
                         if ("organizer".equalsIgnoreCase(role)) {
                             startActivity(new Intent(this, OrganizerEntryActivity.class));
+                        } else if ("admin".equalsIgnoreCase(role)) {
+                            startActivity(new Intent(this, AdminMainMenuActivity.class));
                         } else {
                             startActivity(new Intent(this, MainActivity.class));
                         }
+
                         finish();
+
                     } else {
-                        Toast.makeText(this, "No account found for this device — please sign up", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                "No " + role + " account found for this device",
+                                Toast.LENGTH_LONG).show();
+
                         btnAlreadyHave.setEnabled(true);
                         btnAlreadyHave.setText("Already have an account");
                     }
