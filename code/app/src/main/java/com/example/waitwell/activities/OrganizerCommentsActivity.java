@@ -79,6 +79,8 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
                         box.setLayoutParams(params);
 
                         TextView txt = new TextView(this);
+                        txt.setTypeface(getResources().getFont(R.font.poppins));
+
                         txt.setText((username != null ? username : "User") + ": " + text);
 
                         // shows organizer label
@@ -92,6 +94,8 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
 
                         // DELETE BUTTON
                         TextView deleteBtn = new TextView(this);
+                        deleteBtn.setTypeface(getResources().getFont(R.font.poppinsmedium));
+
                         deleteBtn.setText("Delete");
                         deleteBtn.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
 

@@ -79,10 +79,12 @@ public class AdminCommentsActivity extends AppCompatActivity {
                         box.setLayoutParams(params);
 
                         TextView txt = new TextView(this);
+                        txt.setTypeface(getResources().getFont(R.font.poppins));
                         txt.setText((username != null ? username : "User") + ": " + text);
                         box.addView(txt);
 
                         TextView deleteBtn = new TextView(this);
+                        deleteBtn.setTypeface(getResources().getFont(R.font.poppinsmedium));
                         deleteBtn.setText("Delete");
                         deleteBtn.setTextColor(
                                 ContextCompat.getColor(this, android.R.color.holo_red_dark)

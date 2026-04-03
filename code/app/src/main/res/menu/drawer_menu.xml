@@ -16,4 +16,8 @@
         android:id = "@+id/nav_lottery_selection_criteria"
         android:title="Lottery Selection Criteria"
         />
+    <item
+        android:id = "@+id/nav_logout"
+        android:title="@string/organizer_logout"
+        />
 </menu>
