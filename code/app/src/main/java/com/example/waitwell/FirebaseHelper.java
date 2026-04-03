@@ -501,4 +501,10 @@ public class FirebaseHelper {
                 .document(userId)
                 .delete();
     }
+
+    public com.google.android.gms.tasks.Task<DocumentSnapshot> getUserById(String userId) {
+        return db.collection("users").document(userId).get();
+    }
+
+
 }

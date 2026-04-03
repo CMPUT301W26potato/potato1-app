@@ -48,13 +48,6 @@
         android:textColor="@color/text_hint"
         android:textSize="12sp"/>
 
-    <TextView
-        android:id="@+id/txtStatus"
-        android:text="Status:"
-        android:layout_height = "wrap_content"
-        android:layout_width="wrap_content"
-        android:textColor="@color/text_hint"
-        android:textSize="12sp"/>
 
     <TextView
         android:id="@+id/txtEventsJoined"
