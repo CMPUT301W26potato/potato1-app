@@ -130,12 +130,14 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
         }
 
         // get logged-in userId (same as Profile screen)
-        String userId = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
+        String tempUserId = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
                 .getString("userId", null);
 
-        if (userId == null) {
-            userId = DeviceUtils.getDeviceId(this); // generate one
+        if (tempUserId == null) {
+            tempUserId = DeviceUtils.getDeviceId(this);
         }
+
+        final String userId = tempUserId;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -164,7 +166,7 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
                     comment.put("userId", userId);
                     comment.put("username", username);
                     comment.put("timestamp", new java.util.Date());
-                    comment.put("role", "organizer"); // ⭐ optional but useful
+                    comment.put("role", "organizer");
 
                     db.collection("events")
                             .document(eventId)
