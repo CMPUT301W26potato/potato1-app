@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- REHAAN'S ADDITION — US 02.02.02 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- END REHAAN'S ADDITION -->
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -17,6 +21,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WaitWell"
         tools:targetApi="31">
+        <!-- REHAAN'S ADDITION — US 02.02.02 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_API_KEY_HERE" />
+        <!-- END REHAAN'S ADDITION -->
 
         <!-- Splash screen  -->
         <activity
@@ -177,6 +186,12 @@
         <!-- REHAAN'S ADDITION — US 02.09.01 -->
         <activity
             android:name=".activities.AssignCoOrganizerActivity"
+            android:exported="false" />
+        <!-- END REHAAN'S ADDITION -->
+
+        <!-- REHAAN'S ADDITION — US 02.02.02 -->
+        <activity
+            android:name=".activities.WaitlistMapActivity"
             android:exported="false" />
         <!-- END REHAAN'S ADDITION -->
 

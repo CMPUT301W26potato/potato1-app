@@ -256,7 +256,11 @@
     <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
     <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
 
-
+    <!-- REHAAN'S ADDITION — US 02.02.02 -->
+    <string name="waitlist_map_title">Waitlist Map</string>
+    <string name="waitlist_map_content_desc">Map showing where entrants joined the waitlist</string>
+    <string name="waitlist_map_no_locations">No location data available for this waitlist</string>
+    <!-- END REHAAN'S ADDITION -->
 
     <!-- REHAAN'S ADDITION — US 02.09.01 + US 01.09.01 -->
     <string name="co_organizer_assign_title">Assign Co-Organizer</string>

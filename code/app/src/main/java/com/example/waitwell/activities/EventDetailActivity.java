@@ -33,6 +33,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+// REHAAN'S ADDITION — US 02.02.02
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
+// END REHAAN'S ADDITION
+
+
+
+
+
 
 /**
  * Event detail screen (US 01.01.01 – join waitlist).
@@ -55,6 +68,11 @@ public class EventDetailActivity extends AppCompatActivity {
     private String eventId, deviceId;
     private boolean shownWaitlistStatusSnack;
     private EditText editComment;
+
+    // REHAAN'S ADDITION — US 02.02.02
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private FusedLocationProviderClient fusedLocationClient;
+    // END REHAAN'S ADDITION
     private View btnPostComment;
     private LinearLayout commentsContainer;
 
@@ -64,6 +82,9 @@ public class EventDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event_detail);
 
         deviceId = DeviceUtils.getDeviceId(this);
+        // REHAAN'S ADDITION — US 02.02.02
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        // END REHAAN'S ADDITION
         eventId = getIntent().getStringExtra("event_id");
         if (eventId == null) { finish(); return; }
 
@@ -323,27 +344,79 @@ public class EventDetailActivity extends AppCompatActivity {
                 });
     }
 
+    // REHAAN'S ADDITION — US 02.02.02 (modified runJoinWaitlist to capture location)
     private void runJoinWaitlist(String title) {
         FirebaseHelper.getInstance().joinWaitlist(
                 deviceId, eventId, title,
                 task -> {
                     if (task.isSuccessful()) {
+                        captureAndSaveLocation();
                         Intent intent = new Intent(this, ConfirmationActivity.class);
                         intent.putExtra("event_title", title);
                         startActivity(intent);
                         finish();
                     } else {
-                        if (isEventFullFailure(task.getException())) {
-                            Toast.makeText(this, R.string.event_detail_event_full, Toast.LENGTH_LONG).show();
-                            loadEvent();
-                        } else {
-                            Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
-                            btnJoin.setEnabled(true);
-                        }
+                        Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                        btnJoin.setEnabled(true);
                     }
                 });
     }
 
+    /**
+     * Requests location permission if needed, then saves the device's
+     * last known location to the waitlist_entries document.
+     * Best-effort — join already succeeded, so failure here is silent.
+     * Javadoc written with help from Claude (claude.ai)
+     */
+    private void captureAndSaveLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+        writeLocationToEntry();
+    }
+
+    /**
+     * Reads last known location from FusedLocationProviderClient and
+     * writes it to the waitlist_entries document for this user+event.
+     */
+    private void writeLocationToEntry() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        String entryDocId = deviceId + "_" + eventId;
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    if (location == null) return;
+                    FirebaseHelper.getInstance().updateEntryLocation(
+                            entryDocId,
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            null);
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // REHAAN'S ADDITION — US 02.02.02
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE
+                && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            writeLocationToEntry();
+        }
+        // END REHAAN'S ADDITION
+    }
+    // END REHAAN'S ADDITION
     private static boolean isEventFullFailure(Throwable e) {
         while (e != null) {
             if (e instanceof IllegalStateException

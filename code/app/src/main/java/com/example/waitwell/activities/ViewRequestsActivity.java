@@ -103,7 +103,13 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
         Button btnViewMap = findViewById(R.id.btnViewMap);
         Button btnNotifyAll = findViewById(R.id.btnNotifyAll);
         Button btnSample = findViewById(R.id.btnSampleAttendees);
-        btnViewMap.setOnClickListener(v -> Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show());
+        // REHAAN'S ADDITION — US 02.02.02
+        btnViewMap.setOnClickListener(v -> {
+            Intent mapIntent = new Intent(this, WaitlistMapActivity.class);
+            mapIntent.putExtra(WaitlistMapActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(mapIntent);
+        });
+        // END REHAAN'S ADDITION
         btnNotifyAll.setOnClickListener(v -> notifyAllWaitingEntrants());
         btnSample.setOnClickListener(v -> showLotteryDialog());
 
