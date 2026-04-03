@@ -134,8 +134,7 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
                 .getString("userId", null);
 
         if (userId == null) {
-            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
-            return;
+            userId = DeviceUtils.getDeviceId(this); // generate one
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();

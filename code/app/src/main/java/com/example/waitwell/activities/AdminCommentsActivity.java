@@ -43,7 +43,7 @@ public class AdminCommentsActivity extends AppCompatActivity {
     private void loadComments() {
         commentsContainer.removeAllViews();
 
-        FirebaseHelper.getInstance().getDb()
+        FirebaseFirestore.getInstance()
                 .collection("events")
                 .document(eventId)
                 .collection("comments")
@@ -62,6 +62,7 @@ public class AdminCommentsActivity extends AppCompatActivity {
 
                         String text = doc.getString("text");
                         String username = doc.getString("username");
+                        String role = doc.getString("role");
                         String commentId = doc.getId();
 
                         if (text == null) continue;
@@ -83,12 +84,12 @@ public class AdminCommentsActivity extends AppCompatActivity {
                         txt.setText((username != null ? username : "User") + ": " + text);
                         box.addView(txt);
 
+                        // DELETE BUTTON
                         TextView deleteBtn = new TextView(this);
                         deleteBtn.setTypeface(getResources().getFont(R.font.poppinsmedium));
+
                         deleteBtn.setText("Delete");
-                        deleteBtn.setTextColor(
-                                ContextCompat.getColor(this, android.R.color.holo_red_dark)
-                        );
+                        deleteBtn.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
 
                         deleteBtn.setOnClickListener(v -> deleteComment(commentId));
 
@@ -96,7 +97,10 @@ public class AdminCommentsActivity extends AppCompatActivity {
 
                         commentsContainer.addView(box);
                     }
-                });
+                })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Failed to load comments: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void deleteComment(String commentId) {
