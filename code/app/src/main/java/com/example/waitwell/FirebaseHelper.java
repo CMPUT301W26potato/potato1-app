@@ -501,7 +501,47 @@ public class FirebaseHelper {
                 .document(userId)
                 .delete();
     }
+// REHAAN'S ADDITION — US 02.02.02
+    /**
+     * Updates the join location on an existing waitlist_entries document.
+     * Called after joinWaitlist() succeeds when the device has location permission.
+     *
+     * @param entryDocId  the waitlist_entries document ID (userId_eventId)
+     * @param latitude    latitude captured at join time
+     * @param longitude   longitude captured at join time
+     * @param listener    called when done, check task.isSuccessful()
+     * Javadoc written with help from Claude (claude.ai)
+     */
+    public void updateEntryLocation(String entryDocId, double latitude, double longitude,
+                                    OnCompleteListener<Void> listener) {
+        java.util.Map<String, Object> update = new java.util.HashMap<>();
+        update.put("joinLatitude", latitude);
+        update.put("joinLongitude", longitude);
+        db.collection("waitlist_entries")
+                .document(entryDocId)
+                .update(update)
+                .addOnSuccessListener(v -> {
+                    if (listener != null) listener.onComplete(Tasks.forResult(null));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onComplete(Tasks.forException(e));
+                });
+    }
 
+    /**
+     * Gets all waitlist entries for an event that have location data stored.
+     * Used by WaitlistMapActivity (US 02.02.02) to plot entrant join locations.
+     *
+     * @param eventId Firestore document ID of the event
+     * @return query task with all waitlist_entries for the event
+     * Javadoc written with help from Claude (claude.ai)
+     */
+    public Task<QuerySnapshot> getEntriesWithLocationByEvent(String eventId) {
+        return db.collection("waitlist_entries")
+                .whereEqualTo("eventId", eventId)
+                .get();
+    }
+    // END REHAAN'S ADDITION
     public com.google.android.gms.tasks.Task<DocumentSnapshot> getUserById(String userId) {
         return db.collection("users").document(userId).get();
     }
