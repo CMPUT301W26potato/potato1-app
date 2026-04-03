@@ -52,4 +52,8 @@ public class NotificationModel {
     public void setExpired(boolean expired) {
         this.expired = expired;
     }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

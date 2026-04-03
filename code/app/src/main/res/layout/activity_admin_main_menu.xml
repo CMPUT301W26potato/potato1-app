@@ -118,6 +118,25 @@
                     android:textSize="15sp"
                     android:textColor="@color/text_primary"/>
             </LinearLayout>
+<!--VIEW NOTIFS BUTTON-->
+            <LinearLayout
+                android:id="@+id/btnAllNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_event_row"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp">
+
+                <TextView
+                    android:text="View Notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"/>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

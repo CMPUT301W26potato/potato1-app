@@ -150,6 +150,9 @@
             android:name=".activities.AdminProfileRemovedActivity"
             android:exported="false" />
 
+        <activity android:name=".activities.AdminNotificationsActivity"
+            android:exported="false"/>
+
 <!--        <activity android:name=".activities.AdminImagesActivity"-->
 <!--            android:exported="false" />-->
 

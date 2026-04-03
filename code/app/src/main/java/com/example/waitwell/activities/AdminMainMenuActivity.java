@@ -32,6 +32,7 @@ public class AdminMainMenuActivity extends AppCompatActivity {
     LinearLayout btnEvents;
     LinearLayout btnProfiles;
     LinearLayout btnImages;
+    LinearLayout btnNotifications;
 
     /**
      * Initializes the admin menu and sets navigation listeners.
@@ -43,6 +44,9 @@ public class AdminMainMenuActivity extends AppCompatActivity {
 
         btnEvents = findViewById(R.id.btnAllEvents);
         btnProfiles = findViewById(R.id.btnAllProfiles);
+        btnNotifications = findViewById(R.id.btnAllNotifications);
+
+
 //        btnImages = findViewById(R.id.btnAllImages);
         // Navigate to events management screen
         btnEvents.setOnClickListener(v -> {
@@ -56,6 +60,10 @@ public class AdminMainMenuActivity extends AppCompatActivity {
 //        btnImages.setOnClickListener((v -> {
 //            startActivity(new Intent(this, AdminImagesActivity.class));
 //        }));
+        // Navigate to notifications screen
+        btnNotifications.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminNotificationsActivity.class));
+        });
 
         DrawerLayout drawerLayout = findViewById(R.id.admin_drawer_layout);
         NavigationView navigationView = findViewById(R.id.admin_navigation_view);
