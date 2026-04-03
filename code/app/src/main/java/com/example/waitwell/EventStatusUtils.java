@@ -1,6 +1,7 @@
 package com.example.waitwell;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.Timestamp;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,14 +19,32 @@ public final class EventStatusUtils {
     private EventStatusUtils() {
     }
 
+    /** Firestore field on {@code events} for the registration deadline (see {@link com.example.waitwell.Event}). */
+    public static final String FIELD_REGISTRATION_CLOSE = "registrationClose";
+
     public static String computeStatus(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
             return "closed";
         }
         return computeStatus(
                 doc.getDate("eventDate"),
-                doc.getDate("registrationClose"),
+                getRegistrationCloseDate(doc),
                 new Date());
+    }
+
+    /**
+     * End of registration as stored on the event document ({@value #FIELD_REGISTRATION_CLOSE}).
+     */
+    public static Date getRegistrationCloseDate(DocumentSnapshot doc) {
+        if (doc == null || !doc.exists()) {
+            return null;
+        }
+        Date d = doc.getDate(FIELD_REGISTRATION_CLOSE);
+        if (d != null) {
+            return d;
+        }
+        Timestamp ts = doc.getTimestamp(FIELD_REGISTRATION_CLOSE);
+        return ts != null ? ts.toDate() : null;
     }
 
     /**

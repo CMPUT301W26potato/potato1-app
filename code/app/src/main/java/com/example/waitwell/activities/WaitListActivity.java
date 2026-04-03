@@ -17,6 +17,7 @@ import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.example.waitwell.WaitlistFirestoreStatus;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -181,7 +182,7 @@ public class WaitListActivity extends AppCompatActivity {
             badge.setBackgroundResource(R.drawable.bg_status_selected_primary);
             badge.setTextColor(getColor(R.color.text_white));
         } else if (rejected.equals(s)) {
-            badge.setText(R.string.waitlist_status_label_declined);
+            badge.setText(R.string.waitlist_status_display_not_selected);
             badge.setBackgroundResource(R.drawable.bg_status_closed);
             badge.setTextColor(getColor(R.color.status_closed_text));
         } else if (cancelled.equals(s)) {
@@ -205,7 +206,7 @@ public class WaitListActivity extends AppCompatActivity {
         List<String> names = new ArrayList<>();
 
         for (DocumentSnapshot doc : entryDocs) {
-            if ("waiting".equals(doc.getString("status"))) {
+            if (WaitlistFirestoreStatus.WAITING.equals(doc.getString("status"))) {
                 quittable.add(doc);
                 String t = doc.getString("eventTitle");
                 names.add(t != null ? t : getString(R.string.waitlist_unknown_event));

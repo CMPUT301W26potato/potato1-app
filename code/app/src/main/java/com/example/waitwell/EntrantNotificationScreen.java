@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -116,8 +117,16 @@ public class EntrantNotificationScreen extends AppCompatActivity {
                                 .addOnCompleteListener(task -> {
                                     NotificationModel model = notification.toNotificationModel();
                                     if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                                        String lifecycle = EventStatusUtils.computeStatus(task.getResult());
+                                        DocumentSnapshot eventDoc = task.getResult();
+                                        String lifecycle = EventStatusUtils.computeStatus(eventDoc);
                                         if ("completed".equalsIgnoreCase(lifecycle)) {
+                                            model.setExpired(true);
+                                        }
+                                        Date regClose = EventStatusUtils.getRegistrationCloseDate(eventDoc);
+                                        boolean inviteStale = "CHOSEN".equals(notification.getType())
+                                                && regClose != null
+                                                && new Date().after(regClose);
+                                        if (inviteStale) {
                                             model.setExpired(true);
                                         }
                                     }

@@ -1,5 +1,7 @@
 package com.example.waitwell;
 
+import android.content.Context;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -12,6 +14,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -99,12 +102,15 @@ public class FirebaseHelper {
                 }
             }
 
-            // Hard guard: once an entrant is confirmed for this event, they cannot rejoin its waitlist.
+            // Hard guard: final / invited / declined entrants cannot rejoin from a fresh join.
             DocumentSnapshot existingEntry = transaction.get(entryRef);
             if (existingEntry.exists()) {
                 String existingStatus = existingEntry.getString("status");
-                if ("confirmed".equals(existingStatus)) {
-                    throw new IllegalStateException("Confirmed entrants cannot rejoin this waitlist");
+                if (WaitlistFirestoreStatus.CONFIRMED.equals(existingStatus)
+                        || WaitlistFirestoreStatus.SELECTED.equals(existingStatus)
+                        || WaitlistFirestoreStatus.REJECTED.equals(existingStatus)
+                        || WaitlistFirestoreStatus.CANCELLED.equals(existingStatus)) {
+                    throw new IllegalStateException("Entrant cannot rejoin this waitlist for this event");
                 }
             }
 
@@ -117,7 +123,7 @@ public class FirebaseHelper {
             entry.put("userId", userId);
             entry.put("eventId", eventId);
             entry.put("eventTitle", eventTitle);
-            entry.put("status", "waiting");
+            entry.put("status", WaitlistFirestoreStatus.WAITING);
             entry.put("joinedAt", FieldValue.serverTimestamp());
             transaction.set(entryRef, entry);
 
@@ -308,7 +314,7 @@ public class FirebaseHelper {
      * @param listener   called when done, check task.isSuccessful()
      */
     public void executeLotterySampling(String eventId, int sampleSize, OnCompleteListener<Void> listener) {
-        executeLotterySampling(eventId, sampleSize, (task, actualSampledCount) -> {
+        executeLotterySampling(null, eventId, sampleSize, false, (task, actualSampledCount) -> {
             if (listener != null) {
                 listener.onComplete(task);
             }
@@ -320,7 +326,24 @@ public class FirebaseHelper {
      * how many entrants were actually set to {@code selected} (after {@link Lottery#sample}).
      */
     public void executeLotterySampling(String eventId, int sampleSize, LotterySamplingCallback callback) {
-        // First, get the event details for the notification
+        executeLotterySampling(null, eventId, sampleSize, false, callback);
+    }
+
+    /**
+     * Runs lottery sampling. When {@code rejectUnsampledWaitingEntrants} is true (full organizer draw),
+     * every entrant still in {@link WaitlistFirestoreStatus#WAITING} or {@link WaitlistFirestoreStatus#PENDING}
+     * who is not selected is set to {@link WaitlistFirestoreStatus#REJECTED}, removed from the event
+     * waitlist id array, and sent a {@code NOT_CHOSEN} notification. When false (replacement draw),
+     * only newly selected entrants are updated.
+     *
+     * @param context                    app context for string resources when rejecting unsampled entrants;
+     *                                   required if {@code rejectUnsampledWaitingEntrants} is true
+     */
+    public void executeLotterySampling(Context context, String eventId, int sampleSize,
+                                       boolean rejectUnsampledWaitingEntrants, LotterySamplingCallback callback) {
+        if (rejectUnsampledWaitingEntrants && context == null) {
+            throw new IllegalArgumentException("context is required when rejectUnsampledWaitingEntrants is true");
+        }
         db.collection("events")
                 .document(eventId)
                 .get()
@@ -329,11 +352,13 @@ public class FirebaseHelper {
                     if (eventName == null) eventName = "Event";
 
                     final String finalEventName = eventName;
+                    DocumentReference eventRef = db.collection("events").document(eventId);
 
-                    // Now get all waiting entries
                     db.collection("waitlist_entries")
                             .whereEqualTo("eventId", eventId)
-                            .whereEqualTo("status", "waiting")
+                            .whereIn("status", Arrays.asList(
+                                    WaitlistFirestoreStatus.WAITING,
+                                    WaitlistFirestoreStatus.PENDING))
                             .get()
                             .addOnSuccessListener(snapshot -> {
                                 List<String> waitingIds = new ArrayList<>();
@@ -354,7 +379,6 @@ public class FirebaseHelper {
                                     return;
                                 }
 
-                                // Run lottery
                                 List<String> selectedIds = Lottery.sample(waitingIds, sampleSize);
 
                                 if (selectedIds.isEmpty()) {
@@ -366,45 +390,55 @@ public class FirebaseHelper {
 
                                 final int actualSampledCount = selectedIds.size();
 
-                                // Create batch for updating statuses
+                                List<String> unsampledIds = new ArrayList<>();
+                                if (rejectUnsampledWaitingEntrants) {
+                                    for (String userId : waitingIds) {
+                                        if (!selectedIds.contains(userId)) {
+                                            unsampledIds.add(userId);
+                                        }
+                                    }
+                                }
+
                                 WriteBatch batch = db.batch();
                                 for (String userId : selectedIds) {
                                     DocumentReference ref = userIdToRef.get(userId);
                                     if (ref != null) {
-                                        batch.update(ref, "status", "selected");
+                                        batch.update(ref, "status", WaitlistFirestoreStatus.SELECTED);
+                                    }
+                                }
+                                if (rejectUnsampledWaitingEntrants) {
+                                    for (String userId : unsampledIds) {
+                                        DocumentReference ref = userIdToRef.get(userId);
+                                        if (ref != null) {
+                                            batch.update(ref, "status", WaitlistFirestoreStatus.REJECTED);
+                                        }
+                                    }
+                                    if (!unsampledIds.isEmpty()) {
+                                        batch.update(eventRef, "waitlistEntrantIds",
+                                                FieldValue.arrayRemove(unsampledIds.toArray(new String[0])));
                                     }
                                 }
 
-                                // Create notifications for selected users
                                 List<Notification> notifications = new ArrayList<>();
                                 for (String userId : selectedIds) {
                                     String message = "Congratulations! You have been selected for " + finalEventName + ". Please accept or decline the invitation.";
-                                    Notification notification = new Notification(userId, eventId, finalEventName, message, "CHOSEN");
-                                    notifications.add(notification);
+                                    notifications.add(new Notification(userId, eventId, finalEventName, message, "CHOSEN"));
                                 }
-
-                                // Optionally create NOT_CHOSEN notifications for non-selected users
-                                // Uncomment if you want to notify non-selected users
-                                /*
-                                for (String userId : waitingIds) {
-                                    if (!selectedIds.contains(userId)) {
-                                        String message = "Unfortunately, you were not selected for " + finalEventName + " in this round. You can choose to re-enter the lottery pool for future draws.";
-                                        Notification notification = new Notification(userId, eventId, finalEventName, message, "NOT_CHOSEN");
-                                        notifications.add(notification);
+                                if (rejectUnsampledWaitingEntrants && context != null) {
+                                    String notSelectedMessage = context.getString(
+                                            R.string.notification_entrant_not_selected, finalEventName);
+                                    for (String userId : unsampledIds) {
+                                        notifications.add(new Notification(userId, eventId, finalEventName,
+                                                notSelectedMessage, "NOT_CHOSEN"));
                                     }
                                 }
-                                */
 
-                                // Commit the status updates first
                                 batch.commit()
-                                        .addOnSuccessListener(v -> {
-                                            // Then create notifications
-                                            createNotificationsBatch(notifications, task -> {
-                                                if (callback != null) {
-                                                    callback.onLotteryComplete(Tasks.forResult(null), actualSampledCount);
-                                                }
-                                            });
-                                        })
+                                        .addOnSuccessListener(v -> createNotificationsBatch(notifications, task -> {
+                                            if (callback != null) {
+                                                callback.onLotteryComplete(Tasks.forResult(null), actualSampledCount);
+                                            }
+                                        }))
                                         .addOnFailureListener(e -> {
                                             if (callback != null) {
                                                 callback.onLotteryComplete(Tasks.forException(e), 0);
@@ -466,7 +500,7 @@ public class FirebaseHelper {
     public void cancelEnrolledEntrant(String entryDocId, OnCompleteListener<Void> listener) {
         db.collection("waitlist_entries")
                 .document(entryDocId)
-                .update("status", "cancelled")
+                .update("status", WaitlistFirestoreStatus.CANCELLED)
                 .addOnSuccessListener(v -> {
                     if (listener != null) listener.onComplete(Tasks.forResult(null));
                 })

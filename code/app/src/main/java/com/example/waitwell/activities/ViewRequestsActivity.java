@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
+import com.example.waitwell.WaitlistFirestoreStatus;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -118,7 +119,7 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
 
     private void loadWaitingEntrants() {
         FirebaseHelper.getInstance()
-                .getEntriesByEventAndStatus(eventId, "waiting")
+                .getEntriesByEventAndStatus(eventId, WaitlistFirestoreStatus.WAITING)
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
                         adapter.setItems(Collections.emptyList());
@@ -201,7 +202,7 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
         refreshEventTitleIfNeeded(() -> {
             DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
             db.runTransaction(transaction -> {
-                transaction.update(entryRef, "status", "selected");
+                transaction.update(entryRef, "status", WaitlistFirestoreStatus.SELECTED);
                 return null;
             }).addOnSuccessListener(v -> {
                 String message = getString(R.string.waitlist_chosen_notification_message, eventTitle);
@@ -230,11 +231,11 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
             DocumentReference entryRef = db.collection("waitlist_entries").document(item.entryDocumentId);
             DocumentReference eventRef = db.collection("events").document(eventId);
             db.runTransaction(transaction -> {
-                transaction.update(entryRef, "status", "rejected");
+                transaction.update(entryRef, "status", WaitlistFirestoreStatus.REJECTED);
                 transaction.update(eventRef, "waitlistEntrantIds", FieldValue.arrayRemove(item.userId));
                 return null;
             }).addOnSuccessListener(v -> {
-                String message = getString(R.string.event_detail_registration_not_accepted);
+                String message = getString(R.string.notification_entrant_not_selected, eventTitle);
                 FirebaseHelper.getInstance().createNotification(
                         item.userId,
                         eventId,
@@ -284,7 +285,7 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
 
     private void runLottery(int sampleSize) {
         Toast.makeText(this, getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
-        FirebaseHelper.getInstance().executeLotterySampling(eventId, sampleSize, (task, actualSampledCount) -> {
+        FirebaseHelper.getInstance().executeLotterySampling(this, eventId, sampleSize, true, (task, actualSampledCount) -> {
             if (task.isSuccessful()) {
                 Intent i = new Intent(this, SamplingConfirmationActivity.class);
                 i.putExtra(SamplingConfirmationActivity.EXTRA_EVENT_ID, eventId);
