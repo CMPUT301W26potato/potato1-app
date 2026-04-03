@@ -39,6 +39,8 @@ public class EntrantLotteryCriteria extends AppCompatActivity {
                 // handle delete profile if needed
             } else if (id == R.id.nav_lottery_selection_criteria) {
                 // already on this screen
+            } else if (id == R.id.nav_logout) {
+                startActivity(new Intent(this, RegisterActivity.class));
             }
 
             drawerLayout.closeDrawers();
