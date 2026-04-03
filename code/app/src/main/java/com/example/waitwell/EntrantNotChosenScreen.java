@@ -24,6 +24,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class EntrantNotChosenScreen extends AppCompatActivity {
@@ -213,34 +214,20 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        // Update existing entry back to "waiting" status
-                        doc.getReference().update("status", "waiting")
-                                .addOnSuccessListener(aVoid -> {
-                                    // Also add back to waitlistEntrantIds array
-                                    db.collection("events")
-                                            .document(eventId)
-                                            .update("waitlistEntrantIds", FieldValue.arrayUnion(userId))
-                                            .addOnSuccessListener(unused -> {
-                                                // Mark notification as responded if we have the ID
-                                                if (notificationId != null) {
-                                                    FirebaseHelper.getInstance().markNotificationResponded(notificationId, task -> {
-                                                        // Log but don't block on notification update
-                                                        if (!task.isSuccessful()) {
-                                                            Log.w(TAG, "Failed to mark notification as responded", task.getException());
-                                                        }
-                                                    });
-                                                }
-                                                Toast.makeText(this, "You have re-entered the waitlist for the redraw!", Toast.LENGTH_LONG).show();
-                                                finish();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Log.e(TAG, "Failed to update event waitlist", e);
-                                                Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
-                                                findViewById(R.id.entrantRedraw).setEnabled(true);
-                                            });
+                        db.collection("events")
+                                .document(eventId)
+                                .get()
+                                .addOnSuccessListener(eventDoc -> {
+                                    if (isEventFullFromSnapshot(eventDoc)) {
+                                        Toast.makeText(this, R.string.event_detail_event_full, Toast.LENGTH_LONG).show();
+                                        findViewById(R.id.entrantRedraw).setEnabled(true);
+                                        return;
+                                    }
+                                    // Update existing entry back to "waiting" status
+                                    enterRedrawAfterCapacityOk(doc, db, userId);
                                 })
                                 .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Failed to update waitlist entry", e);
+                                    Log.e(TAG, "Failed to load event for redraw check", e);
                                     Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
                                     findViewById(R.id.entrantRedraw).setEnabled(true);
                                 });
@@ -256,6 +243,50 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 });
     }
 
+    @SuppressWarnings("unchecked")
+    private static boolean isEventFullFromSnapshot(DocumentSnapshot eventDoc) {
+        if (eventDoc == null || !eventDoc.exists()) {
+            return true;
+        }
+        Long limitVal = eventDoc.getLong("waitlistLimit");
+        if (limitVal == null || limitVal <= 0) {
+            return false;
+        }
+        List<String> attending = (List<String>) eventDoc.get("AttendingEntrants");
+        int confirmed = attending != null ? attending.size() : 0;
+        return confirmed >= limitVal.intValue();
+    }
+
+    private void enterRedrawAfterCapacityOk(DocumentSnapshot entryDoc, FirebaseFirestore db, String userId) {
+        entryDoc.getReference().update("status", "waiting")
+                .addOnSuccessListener(aVoid -> {
+                    db.collection("events")
+                            .document(eventId)
+                            .update("waitlistEntrantIds", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener(unused -> {
+                                if (notificationId != null) {
+                                    FirebaseHelper.getInstance().markNotificationResponded(notificationId, task -> {
+                                        if (!task.isSuccessful()) {
+                                            Log.w(TAG, "Failed to mark notification as responded", task.getException());
+                                        }
+                                    });
+                                }
+                                Toast.makeText(this, "You have re-entered the waitlist for the redraw!", Toast.LENGTH_LONG).show();
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to update event waitlist", e);
+                                Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
+                                findViewById(R.id.entrantRedraw).setEnabled(true);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update waitlist entry", e);
+                    Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
+                    findViewById(R.id.entrantRedraw).setEnabled(true);
+                });
+    }
+
     /**
      *  create a new waitlist entry for the entrant
      */
@@ -266,6 +297,11 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(eventDoc -> {
+                    if (isEventFullFromSnapshot(eventDoc)) {
+                        Toast.makeText(this, R.string.event_detail_event_full, Toast.LENGTH_LONG).show();
+                        findViewById(R.id.entrantRedraw).setEnabled(true);
+                        return;
+                    }
                     String eventTitle = eventDoc.getString("title");
                     if (eventTitle == null) {
                         eventTitle = "Unknown Event";
@@ -287,7 +323,11 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                             finish();
                         } else {
                             Log.e(TAG, "Failed to join waitlist", task.getException());
-                            Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
+                            if (isEventFullFailure(task.getException())) {
+                                Toast.makeText(this, R.string.event_detail_event_full, Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
+                            }
                             findViewById(R.id.entrantRedraw).setEnabled(true);
                         }
                     });
@@ -297,5 +337,16 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                     Toast.makeText(this, "Failed to enter redraw. Please try again.", Toast.LENGTH_SHORT).show();
                     findViewById(R.id.entrantRedraw).setEnabled(true);
                 });
+    }
+
+    private static boolean isEventFullFailure(Throwable e) {
+        while (e != null) {
+            if (e instanceof IllegalStateException
+                    && FirebaseHelper.EVENT_FULL_MESSAGE.equals(e.getMessage())) {
+                return true;
+            }
+            e = e.getCause();
+        }
+        return false;
     }
 }

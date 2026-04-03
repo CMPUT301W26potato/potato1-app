@@ -3,6 +3,7 @@ package com.example.waitwell.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -10,7 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.widget.TextViewCompat;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EventStatusUtils;
@@ -44,7 +49,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
     private TextView txtTitle, txtLocation, txtPrice, txtRegistered;
     private TextView txtEventDate, txtEventTime, txtTimeRemaining, txtRating, txtDescription;
-    private View btnJoin;
+    private AppCompatButton btnJoin;
     private TextView txtJoinBlockedMessage;
     private View joinButtonContainer;
     private String eventId, deviceId;
@@ -171,6 +176,10 @@ public class EventDetailActivity extends AppCompatActivity {
 
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
         boolean alreadyFinalEntrant = attending != null && attending.contains(deviceId);
+        Long waitlistLimitVal = doc.getLong("waitlistLimit");
+        int limit = waitlistLimitVal != null ? waitlistLimitVal.intValue() : 0;
+        int confirmedCount = attending != null ? attending.size() : 0;
+        boolean eventFullByConfirmed = limit > 0 && confirmedCount >= limit;
 
         String entryDocId = deviceId + "_" + eventId;
         FirebaseFirestore.getInstance()
@@ -179,10 +188,10 @@ public class EventDetailActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(entryDoc -> {
                     String entryStatus = entryDoc.exists() ? entryDoc.getString("status") : null;
-                    applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, entryStatus);
+                    applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, entryStatus, eventFullByConfirmed);
                     maybeShowWaitlistStatusSnack(entryStatus);
                 })
-                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, null));
+                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, null, eventFullByConfirmed));
     }
 
     /**
@@ -194,7 +203,8 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray,
-                                       boolean alreadyInAttendingList, String entryStatus) {
+                                       boolean alreadyInAttendingList, String entryStatus,
+                                       boolean eventFullByConfirmedLimit) {
         if (joinButtonContainer == null) {
             return;
         }
@@ -211,10 +221,39 @@ public class EventDetailActivity extends AppCompatActivity {
             btnJoin.setVisibility(View.GONE);
             txtJoinBlockedMessage.setVisibility(View.VISIBLE);
             txtJoinBlockedMessage.setText(R.string.event_detail_already_registered);
+        } else if (eventFullByConfirmedLimit) {
+            txtJoinBlockedMessage.setVisibility(View.GONE);
+            btnJoin.setVisibility(View.VISIBLE);
+            styleJoinButtonEventFull();
         } else {
             txtJoinBlockedMessage.setVisibility(View.GONE);
             btnJoin.setVisibility(View.VISIBLE);
+            styleJoinButtonNormal();
         }
+    }
+
+    /** Grayed-out CTA when confirmed (final) entrants reached {@code waitlistLimit}. */
+    private void styleJoinButtonEventFull() {
+        btnJoin.setEnabled(false);
+        btnJoin.setText(R.string.event_detail_event_full);
+        btnJoin.setBackgroundResource(R.drawable.bg_event_detail_cta_disabled);
+        btnJoin.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(btnJoin, null, null, null, null);
+    }
+
+    private void styleJoinButtonNormal() {
+        btnJoin.setEnabled(true);
+        btnJoin.setText(R.string.event_detail_join_waitlist);
+        btnJoin.setBackgroundResource(R.drawable.bg_event_detail_cta);
+        btnJoin.setTextColor(ContextCompat.getColor(this, R.color.text_white));
+        Drawable end = AppCompatResources.getDrawable(this, R.drawable.ic_send_small);
+        if (end != null) {
+            end = DrawableCompat.wrap(end.mutate());
+            DrawableCompat.setTint(end, ContextCompat.getColor(this, R.color.text_white));
+        }
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(btnJoin, null, null, end, null);
+        int pad = (int) (10 * getResources().getDisplayMetrics().density + 0.5f);
+        btnJoin.setCompoundDrawablePadding(pad);
     }
 
     private void maybeShowWaitlistStatusSnack(String entryStatus) {
@@ -256,7 +295,7 @@ public class EventDetailActivity extends AppCompatActivity {
                     if (attending != null && attending.contains(deviceId)) {
                         Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
-                        applyJoinAvailability(true, false, true, "confirmed");
+                        applyJoinAvailability(true, false, true, "confirmed", false);
                         return;
                     }
                     FirebaseFirestore.getInstance()
@@ -268,7 +307,7 @@ public class EventDetailActivity extends AppCompatActivity {
                     if (blocksWaitlistRejoin(st)) {
                         Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
-                        applyJoinAvailability(true, false, false, st);
+                        applyJoinAvailability(true, false, false, st, false);
                         return;
                     }
                     runJoinWaitlist(title);
@@ -294,10 +333,26 @@ public class EventDetailActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
+                        if (isEventFullFailure(task.getException())) {
+                            Toast.makeText(this, R.string.event_detail_event_full, Toast.LENGTH_LONG).show();
+                            loadEvent();
+                        } else {
+                            Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                            btnJoin.setEnabled(true);
+                        }
                     }
                 });
+    }
+
+    private static boolean isEventFullFailure(Throwable e) {
+        while (e != null) {
+            if (e instanceof IllegalStateException
+                    && FirebaseHelper.EVENT_FULL_MESSAGE.equals(e.getMessage())) {
+                return true;
+            }
+            e = e.getCause();
+        }
+        return false;
     }
 
     private void setupBottomNav() {

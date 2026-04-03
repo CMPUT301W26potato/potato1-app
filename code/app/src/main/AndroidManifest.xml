@@ -86,7 +86,8 @@
         <!-- Organizer-only entry: no Entrant/Admin UI -->
         <activity
             android:name=".activities.OrganizerEntryActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
         <!-- Rehaan;s addition for US 02.06.01 : Invited entrants list for organizers -->
         <!-- Rehaan's addition for US 02.06.01 : Invited entrants list for organizers -->
         <activity

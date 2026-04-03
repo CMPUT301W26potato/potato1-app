@@ -190,21 +190,29 @@ public class EventTest {
     @Test
     public void testIsWaitlistFull_noLimit() {
         event.setWaitlistLimit(null);
-        event.setWaitlistEntrantIds(Arrays.asList("u1", "u2"));
+        event.setAttendingEntrants(Arrays.asList("u1", "u2"));
         assertFalse(event.isWaitlistFull());
     }
 
     @Test
     public void testIsWaitlistFull_atLimit() {
         event.setWaitlistLimit(2);
-        event.setWaitlistEntrantIds(Arrays.asList("u1", "u2"));
+        event.setAttendingEntrants(Arrays.asList("u1", "u2"));
         assertTrue(event.isWaitlistFull());
     }
 
     @Test
     public void testIsWaitlistFull_underLimit() {
         event.setWaitlistLimit(10);
-        event.setWaitlistEntrantIds(Arrays.asList("u1"));
+        event.setAttendingEntrants(Arrays.asList("u1"));
+        assertFalse(event.isWaitlistFull());
+    }
+
+    @Test
+    public void testIsWaitlistFull_manyWaitingButFewConfirmed() {
+        event.setWaitlistLimit(2);
+        event.setWaitlistEntrantIds(Arrays.asList("a", "b", "c", "d"));
+        event.setAttendingEntrants(Arrays.asList("u1"));
         assertFalse(event.isWaitlistFull());
     }
 

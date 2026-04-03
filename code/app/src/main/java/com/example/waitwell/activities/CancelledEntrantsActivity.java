@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -61,6 +62,21 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
         ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
         btnHamburger.setOnClickListener(v -> finish());
         imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+
+        BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                finish();
+                return true;
+            }
+            if (id == R.id.nav_organizer_bottom_home) {
+                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         RecyclerView recycler = findViewById(R.id.recyclerCancelledEntrants);
         recycler.setLayoutManager(new LinearLayoutManager(this));

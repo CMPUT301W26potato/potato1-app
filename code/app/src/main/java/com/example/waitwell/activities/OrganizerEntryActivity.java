@@ -1,9 +1,12 @@
 package com.example.waitwell.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.waitwell.R;
 
@@ -11,7 +14,6 @@ import com.example.waitwell.R;
 // REHAAN'S ADDITIONS START
 // Added imports to support side-drawer navigation logic
 // ---------------------------------------------------------
-import android.content.Intent;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
@@ -35,6 +37,20 @@ import com.example.waitwell.EntrantNotificationOptions;
  * Organizer shell with Sarang's Navigation Drawer structure.
  */
 public class OrganizerEntryActivity extends AppCompatActivity {
+
+    /**
+     * When set on an intent to this activity, clears the organizer fragment back stack and shows
+     * {@link OrganizerHomeFragment} (My Events). Needed because child activities (e.g. View Requests)
+     * sit above this activity while detail fragments remain on the stack underneath.
+     */
+    public static final String EXTRA_NAVIGATE_TO_MY_EVENTS = "navigate_to_my_events";
+
+    public static Intent intentNavigateToMyEvents(Context context) {
+        Intent i = new Intent(context, OrganizerEntryActivity.class);
+        i.putExtra(EXTRA_NAVIGATE_TO_MY_EVENTS, true);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return i;
+    }
 
     // ---------------------------------------------------------
     // REHAAN'S ADDITION: Reference for the drawer mechanic
@@ -75,11 +91,33 @@ public class OrganizerEntryActivity extends AppCompatActivity {
         // REHAAN'S ADDITION END
         // ---------------------------------------------------------
 
-        if (savedInstanceState == null) {
+        boolean navigateMyEvents = getIntent().getBooleanExtra(EXTRA_NAVIGATE_TO_MY_EVENTS, false);
+        if (navigateMyEvents) {
+            navigateToMyEventsClearingBackStack();
+            getIntent().removeExtra(EXTRA_NAVIGATE_TO_MY_EVENTS);
+        } else if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent != null && intent.getBooleanExtra(EXTRA_NAVIGATE_TO_MY_EVENTS, false)) {
+            navigateToMyEventsClearingBackStack();
+            intent.removeExtra(EXTRA_NAVIGATE_TO_MY_EVENTS);
+        }
+    }
+
+    private void navigateToMyEventsClearingBackStack() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fm.beginTransaction()
+                .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())
+                .commit();
     }
 
     // ---------------------------------------------------------

@@ -57,9 +57,7 @@ public class SamplingConfirmationActivity extends AppCompatActivity {
                 return true;
             }
             if (id == R.id.nav_organizer_bottom_home) {
-                Intent i = new Intent(this, OrganizerEntryActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(i);
+                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
                 finish();
                 return true;
             }

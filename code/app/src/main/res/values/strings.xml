@@ -121,6 +121,7 @@
     <string name="event_detail_event_date_not_set">Not set</string>
     <string name="event_detail_status_completed">Event completed</string>
     <string name="event_detail_join_waitlist">Join Waitlist Now</string>
+    <string name="event_detail_event_full">this event is full!</string>
     <string name="event_detail_bookmark">Bookmark event</string>
     <string name="event_detail_open_for_days">Open to register for %1$d more days</string>
     <string name="event_detail_open_one_day">Open to register for 1 more day</string>

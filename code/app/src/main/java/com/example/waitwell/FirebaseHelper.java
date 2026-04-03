@@ -22,6 +22,9 @@ import java.util.List;
  * Javadoc written with help from Claude (claude.ai)
  */
 public class FirebaseHelper {
+    /** Thrown from transactions when {@code waitlistLimit} confirmed spots are already taken. */
+    public static final String EVENT_FULL_MESSAGE = "EVENT_FULL";
+
     private static FirebaseHelper instance;
     private final FirebaseFirestore db;
 
@@ -78,6 +81,23 @@ public class FirebaseHelper {
         db.runTransaction(transaction -> {
             DocumentReference eventRef = db.collection("events").document(eventId);
             DocumentReference entryRef = db.collection("waitlist_entries").document(entryId);
+
+            DocumentSnapshot eventSnap = transaction.get(eventRef);
+            if (!eventSnap.exists()) {
+                throw new IllegalStateException("Event not found");
+            }
+            // Optional: no field / null waitlistLimit => no cap (unlimited waitlist joins by confirmed count).
+            Long limitVal = eventSnap.getLong("waitlistLimit");
+            if (limitVal != null) {
+                int limit = limitVal.intValue();
+                @SuppressWarnings("unchecked")
+                List<String> attending =
+                        (List<String>) eventSnap.get("AttendingEntrants");
+                int confirmedCount = attending != null ? attending.size() : 0;
+                if (limit > 0 && confirmedCount >= limit) {
+                    throw new IllegalStateException(EVENT_FULL_MESSAGE);
+                }
+            }
 
             // Hard guard: once an entrant is confirmed for this event, they cannot rejoin its waitlist.
             DocumentSnapshot existingEntry = transaction.get(entryRef);
