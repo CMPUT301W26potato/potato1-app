@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.activities.InvitationResponseActivity;
@@ -50,11 +52,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         if (n.isExpired()) {
             holder.expiredLabel.setVisibility(View.VISIBLE);
+            holder.itemView.setAlpha(0.5f);
+            holder.titleText.setTextColor(ContextCompat.getColor(context, R.color.text_secondary));
         } else {
             holder.expiredLabel.setVisibility(View.GONE);
+            holder.itemView.setAlpha(1f);
+            holder.titleText.setTextColor(ContextCompat.getColor(context, R.color.text_primary));
         }
 
         holder.actionButton.setOnClickListener(v -> {
+            if (n.isExpired() && n.getType() == NotificationModel.NotificationType.CHOSEN) {
+                Toast.makeText(context, R.string.toast_notification_invitation_expired, Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent;
             //navigations based on the notification type
             if (n.getType() == NotificationModel.NotificationType.CHOSEN) {

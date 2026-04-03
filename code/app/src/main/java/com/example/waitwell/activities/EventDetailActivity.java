@@ -22,6 +22,7 @@ import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.example.waitwell.WaitlistFirestoreStatus;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -229,10 +230,13 @@ public class EventDetailActivity extends AppCompatActivity {
 
     /**
      * Firestore statuses that mean the entrant must not join the waitlist again from this screen.
-     * Uses existing strings: {@code selected} (invited), {@code confirmed} (final), {@code rejected} (organizer decline).
+     * Uses {@link WaitlistFirestoreStatus} values: invited/final/declined/not-selected entrants cannot rejoin.
      */
     private static boolean blocksWaitlistRejoin(String status) {
-        return "selected".equals(status) || "confirmed".equals(status) || "rejected".equals(status);
+        return WaitlistFirestoreStatus.SELECTED.equals(status)
+                || WaitlistFirestoreStatus.CONFIRMED.equals(status)
+                || WaitlistFirestoreStatus.REJECTED.equals(status)
+                || WaitlistFirestoreStatus.CANCELLED.equals(status);
     }
 
     private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray,
@@ -253,7 +257,11 @@ public class EventDetailActivity extends AppCompatActivity {
         if (blocksWaitlistRejoin(entryStatus)) {
             btnJoin.setVisibility(View.GONE);
             txtJoinBlockedMessage.setVisibility(View.VISIBLE);
-            txtJoinBlockedMessage.setText(R.string.event_detail_already_registered);
+            if (WaitlistFirestoreStatus.REJECTED.equals(entryStatus)) {
+                txtJoinBlockedMessage.setText(R.string.event_detail_not_selected_for_event);
+            } else {
+                txtJoinBlockedMessage.setText(R.string.event_detail_already_registered);
+            }
         } else if (eventFullByConfirmedLimit) {
             txtJoinBlockedMessage.setVisibility(View.GONE);
             btnJoin.setVisibility(View.VISIBLE);
@@ -293,10 +301,10 @@ public class EventDetailActivity extends AppCompatActivity {
         if (shownWaitlistStatusSnack) {
             return;
         }
-        if ("rejected".equals(entryStatus)) {
+        if (WaitlistFirestoreStatus.REJECTED.equals(entryStatus)) {
             shownWaitlistStatusSnack = true;
-            showWaitlistMessageSnack(R.string.event_detail_registration_not_accepted);
-        } else if ("cancelled".equals(entryStatus)) {
+            showWaitlistMessageSnack(R.string.event_detail_not_selected_for_event);
+        } else if (WaitlistFirestoreStatus.CANCELLED.equals(entryStatus)) {
             shownWaitlistStatusSnack = true;
             showWaitlistMessageSnack(R.string.event_detail_invitation_declined);
         }
@@ -338,7 +346,10 @@ public class EventDetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(entryDoc -> {
                     String st = entryDoc.exists() ? entryDoc.getString("status") : null;
                     if (blocksWaitlistRejoin(st)) {
-                        Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
+                        int msg = WaitlistFirestoreStatus.REJECTED.equals(st)
+                                ? R.string.event_detail_not_selected_for_event
+                                : R.string.event_detail_already_registered;
+                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
                         applyJoinAvailability(true, false, false, st, false);
                         return;
@@ -481,13 +492,13 @@ public class EventDetailActivity extends AppCompatActivity {
                         return;
                     }
                     String status = doc.getString("status");
-                    if (!"rejected".equals(status)) {
+                    if (!WaitlistFirestoreStatus.REJECTED.equals(status)) {
                         return;
                     }
                     View anchor = findViewById(R.id.bottomNavigation);
                     Snackbar sb = Snackbar.make(
                             anchor,
-                            R.string.event_detail_registration_not_accepted,
+                            R.string.event_detail_not_selected_for_event,
                             Snackbar.LENGTH_LONG);
                     sb.setAnchorView(anchor);
                     sb.setBackgroundTint(ContextCompat.getColor(this, R.color.bg_white));

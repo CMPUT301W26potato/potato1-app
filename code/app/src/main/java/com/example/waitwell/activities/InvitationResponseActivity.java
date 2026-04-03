@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EntrantNotificationScreen;
+import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
@@ -54,6 +56,8 @@ public class InvitationResponseActivity extends AppCompatActivity {
     private TextView txtEventDateRange;
     private TextView txtEventPrice;
     private TextView messageText;
+    private TextView txtRegistrationClosed;
+    private boolean cardDataPrefilledFromIntent;
 
     /**
      * Fills intent extras for location, registration / event date range, and formatted price from a loaded event.
@@ -72,7 +76,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_EVENT_LOCATION, location);
 
         Timestamp openTs = doc.getTimestamp("registrationOpen");
-        Timestamp closeTs = doc.getTimestamp("registrationClose");
+        Timestamp closeTs = doc.getTimestamp(EventStatusUtils.FIELD_REGISTRATION_CLOSE);
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         String dateText;
         if (openTs != null && closeTs != null) {
@@ -110,6 +114,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
         txtEventDateRange = findViewById(R.id.txtEventDateRange);
         txtEventPrice = findViewById(R.id.txtEventPrice);
         messageText = findViewById(R.id.message);
+        txtRegistrationClosed = findViewById(R.id.txtRegistrationClosed);
 
         Intent in = getIntent();
         eventId = in.getStringExtra(EXTRA_EVENT_ID);
@@ -121,10 +126,10 @@ public class InvitationResponseActivity extends AppCompatActivity {
             txtEventTitle.setText(eventName);
         }
 
-        boolean preFilled = in.hasExtra(EXTRA_EVENT_LOCATION)
+        cardDataPrefilledFromIntent = in.hasExtra(EXTRA_EVENT_LOCATION)
                 && in.hasExtra(EXTRA_EVENT_DATE_RANGE)
                 && in.hasExtra(EXTRA_EVENT_PRICE);
-        if (preFilled) {
+        if (cardDataPrefilledFromIntent) {
             txtEventLocation.setText(in.getStringExtra(EXTRA_EVENT_LOCATION));
             txtEventDateRange.setText(in.getStringExtra(EXTRA_EVENT_DATE_RANGE));
             txtEventPrice.setText(in.getStringExtra(EXTRA_EVENT_PRICE));
@@ -141,9 +146,9 @@ public class InvitationResponseActivity extends AppCompatActivity {
         TextView txtBackLink = findViewById(R.id.txtBackLink);
         txtBackLink.setOnClickListener(v -> finish());
 
-        if (!preFilled && !TextUtils.isEmpty(eventId)) {
-            loadEvent();
-        } else if (!preFilled && TextUtils.isEmpty(eventId)) {
+        if (!TextUtils.isEmpty(eventId)) {
+            loadEventFromFirestore();
+        } else if (!cardDataPrefilledFromIntent) {
             Log.e(TAG, "No event id and no prefilled card");
             Snackbar.make(findViewById(android.R.id.content), R.string.invitation_error_no_event, Snackbar.LENGTH_LONG).show();
         }
@@ -167,7 +172,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
         }
     }
 
-    private void loadEvent() {
+    private void loadEventFromFirestore() {
         FirebaseFirestore.getInstance()
                 .collection("events")
                 .document(eventId)
@@ -178,29 +183,58 @@ public class InvitationResponseActivity extends AppCompatActivity {
                                 R.string.invitation_error_not_found, Snackbar.LENGTH_LONG).show();
                         return;
                     }
-                    Intent fill = new Intent();
-                    putEventFieldsFromSnapshot(fill, doc, this);
-                    String title = doc.getString("title");
-                    if (!TextUtils.isEmpty(title)) {
-                        txtEventTitle.setText(title);
-                    }
-                    txtEventLocation.setText(fill.getStringExtra(EXTRA_EVENT_LOCATION));
-                    txtEventDateRange.setText(fill.getStringExtra(EXTRA_EVENT_DATE_RANGE));
-                    txtEventPrice.setText(fill.getStringExtra(EXTRA_EVENT_PRICE));
+                    if (!cardDataPrefilledFromIntent) {
+                        Intent fill = new Intent();
+                        putEventFieldsFromSnapshot(fill, doc, this);
+                        String title = doc.getString("title");
+                        if (!TextUtils.isEmpty(title)) {
+                            txtEventTitle.setText(title);
+                        }
+                        txtEventLocation.setText(fill.getStringExtra(EXTRA_EVENT_LOCATION));
+                        txtEventDateRange.setText(fill.getStringExtra(EXTRA_EVENT_DATE_RANGE));
+                        txtEventPrice.setText(fill.getStringExtra(EXTRA_EVENT_PRICE));
 
-                    String titleForMessage = txtEventTitle.getText() != null
-                            ? txtEventTitle.getText().toString()
-                            : "";
-                    if (TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
-                            && !TextUtils.isEmpty(titleForMessage)) {
-                        messageText.setText(getString(R.string.waitlist_chosen_notification_message, titleForMessage));
+                        String titleForMessage = txtEventTitle.getText() != null
+                                ? txtEventTitle.getText().toString()
+                                : "";
+                        if (TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
+                                && !TextUtils.isEmpty(titleForMessage)) {
+                            messageText.setText(getString(R.string.waitlist_chosen_notification_message, titleForMessage));
+                        }
                     }
+                    applyRegistrationDeadlineState(doc);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to load event " + eventId, e);
                     Snackbar.make(findViewById(android.R.id.content),
                             R.string.invitation_error_load_details, Snackbar.LENGTH_LONG).show();
                 });
+    }
+
+    /**
+     * Disables accept/decline when {@code registrationClose} has passed (Firestore field
+     * {@link EventStatusUtils#FIELD_REGISTRATION_CLOSE}).
+     */
+    private void applyRegistrationDeadlineState(@NonNull DocumentSnapshot doc) {
+        Date close = EventStatusUtils.getRegistrationCloseDate(doc);
+        boolean passed = close != null && new Date().after(close);
+        Button accept = findViewById(R.id.accept);
+        Button decline = findViewById(R.id.decline);
+        if (passed) {
+            txtRegistrationClosed.setVisibility(View.VISIBLE);
+            messageText.setVisibility(View.GONE);
+            accept.setEnabled(false);
+            decline.setEnabled(false);
+            accept.setAlpha(0.5f);
+            decline.setAlpha(0.5f);
+        } else {
+            txtRegistrationClosed.setVisibility(View.GONE);
+            messageText.setVisibility(View.VISIBLE);
+            accept.setEnabled(true);
+            decline.setEnabled(true);
+            accept.setAlpha(1f);
+            decline.setAlpha(1f);
+        }
     }
 
     private void handleAcceptEvent() {
