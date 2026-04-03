@@ -29,5 +29,6 @@
     <color name="calendar_date_no_events_bg">#FFCDD2</color>
 
     <color name="event_detail_cta_background">#1E1E1E</color>
+    <color name="event_detail_cta_disabled_background">#BDBDBD</color>
     <color name="event_detail_floating_pill">#99404040</color>
 </resources>

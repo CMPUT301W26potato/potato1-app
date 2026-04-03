@@ -234,10 +234,15 @@ public class Event implements Serializable {
         return waitlistEntrantIds != null ? waitlistEntrantIds.size() : 0;
     }
 
-    /** Whether the waitlist has hit its cap (if one exists). */
+    /**
+     * Whether confirmed (final) spots have reached the organizer's {@link #waitlistLimit}.
+     * Matches Firestore: limit applies to {@code AttendingEntrants}, not the waiting-list headcount.
+     * If {@code waitlistLimit} is unset ({@code null}), the event is never "full" by this rule.
+     */
     public boolean isWaitlistFull() {
         if (waitlistLimit == null) return false;
-        return getWaitlistCount() >= waitlistLimit;
+        int confirmed = AttendingEntrants != null ? AttendingEntrants.size() : 0;
+        return confirmed >= waitlistLimit;
     }
 
     /** Check whether a given user is already on this event's waitlist. */

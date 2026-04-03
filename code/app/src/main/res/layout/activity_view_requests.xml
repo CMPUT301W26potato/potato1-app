@@ -160,4 +160,12 @@
                 android:textColor="@color/black" />
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/organizerBottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:background="@color/bg_white"
+        app:itemTextColor="@color/text_hint"
+        app:menu="@menu/bottom_nav_menu_organizer_back_home" />
 </LinearLayout>
