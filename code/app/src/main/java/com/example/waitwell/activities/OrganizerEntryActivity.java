@@ -2,12 +2,15 @@ package com.example.waitwell.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
 
 // ---------------------------------------------------------
@@ -83,6 +86,10 @@ public class OrganizerEntryActivity extends AppCompatActivity {
                     startActivity(new Intent(this, Profile.class));
                 } else if (id == R.id.nav_notification_options) {
                     startActivity(new Intent(this, EntrantNotificationOptions.class));
+                } else if (id == R.id.nav_logout) {
+                    startActivity(new Intent(OrganizerEntryActivity.this, RegisterActivity.class));
+                } else if (id == R.id.nav_delete_profile) {
+                    showDeleteProfileDialog();
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -100,6 +107,55 @@ public class OrganizerEntryActivity extends AppCompatActivity {
                     .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())
                     .commit();
         }
+    }
+
+    private void showDeleteProfileDialog() { // taken from entrant code to ensure consistency
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Are you sure you want to delete your profile? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) ->
+                        deleteUserProfile())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteUserProfile() { // taken from entrant code to ensure consistency
+
+        // get stored user id
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+
+        if (userId == null) {
+
+            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(OrganizerEntryActivity.this, RegisterActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // delete user from firestore
+        FirebaseHelper.getInstance().deleteUser(userId)
+
+                .addOnSuccessListener(aVoid -> {
+
+                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+
+                    prefs.edit().remove("userId").apply();
+
+                    Intent intent = new Intent(OrganizerEntryActivity.this, RegisterActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    startActivity(intent);
+                    finish();
+                })
+
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 
     @Override

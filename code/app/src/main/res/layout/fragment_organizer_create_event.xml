@@ -225,6 +225,27 @@
             android:fontFamily="@font/poppins"
             android:textColorHint="@color/text_hint" />
 
+
+            <TextView
+                android:id="@+id/txtCategories"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input_field"
+                android:hint="Select categories"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:gravity="center_vertical|start"
+                android:textColorHint="@color/text_hint"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins"
+                android:focusable="false"
+                android:clickable="true"
+                android:cursorVisible="false"/>
+
         <!-- Waitlist Limit optional – number selector on tap (US 02.03.01) -->
         <EditText
             android:id="@+id/editWaitlistLimit"

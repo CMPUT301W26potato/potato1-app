@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -70,6 +71,38 @@ public class OrganizerCreateEventFragment extends Fragment {
     // identifier as the organizer's "account id" and reuse it consistently.
     private String eventIdToEdit;
     private String existingPosterUrl;
+    private TextView txtCategories;
+    private ArrayList<String> selectedCategories = new ArrayList<>();
+    private final String[] allCategories = new String[] {
+            "Sports", "Music", "Art", "Technology", "Education", "Health", "Kids", "Beginner", "Advanced"
+    };
+
+    private void showCategoryPicker() {
+        boolean[] checkedItems = new boolean[allCategories.length];
+        for (int i = 0; i < allCategories.length; i++) {
+            checkedItems[i] = selectedCategories.contains(allCategories[i]);
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Select categories")
+                .setMultiChoiceItems(allCategories, checkedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        if (!selectedCategories.contains(allCategories[which])) {
+                            selectedCategories.add(allCategories[which]);
+                        }
+                    } else {
+                        selectedCategories.remove(allCategories[which]);
+                    }
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    txtCategories.setText(selectedCategories.isEmpty() ? "Select categories" :
+                            String.join(", ", selectedCategories));
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
 
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -112,6 +145,9 @@ public class OrganizerCreateEventFragment extends Fragment {
         switchGeolocation = view.findViewById(R.id.switchGeolocation);
         switchPrivateEvent = view.findViewById(R.id.switchPrivateEvent);
         txtPosterStatus = view.findViewById(R.id.txtPosterStatus);
+        txtCategories = view.findViewById(R.id.txtCategories);
+        txtCategories.setOnClickListener(v -> showCategoryPicker());
+
 
         // Simple back button that just pops this fragment off the Organizer stack.
         view.findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> {
@@ -292,6 +328,12 @@ public class OrganizerCreateEventFragment extends Fragment {
         eventCal.set(Calendar.MILLISECOND, 0);
         Date eventDateTime = eventCal.getTime();
 
+        if (selectedCategories.isEmpty()) {
+            Toast.makeText(requireContext(), "Please select at least one category", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
         Integer waitlistLimit = null;
         if (!waitlistStr.isEmpty()) {
             try {
@@ -354,6 +396,8 @@ public class OrganizerCreateEventFragment extends Fragment {
         event.put("status", "open");
         event.put("isPrivate", isPrivate);
         event.put("waitlistEntrantIds", new ArrayList<String>());
+        event.put("categories", selectedCategories);
+
         if (posterUrl != null) event.put("imageUrl", posterUrl); // optional banner image
 
         // New document in the "events" collection – Firestore will generate the id.
@@ -390,6 +434,8 @@ public class OrganizerCreateEventFragment extends Fragment {
         updates.put("registrationOpen", registrationOpen);
         updates.put("registrationClose", registrationClose);
         updates.put("eventDate", eventDate);
+        updates.put("categories", selectedCategories.isEmpty() ? null : selectedCategories);
+
         if (waitlistLimit != null) {
             updates.put("waitlistLimit", waitlistLimit);
         } else {
@@ -473,7 +519,18 @@ public class OrganizerCreateEventFragment extends Fragment {
                         txtPosterStatus.setVisibility(View.VISIBLE);
                         txtPosterStatus.setText(R.string.organizer_poster_uploaded);
                     }
+                    List<String> categories = (List<String>) doc.get("categories");
+                    if (categories != null) {
+                        selectedCategories.clear();
+                        selectedCategories.addAll(categories);
+                        txtCategories.setText(String.join(", ", selectedCategories));
+                    } else {
+                        txtCategories.setText("Select categories");
+                    }
+
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to load event for edit", e));
     }
+
+
 }

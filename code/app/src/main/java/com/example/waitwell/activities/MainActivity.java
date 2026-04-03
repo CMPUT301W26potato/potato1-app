@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
             else if (id == R.id.nav_lottery_selection_criteria) {
                 startActivity(new Intent(MainActivity.this, EntrantLotteryCriteria.class));
             }
+            else if (id == R.id.nav_logout) {
+                startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+            }
 
             drawerLayout.closeDrawers();
             return true;

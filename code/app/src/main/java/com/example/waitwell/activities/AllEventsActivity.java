@@ -75,11 +75,17 @@ public class AllEventsActivity extends AppCompatActivity {
     /** Current filter mode: "all", "open", or "category" */
     private String filterMode = "all";
     /** If filterMode == "category", which one. */
-    private String selectedCategory = null;
+//    private String selectedCategory = null;
+    private Set<String> selectedCategories = new LinkedHashSet<>();
+
     /** If filterMode == "event_capacity" we need to select which range. */
     private String selectedCapacityRange = null;
     /** if filterMode == "date_range" start and end in millis. */
     private Long startDateMillis = null, endDateMillis = null;
+    private final String[] allCategories = new String[] {
+            "Sports", "Music", "Art", "Technology", "Education",
+            "Health", "Kids", "Beginner", "Advanced"
+    };
 
 
 
@@ -126,7 +132,8 @@ public class AllEventsActivity extends AppCompatActivity {
 
         //Tapping x clears the category and reverts to "All"
         btnClearCategory.setOnClickListener(v -> {
-            selectedCategory = null;
+            selectedCategories.clear();
+
             filterMode = "all";
             updateChipStyles();
             applyFilters();
@@ -150,7 +157,8 @@ public class AllEventsActivity extends AppCompatActivity {
     private void setupChips() {
         chipAll.setOnClickListener(v -> {
             filterMode = "all";
-            selectedCategory = null;
+            selectedCategories.clear();
+
             selectedCapacityRange = null;
             startDateMillis = null;
             endDateMillis = null;
@@ -160,7 +168,8 @@ public class AllEventsActivity extends AppCompatActivity {
 
         chipOpen.setOnClickListener(v -> {
             filterMode = "open";
-            selectedCategory = null;
+            selectedCategories.clear();
+
             selectedCapacityRange = null;
             startDateMillis = null;
             endDateMillis = null;
@@ -214,9 +223,13 @@ public class AllEventsActivity extends AppCompatActivity {
             case "category":
                 chipCategory.setBackgroundResource(R.drawable.bg_filter_dropdown_active);
                 chipCategory.setTextColor(getColor(R.color.text_white));
-                chipCategory.setText(selectedCategory + " ▾");
+                String display = String.join(", ", selectedCategories);
+
+                chipCategory.setText(display + " ▾");
+                txtActiveCategory.setText(display);
+
                 categoryIndicator.setVisibility(View.VISIBLE);
-                txtActiveCategory.setText(selectedCategory);
+
                 eventCapacityIndicator.setVisibility(View.GONE);
                 dateRangeIndicator.setVisibility(View.GONE);
                 break;
@@ -251,23 +264,41 @@ public class AllEventsActivity extends AppCompatActivity {
      */
     private void showCategoryDialog() {
         if (availableCategories.isEmpty()) {
-            Toast.makeText(this, "No categories found - add a \"category\" field to your events in Firestore", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No categories found", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String[] items = availableCategories.toArray(new String[0]);
+        String[] items = allCategories;
+
+        boolean[] checkedItems = new boolean[items.length];
+
+        // pre-select already selected ones
+        for (int i = 0; i < items.length; i++) {
+            checkedItems[i] = selectedCategories.contains(items[i]);
+        }
 
         new AlertDialog.Builder(this)
-                .setTitle("Filter by interest")
-                .setItems(items, (dialog, which) -> {
-                    selectedCategory = items[which];
-                    filterMode = "category";
+                .setTitle("Filter by categories")
+                .setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        selectedCategories.add(items[which]);
+                    } else {
+                        selectedCategories.remove(items[which]);
+                    }
+                })
+                .setPositiveButton("Apply", (dialog, which) -> {
+                    if (selectedCategories.isEmpty()) {
+                        filterMode = "all";
+                    } else {
+                        filterMode = "category";
+                    }
                     updateChipStyles();
                     applyFilters();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
 
     private void showDateRangePicker() {
         MaterialDatePicker<Pair<Long, Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
@@ -326,12 +357,18 @@ public class AllEventsActivity extends AppCompatActivity {
     //Scans all event documents and collects unique category values.
     private void extractCategories() {
         Set<String> cats = new LinkedHashSet<>();
+
         for (DocumentSnapshot doc : allDocs) {
-            String cat = doc.getString("category");
-            if (cat != null && !cat.trim().isEmpty()) {
-                cats.add(cat.trim());
+            List<String> list = (List<String>) doc.get("categories");
+            if (list != null) {
+                for (String cat : list) {
+                    if (cat != null && !cat.trim().isEmpty()) {
+                        cats.add(cat.trim());
+                    }
+                }
             }
         }
+
         availableCategories = new ArrayList<>(cats);
     }
 
@@ -345,12 +382,13 @@ public class AllEventsActivity extends AppCompatActivity {
                 continue;
             }
             String title    = doc.getString("title");
-            String category = doc.getString("category");
+            List<String> categories = (List<String>) doc.get("categories");
+
             String description = doc.getString("description");
             String location = doc.getString("location");
 
             if (title == null) title = "";
-            if (category == null) category = "";
+            if (categories == null) categories = new ArrayList<>();;
             if (description == null) description = "";
             if (location == null) location = "";
 
@@ -358,8 +396,8 @@ public class AllEventsActivity extends AppCompatActivity {
             if (!query.isEmpty()) {
                 boolean matchFound = title.toLowerCase().contains(query) ||
                                    description.toLowerCase().contains(query) ||
-                                   category.toLowerCase().contains(query) ||
-                                   location.toLowerCase().contains(query);
+                        (categories != null && categories.toString().toLowerCase().contains(query)) ||
+                location.toLowerCase().contains(query);
 
                 if (!matchFound) {
                     continue;
@@ -370,8 +408,19 @@ public class AllEventsActivity extends AppCompatActivity {
                     if (!"open".equals(EventStatusUtils.computeStatus(doc))) continue;
                     break;
                 case "category":
-                    if (!category.equalsIgnoreCase(selectedCategory)) continue;
+                    if (categories == null) categories = new ArrayList<>();;
+
+                    boolean match = false;
+                    for (String cat : categories) {
+                        if (selectedCategories.contains(cat)) {
+                            match = true;
+                            break;
+                        }
+                    }
+
+                    if (!match) continue;
                     break;
+
                 case "date_range":
                     Date eventDate = doc.getDate("eventDate");
                     if (eventDate == null) continue;

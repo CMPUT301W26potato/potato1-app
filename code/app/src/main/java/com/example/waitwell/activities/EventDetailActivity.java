@@ -68,6 +68,8 @@ public class EventDetailActivity extends AppCompatActivity {
     private String eventId, deviceId;
     private boolean shownWaitlistStatusSnack;
     private EditText editComment;
+    private TextView txtCategory;
+
 
     // REHAAN'S ADDITION — US 02.02.02
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -87,6 +89,8 @@ public class EventDetailActivity extends AppCompatActivity {
         // END REHAAN'S ADDITION
         eventId = getIntent().getStringExtra("event_id");
         if (eventId == null) { finish(); return; }
+        txtCategory = findViewById(R.id.txtCategory);
+
 
         initViews();
         loadEvent();
@@ -148,6 +152,14 @@ public class EventDetailActivity extends AppCompatActivity {
         Double rating = doc.getDouble("rating");
         List<String> waitlist = (List<String>) doc.get("waitlistEntrantIds");
         List<String> attending = (List<String>) doc.get("AttendingEntrants");
+        List<String> category = (List<String>) doc.get("categories");
+
+        if (category != null && !category.isEmpty()) {
+            txtCategory.setText(String.join(", ", category));
+        } else {
+            txtCategory.setVisibility(View.GONE);
+        }
+
 
         txtTitle.setText(title != null ? title : "");
         txtLocation.setText(location != null ? location : "");
