@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -38,6 +41,8 @@ import java.util.List;
 public class AdminProfilesActivity extends AppCompatActivity {
 
     RecyclerView recyclerProfiles;
+    private AdminProfilesAdapter adapter;
+    private List<DocumentSnapshot> profiles;
     /**
      * Initializes the activity and loads profile data.
      */
@@ -64,47 +69,61 @@ public class AdminProfilesActivity extends AppCompatActivity {
                 .getAllProfiles()
                 .addOnSuccessListener(snapshot -> {
 
-                    List<DocumentSnapshot> profiles = snapshot.getDocuments();
+                    profiles = snapshot.getDocuments();
 
-                    RecyclerView.Adapter adapter = new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+// Load events too
+                    FirebaseHelper.getInstance().getAllEvents()
+                            .addOnSuccessListener(eventSnapshot -> {
 
-                        @Override
-                        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                            // Inflate profile card layout
-                            View view = LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.item_admin_profile, parent, false);
+                                List<DocumentSnapshot> events = eventSnapshot.getDocuments();
 
-                            return new RecyclerView.ViewHolder(view) {};
-                        }
+                                adapter = new AdminProfilesAdapter(
+                                        this,
+                                        profiles,
+                                        events,
+                                        this::removeProfile
+                                );
 
-                        @Override
-                        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                                recyclerProfiles.setAdapter(adapter);
 
-                            DocumentSnapshot doc = profiles.get(position);
-
-                            String name = doc.getString("name");
-                            String role = doc.getString("role");
-                            String email = doc.getString("email");
-
-                            String userId = doc.getId();
-
-                            ((TextView) holder.itemView.findViewById(R.id.txtName)).setText(name);
-                            ((TextView) holder.itemView.findViewById(R.id.txtRole)).setText(role);
-                            ((TextView) holder.itemView.findViewById(R.id.txtEmail)).setText(email);
-                            ((TextView) holder.itemView.findViewById(R.id.txtID)).setText(userId);
-
-                            holder.itemView.findViewById(R.id.btnRemoveProfile)
-                                    .setOnClickListener(v -> removeProfile(userId));
-                        }
-
-                        @Override
-                        public int getItemCount() {
-                            return profiles.size();
-                        }
-                    };
+                                setupSearch();
+                                setupFilters();
+                            });
 
                     recyclerProfiles.setAdapter(adapter);
+
+                    setupSearch();
+                    setupFilters();
                 });
+    }
+    private void setupSearch() {
+        EditText search = findViewById(R.id.searchProfiles);
+
+        search.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+                adapter.filterSearch(s.toString());
+            }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+    private void setupFilters() {
+
+        Button btnAll = findViewById(R.id.btnAll);
+        Button btnEntrants = findViewById(R.id.btnEntrants);
+        Button btnOrganizers = findViewById(R.id.btnOrganizers);
+        Button btnAdmins = findViewById(R.id.btnAdmins);
+        Button btnFlagged = findViewById(R.id.btnFlagged);
+
+        btnAll.setOnClickListener(v -> adapter.filterRole("All"));
+        btnEntrants.setOnClickListener(v -> adapter.filterRole("entrant"));
+        btnOrganizers.setOnClickListener(v -> adapter.filterRole("organizer"));
+        btnAdmins.setOnClickListener(v -> adapter.filterRole("admin"));
+
+        btnFlagged.setOnClickListener(v -> {
+            // optional if you have a flagged field
+            Toast.makeText(this, "Flagged filter not implemented yet", Toast.LENGTH_SHORT).show();
+        });
     }
     /**
      * Removes a user profile from Firestore.
