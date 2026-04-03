@@ -70,6 +70,8 @@ public class EventDetailActivity extends AppCompatActivity {
     private boolean shownWaitlistStatusSnack;
     private EditText editComment;
     private TextView txtCategory;
+    private TextView txtEventClosed;
+
 
 
     // REHAAN'S ADDITION — US 02.02.02
@@ -123,6 +125,8 @@ public class EventDetailActivity extends AppCompatActivity {
         btnPostComment = findViewById(R.id.btnPostComment);
         commentsContainer = findViewById(R.id.commentsContainer);
         btnPostComment.setOnClickListener(v -> postComment());
+        txtEventClosed = findViewById(R.id.txtEventClosed);
+
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnJoin.setOnClickListener(v -> joinWaitlist());
@@ -207,6 +211,22 @@ public class EventDetailActivity extends AppCompatActivity {
         }
 
         boolean isOpen = "open".equals(lifecycle);
+
+
+        if (!isOpen) {
+            txtEventClosed.setVisibility(View.VISIBLE);
+            btnJoin.setEnabled(false);
+            btnJoin.setText("Event Closed");
+            btnJoin.setAlpha(0.6f); // optional: grey out
+            txtJoinBlockedMessage.setVisibility(View.VISIBLE);
+            txtJoinBlockedMessage.setText("This event has already ended.");
+        } else {
+            txtEventClosed.setVisibility(View.GONE);
+            txtJoinBlockedMessage.setVisibility(View.GONE);
+            btnJoin.setEnabled(true);
+            btnJoin.setAlpha(1f);
+        }
+
 
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
         boolean alreadyFinalEntrant = attending != null && attending.contains(deviceId);
