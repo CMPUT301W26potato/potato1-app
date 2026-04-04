@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +34,7 @@ public class EntrantNotificationScreen extends AppCompatActivity {
     private static final String TAG = "EntrantNotificationScreen";
 
     private RecyclerView recyclerView;
+    private TextView txtEmptyNotifications;
     private NotificationAdapter adapter;
     private List<NotificationModel> notifications;
     private List<String> notificationIds;  // Track notification IDs for marking as responded
@@ -48,6 +51,7 @@ public class EntrantNotificationScreen extends AppCompatActivity {
 
         // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
+        txtEmptyNotifications = findViewById(R.id.txtEmptyNotifications);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NotificationAdapter(notifications);
         recyclerView.setAdapter(adapter);
@@ -72,6 +76,7 @@ public class EntrantNotificationScreen extends AppCompatActivity {
             notifications.clear();
             notificationIds.clear();
             adapter.notifyDataSetChanged();
+            updateNotificationEmptyState(true);
             Toast.makeText(this, "Notifications are disabled", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -91,6 +96,7 @@ public class EntrantNotificationScreen extends AppCompatActivity {
                         notifications.clear();
                         notificationIds.clear();
                         adapter.notifyDataSetChanged();
+                        updateNotificationEmptyState(true);
                         Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -159,11 +165,20 @@ public class EntrantNotificationScreen extends AppCompatActivity {
             notificationIds.clear();
             notificationIds.addAll(visibleIds);
             adapter.notifyDataSetChanged();
+            updateNotificationEmptyState(notifications.isEmpty());
 
             if (notifications.isEmpty()) {
                 Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateNotificationEmptyState(boolean empty) {
+        if (txtEmptyNotifications == null) {
+            return;
+        }
+        txtEmptyNotifications.setVisibility(empty ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
     }
 
     /**

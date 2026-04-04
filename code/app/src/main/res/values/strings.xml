@@ -170,6 +170,15 @@
     <string name="toast_notification_invitation_expired">This invitation has expired.</string>
     <string name="notification_entrant_not_selected">Unfortunately, you were not selected for %1$s.</string>
     <string name="notification_list_expired_label">Expired</string>
+    <string name="notification_category_invitation">You Have Been Selected</string>
+    <string name="notification_category_reminder">Response Needed</string>
+    <string name="notification_category_confirmed">You Are Confirmed</string>
+    <string name="notification_category_rejected">Not Selected</string>
+    <string name="notification_category_cancelled">Cancellation Confirmed</string>
+    <string name="notification_category_general">Notification</string>
+    <string name="entrant_notifications_empty">No notifications yet.</string>
+    <string name="notification_type_icon_desc">Notification type</string>
+    <string name="notification_type_icon_container_desc">Notification type icon</string>
     <string name="waitlist_status_display_not_selected">Not Selected</string>
     <string name="event_detail_not_selected_for_event">You were not selected for this event.</string>
     <string name="waitlist_unknown_event">Unknown Event</string>
