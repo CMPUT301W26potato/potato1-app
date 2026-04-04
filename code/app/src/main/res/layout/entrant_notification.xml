@@ -53,10 +53,28 @@
             app:cardBackgroundColor="#F5F5F0"
             app:cardElevation="0dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/txtEmptyNotifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/poppins"
+                    android:gravity="center"
+                    android:padding="@dimen/notification_empty_state_padding"
+                    android:text="@string/entrant_notifications_empty"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/notification_message_text_size"
+                    android:visibility="gone" />
+            </FrameLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
