@@ -17,6 +17,8 @@
     <dimen name="invitation_message_margin_top">16dp</dimen>
     <dimen name="invitation_registration_closed_banner_margin_top">12dp</dimen>
     <dimen name="notification_expired_label_margin_top">4dp</dimen>
+    <dimen name="notification_expired_label_text_size">12sp</dimen>
+    <dimen name="notification_button_row_margin_top">12dp</dimen>
     <dimen name="notification_card_margin">8dp</dimen>
     <dimen name="notification_card_inner_padding">16dp</dimen>
     <dimen name="notification_left_border_width">4dp</dimen>
