@@ -307,6 +307,15 @@
             android:textSize="12sp"
             android:visibility="gone" />
 
+        <ImageView
+            android:id="@+id/imgPosterPreview"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:contentDescription="Poster preview" />
+
         <!-- Submit -->
         <Button
             android:id="@+id/btnSubmitEvent"
