@@ -53,7 +53,7 @@ public final class EventStatusUtils {
      * @param now              typically {@code new Date()}
      */
     public static String computeStatus(Date eventDate, Date registrationClose, Date now) {
-        if (eventDate != null && now.after(eventDate)) {
+        if (eventDate != null && isCalendarDayAfter(now, eventDate)) {
             return "completed";
         }
         if (registrationClose != null && registrationClose.before(now)) {

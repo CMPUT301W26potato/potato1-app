@@ -13,11 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.waitwell.activities.MainActivity;
 import com.example.waitwell.activities.WaitListActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +33,7 @@ public class Profile extends AppCompatActivity {
     private Button saveButton; // button to save profile changes
 
     // textviews to display the current info
-    private TextView currentName, currentEmail, currentPhone, joinDate;
+    private TextView currentName, currentEmail, currentPhone;
 
     // stores the current user's id from shared preferences
     private String userId;
@@ -62,8 +60,6 @@ public class Profile extends AppCompatActivity {
         currentName = findViewById(R.id.currentName);
         currentEmail = findViewById(R.id.currentEmail);
         currentPhone = findViewById(R.id.currentPhone);
-        joinDate = findViewById(R.id.joinDate);
-
 
         // load the user's profile from firestore and display
         loadProfile();
@@ -108,8 +104,6 @@ public class Profile extends AppCompatActivity {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
-                        //joindate addition for profile
-                        Date joinDate_date = doc.getDate("createdAt");
 
                         // populate editable fields
                         nameField.setText(name != null ? name : "");
@@ -120,14 +114,11 @@ public class Profile extends AppCompatActivity {
                         currentName.setText("Current Name: " + (name != null ? name : "Not set"));
                         currentEmail.setText("Current Email: " + (email != null ? email : "Not set"));
                         currentPhone.setText("Current Phone: " + (phone != null ? phone : "Not set"));
-                        joinDate.setText("No join date found" + (joinDate_date != null ? joinDate_date : "Not set"));
-
                     } else {
                         // if document not found, show 'not found'
                         currentName.setText("Current Name: Not found");
                         currentEmail.setText("Current Email: Not found");
                         currentPhone.setText("Current Phone: Not found");
-                        joinDate.setText("No join date found");
                     }
                 })
                 .addOnFailureListener(e ->
