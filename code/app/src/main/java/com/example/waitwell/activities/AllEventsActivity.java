@@ -482,6 +482,16 @@ public class AllEventsActivity extends AppCompatActivity {
             ((TextView) row.findViewById(R.id.txtEventTitle)).setText(title);
             ((TextView) row.findViewById(R.id.txtEventLocation)).setText(location);
 
+            Date eventDate = doc.getDate("eventDate");
+            TextView txtDate = row.findViewById(R.id.txtEventDate);
+            if (eventDate != null) {
+                SimpleDateFormat fmt = new SimpleDateFormat("MMM d, yyyy · h:mm a", Locale.getDefault());
+                txtDate.setText(fmt.format(eventDate));
+                txtDate.setVisibility(View.VISIBLE);
+            } else {
+                txtDate.setVisibility(View.GONE);
+            }
+
             //price pill
             TextView txtPrice = row.findViewById(R.id.txtEventPrice);
             if (price == 0) {

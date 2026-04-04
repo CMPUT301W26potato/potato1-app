@@ -20,7 +20,7 @@
             android:text="Wait Well"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#1B5E20"/>
+            android:textColor="@color/primary"/>
 
         <ImageButton
             android:id="@+id/btn_scan_qr"
