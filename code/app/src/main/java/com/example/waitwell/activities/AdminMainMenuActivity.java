@@ -47,7 +47,7 @@ public class AdminMainMenuActivity extends AppCompatActivity {
         btnNotifications = findViewById(R.id.btnAllNotifications);
 
 
-//        btnImages = findViewById(R.id.btnAllImages);
+        btnImages = findViewById(R.id.btnAllImages);
         // Navigate to events management screen
         btnEvents.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminEventsActivity.class));
@@ -57,9 +57,9 @@ public class AdminMainMenuActivity extends AppCompatActivity {
             startActivity(new Intent(this, AdminProfilesActivity.class));
         });
         // Navigate to images management screen
-//        btnImages.setOnClickListener((v -> {
-//            startActivity(new Intent(this, AdminImagesActivity.class));
-//        }));
+        btnImages.setOnClickListener((v -> {
+            startActivity(new Intent(this, AdminImagesActivity.class));
+        }));
         // Navigate to notifications screen
         btnNotifications.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminNotificationsActivity.class));

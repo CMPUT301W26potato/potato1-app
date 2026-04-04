@@ -3,8 +3,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_light"
     android:orientation="vertical"
-    android:background="@color/bg_light">
+    android:padding="16dp">
 
     <!-- TOP BAR -->
     <RelativeLayout
@@ -38,38 +39,24 @@
             android:src="@drawable/waitwell_logo"/>
     </RelativeLayout>
 
-    <!-- SEARCH BAR -->
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="44dp"-->
-<!--        android:layout_margin="16dp"-->
-<!--        android:background="@drawable/bg_search_bar"-->
-<!--        android:gravity="center_vertical"-->
-<!--        android:paddingStart="12dp">-->
+    <!-- REMOVED BOX -->
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_height = "wrap_content"
+        android:layout_width="match_parent"
+        android:background="@color/status_closed_text"
+        android:text="✔  Image Removed"
+        android:textColor="@color/text_white"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:padding="14dp"/>
 
-<!--        <ImageView-->
-<!--            android:layout_width="18dp"-->
-<!--            android:layout_height="18dp"-->
-<!--            android:src="@drawable/ic_search"/>-->
-
-<!--        <EditText-->
-<!--            android:id="@+id/searchImages"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginStart="8dp"-->
-<!--            android:background="@android:color/transparent"-->
-<!--            android:hint="Search"-->
-<!--            android:textColor="@color/text_primary"-->
-<!--            android:textColorHint="@color/text_hint"/>-->
-<!--    </LinearLayout>-->
-
-
-
-    <!-- EVENTS TITLE -->
+    <!-- DETAILS -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
+
         android:paddingEnd="16dp"
         android:orientation="horizontal">
         <ImageView
@@ -80,28 +67,43 @@
             android:src="@drawable/ic_circle_arrow_left"/>
 
         <TextView
-            android:text="Images"
+            android:text="Image Details"
             android:layout_height = "wrap_content"
             android:layout_width="wrap_content"
             android:textStyle="bold"
             android:textSize="18sp"
             android:textColor="@color/text_primary"/>
 
-        <!--        <TextView-->
-        <!--            android:text=">"-->
-        <!--            android:layout_height = "match_parent"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:textSize="18sp"-->
-        <!--            android:layout_marginStart="6dp"-->
-        <!--            android:textColor="@color/text_primary"/>-->
     </LinearLayout>
 
-    <!-- GRID -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerImages"
+    <ImageView
+        android:id="@+id/imgDeleted"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"/>
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/txtEventTitle"
+        android:text="Image"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"/>
+
+<!--    <TextView-->
+<!--        android:id="@+id/txtOrganizer"-->
+<!--        android:text="Organizer: "-->
+<!--        android:layout_height = "wrap_content"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:textColor="@color/text_hint"/>-->
+
+
+    <TextView
+        android:text="Status: Removed"
+        android:layout_height = "wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/text_hint"/>
 
 </LinearLayout>
