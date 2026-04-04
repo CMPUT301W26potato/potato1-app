@@ -2,6 +2,8 @@ package com.example.waitwell.activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.UUID;
 import androidx.appcompat.app.AlertDialog;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -65,6 +69,8 @@ public class OrganizerCreateEventFragment extends Fragment {
     private androidx.appcompat.widget.SwitchCompat switchGeolocation;
     private androidx.appcompat.widget.SwitchCompat switchPrivateEvent;
     private TextView txtPosterStatus;
+    private ImageView imgPosterPreview;
+    private Button btnSubmitEvent;
     private Uri posterUri;
 
     // I used ChatGPT to better understand how we can treat this device based
@@ -111,6 +117,9 @@ public class OrganizerCreateEventFragment extends Fragment {
                     posterUri = uri;
                     txtPosterStatus.setVisibility(View.VISIBLE);
                     txtPosterStatus.setText(R.string.organizer_poster_uploaded);
+                    // URI is valid right now (we own the grant), so preview it directly.
+                    imgPosterPreview.setImageURI(uri);
+                    imgPosterPreview.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -145,6 +154,8 @@ public class OrganizerCreateEventFragment extends Fragment {
         switchGeolocation = view.findViewById(R.id.switchGeolocation);
         switchPrivateEvent = view.findViewById(R.id.switchPrivateEvent);
         txtPosterStatus = view.findViewById(R.id.txtPosterStatus);
+        imgPosterPreview = view.findViewById(R.id.imgPosterPreview);
+        btnSubmitEvent = view.findViewById(R.id.btnSubmitEvent);
         txtCategories = view.findViewById(R.id.txtCategories);
         txtCategories.setOnClickListener(v -> showCategoryPicker());
 
@@ -350,24 +361,26 @@ public class OrganizerCreateEventFragment extends Fragment {
         boolean geolocationRequired = switchGeolocation.isChecked();
         boolean isPrivate = switchPrivateEvent.isChecked();
 
-            // After running into issues with a full Firestore-driven image
-            // subscription approach, I asked ChatGPT to walk me through a
-            // simpler alternative. This version just stores the local URI
-            // string for the banner image instead of wiring up a complex
-            // upload/subscription flow.
-        // Decide which banner image (if any) we should persist with this event.
-        String posterUrlForSave = com.example.waitwell.OrganizerPosterUtils.resolvePosterUrl(
-                posterUri != null ? posterUri.toString() : null,
-                (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) ? existingPosterUrl : null
-        );
+        boolean isEdit = eventIdToEdit != null && !eventIdToEdit.trim().isEmpty();
 
-        // If we already have an id we treat this as an edit, otherwise it’s a brand new event.
-        if (eventIdToEdit != null && !eventIdToEdit.trim().isEmpty()) {
-            updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
-                    geolocationRequired, isPrivate, registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
+        if (posterUri != null) {
+            // Upload to Firebase Storage first so Firestore gets a permanent download URL,
+            btnSubmitEvent.setEnabled(false);
+            uploadPosterThenSave(organizerId, title, description, location,
+                    geolocationRequired, isPrivate, registrationOpen, registrationClose,
+                    eventDateTime, waitlistLimit, price, isEdit);
         } else {
-            saveEventToFirestore(organizerId, title, description, location, geolocationRequired, isPrivate,
-                    registrationOpen, registrationClose, eventDateTime, waitlistLimit, price, posterUrlForSave);
+            // No new image picked — use the existing URL for edits, null for new events.
+            String posterUrlForSave = isEdit ? existingPosterUrl : null;
+            if (isEdit) {
+                updateEventInFirestore(eventIdToEdit, organizerId, title, description, location,
+                        geolocationRequired, isPrivate, registrationOpen, registrationClose,
+                        eventDateTime, waitlistLimit, price, posterUrlForSave);
+            } else {
+                saveEventToFirestore(organizerId, title, description, location, geolocationRequired,
+                        isPrivate, registrationOpen, registrationClose, eventDateTime, waitlistLimit,
+                        price, posterUrlForSave);
+            }
         }
     }
 
@@ -517,10 +530,13 @@ public class OrganizerCreateEventFragment extends Fragment {
                     if (price != null) {
                         editPrice.setText(String.format(Locale.US, "%.2f", price));
                     }
-                    // If the event already had a banner we show a little "uploaded" hint.
+                    // If the event already had a banner, show the hint and load the preview.
                     if (existingPosterUrl != null) {
                         txtPosterStatus.setVisibility(View.VISIBLE);
                         txtPosterStatus.setText(R.string.organizer_poster_uploaded);
+                        if (!existingPosterUrl.startsWith("content:") && !existingPosterUrl.startsWith("file:")) {
+                            loadPosterPreview(existingPosterUrl);
+                        }
                     }
                     List<String> categories = (List<String>) doc.get("categories");
                     if (categories != null) {
@@ -535,5 +551,54 @@ public class OrganizerCreateEventFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to load event for edit", e));
     }
 
+    private void loadPosterPreview(String url) {
+        try {
+            StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(url);
+            ref.getBytes(1024 * 1024)
+                    .addOnSuccessListener(bytes -> {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        if (bitmap != null && imgPosterPreview != null) {
+                            imgPosterPreview.setImageBitmap(bitmap);
+                            imgPosterPreview.setVisibility(View.VISIBLE);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.w(TAG, "Failed to load poster preview", e));
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Invalid poster URL for preview: " + url, e);
+        }
+    }
+
+    private void uploadPosterThenSave(String organizerId, String title, String description,
+                                      String location, boolean geolocationRequired, boolean isPrivate,
+                                      Date registrationOpen, Date registrationClose, Date eventDateTime,
+                                      Integer waitlistLimit, double price, boolean isEdit) {
+        String fileName = "event_images/" + UUID.randomUUID();
+        StorageReference ref = FirebaseStorage.getInstance().getReference(fileName);
+        ref.putFile(posterUri)
+                .addOnSuccessListener(taskSnapshot ->
+                    ref.getDownloadUrl()
+                        .addOnSuccessListener(downloadUri -> {
+                            String url = downloadUri.toString();
+                            if (isEdit) {
+                                updateEventInFirestore(eventIdToEdit, organizerId, title, description,
+                                        location, geolocationRequired, isPrivate, registrationOpen,
+                                        registrationClose, eventDateTime, waitlistLimit, price, url);
+                            } else {
+                                saveEventToFirestore(organizerId, title, description, location,
+                                        geolocationRequired, isPrivate, registrationOpen, registrationClose,
+                                        eventDateTime, waitlistLimit, price, url);
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            btnSubmitEvent.setEnabled(true);
+                            Toast.makeText(requireContext(), "Failed to get image URL", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "getDownloadUrl failed", e);
+                        }))
+                .addOnFailureListener(e -> {
+                    btnSubmitEvent.setEnabled(true);
+                    Toast.makeText(requireContext(), "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Poster upload failed", e);
+                });
+    }
 
 }

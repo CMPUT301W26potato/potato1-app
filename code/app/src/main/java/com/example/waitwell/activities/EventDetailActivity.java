@@ -1,14 +1,21 @@
 package com.example.waitwell.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -63,6 +70,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
     private TextView txtTitle, txtLocation, txtPrice, txtRegistered;
     private TextView txtEventDate, txtEventTime, txtTimeRemaining, txtRating, txtDescription;
+    private ImageView imgEventPoster;
     private AppCompatButton btnJoin;
     private TextView txtJoinBlockedMessage;
     private View joinButtonContainer;
@@ -121,6 +129,7 @@ public class EventDetailActivity extends AppCompatActivity {
         btnJoin = findViewById(R.id.btnJoinWaitlist);
         txtJoinBlockedMessage = findViewById(R.id.txtJoinBlockedMessage);
         joinButtonContainer = findViewById(R.id.joinButtonContainer);
+        imgEventPoster = findViewById(R.id.imgEventPoster);
         editComment = findViewById(R.id.editComment);
         btnPostComment = findViewById(R.id.btnPostComment);
         commentsContainer = findViewById(R.id.commentsContainer);
@@ -165,6 +174,11 @@ public class EventDetailActivity extends AppCompatActivity {
             txtCategory.setVisibility(View.GONE);
         }
 
+
+        String imageUrl = doc.getString("imageUrl");
+        if (!TextUtils.isEmpty(imageUrl) && !imageUrl.startsWith("content:") && !imageUrl.startsWith("file:")) {
+            loadPosterImage(imageUrl);
+        }
 
         txtTitle.setText(title != null ? title : "");
         txtLocation.setText(location != null ? location : "");
@@ -574,6 +588,22 @@ public class EventDetailActivity extends AppCompatActivity {
                                     Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show());
                 });
     }
+    private void loadPosterImage(String url) {
+        try {
+            StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(url);
+            ref.getBytes(1024 * 1024)
+                    .addOnSuccessListener(bytes -> {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        if (bitmap != null) {
+                            imgEventPoster.setImageBitmap(bitmap);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.w(TAG, "Failed to load poster image", e));
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Invalid poster URL: " + url, e);
+        }
+    }
+
     private void loadComments() {
         commentsContainer.removeAllViews();
 
