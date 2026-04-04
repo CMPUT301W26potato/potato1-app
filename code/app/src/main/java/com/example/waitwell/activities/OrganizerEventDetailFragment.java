@@ -42,7 +42,8 @@ import java.util.Locale;
  * Karina's Contribution:
  * Organizer-only event detail / manage screen.
  * Keep in mind there is eventId via arguments, loads from Firestore
- * Displays organizer actions like Edit / Delete / View Entrants, etc.
+ * Displays organizer actions like Edit / Delete / View
+ * Entrants, etc.
  * *
  * Rehaan added: lottery sampling (02.05.02), draw replacement (02.05.03),
  * view invited (02.06.01), view cancelled (02.06.02).
@@ -124,6 +125,12 @@ public class OrganizerEventDetailFragment extends Fragment {
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
         Button btnViewComments = view.findViewById(R.id.btnViewComments);
         View btnBack = view.findViewById(R.id.btnOrganizerBack);
+
+        View btnHamburger = view.findViewById(R.id.btnHamburger);
+        if (btnHamburger != null && getActivity() instanceof OrganizerEntryActivity) {
+            btnHamburger.setOnClickListener(v ->
+                    ((OrganizerEntryActivity) getActivity()).openDrawer());
+        }
 
         Bundle args = getArguments();
         if (args != null) {

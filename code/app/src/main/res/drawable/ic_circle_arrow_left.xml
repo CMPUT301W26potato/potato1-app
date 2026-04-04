@@ -3,32 +3,18 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <path
-      android:pathData="M12,21a9,9 0,1 0,0 -18a9,9 0,0 0,0 18"
-      android:strokeLineJoin="round"
-      android:strokeWidth="2"
-      android:fillColor="#00000000"
-      android:strokeColor="#828282"
-      android:strokeLineCap="round"/>
-  <path
-      android:pathData="M8,12l4,4"
-      android:strokeLineJoin="round"
-      android:strokeWidth="2"
-      android:fillColor="#00000000"
-      android:strokeColor="#828282"
-      android:strokeLineCap="round"/>
-  <path
-      android:pathData="M8,12h8"
-      android:strokeLineJoin="round"
-      android:strokeWidth="2"
-      android:fillColor="#00000000"
-      android:strokeColor="#828282"
-      android:strokeLineCap="round"/>
-  <path
-      android:pathData="M12,8l-4,4"
-      android:strokeLineJoin="round"
-      android:strokeWidth="2"
-      android:fillColor="#00000000"
-      android:strokeColor="#828282"
-      android:strokeLineCap="round"/>
+
+    <group
+        android:rotation="-90"
+        android:pivotX="12"
+        android:pivotY="12">
+
+        <path
+            android:pathData="M10.363,3.591l-8.106,13.534a1.914,1.914 0,0 0,1.636 2.871h16.214a1.914,1.914 0,0 0,1.636 -2.87l-8.106,-13.536a1.914,1.914 0,0 0,-3.274 0"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2"
+            android:fillColor="#00000000"
+            android:strokeColor="#008747"
+            android:strokeLineCap="round"/>
+    </group>
 </vector>

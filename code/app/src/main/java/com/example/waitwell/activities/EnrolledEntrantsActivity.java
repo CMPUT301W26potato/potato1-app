@@ -10,9 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.waitwell.FirebaseHelper;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,7 +26,7 @@ import com.google.firebase.firestore.QuerySnapshot;
  * The organizer can cancel any entrant who did not show up by tapping Cancel.
  * Javadoc written with help from Claude (claude.ai)
  */
-public class EnrolledEntrantsActivity extends AppCompatActivity {
+public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
 
     private static final String TAG = "EnrolledEntrants";
 
@@ -49,7 +49,22 @@ public class EnrolledEntrantsActivity extends AppCompatActivity {
         txtLoading = findViewById(R.id.txtLoading);
         txtEmpty = findViewById(R.id.txtEmpty);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        setupOrganizerDrawer();
+
+        BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                finish();
+                return true;
+            }
+            if (id == R.id.nav_organizer_bottom_home) {
+                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
         if (eventId == null) {

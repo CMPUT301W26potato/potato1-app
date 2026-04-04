@@ -1,74 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/bg_light">
+    android:layout_height="match_parent">
 
-    <!-- Top Bar -->
-    <RelativeLayout
+    <!-- Main content -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/bg_light">
 
-        <!-- Hamburger icon (top-left) -->
-        <ImageButton
-            android:id="@+id/btnHamburger"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_menu_hamburger"
-            android:contentDescription="Menu" />
-
-        <!-- "Wait Well" titl -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/app_name"
-            android:textColor="@color/text_primary"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/inter24ptmedium"
-            />
-
-    </RelativeLayout>
-
-
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:layout_weight="1"
-        app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="#F5F5F0"
-        app:cardElevation="0dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <!-- Top Bar -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="56dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
+            <!-- Hamburger icon (top-left) -->
+            <ImageButton
+                android:id="@+id/btnHamburger"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_menu_hamburger"
+                android:contentDescription="Menu" />
 
+            <!-- "Wait Well" title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/app_name"
+                android:textColor="@color/text_primary"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter24ptmedium" />
 
+        </RelativeLayout>
 
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="#F5F5F0"
+            app:cardElevation="0dp">
 
-    </com.google.android.material.card.MaterialCardView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
+        </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="74dp"
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="74dp"
+            android:background="@color/bg_white"
+            app:itemTextColor="@color/text_hint"
+            app:menu="@menu/bottom_nav_menu_main_activity" />
+
+    </LinearLayout>
+
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
         android:background="@color/bg_white"
-        app:itemTextColor="@color/text_hint"
-        app:menu="@menu/bottom_nav_menu_main_activity" />
+        app:menu="@menu/drawer_menu" />
 
-
-</LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

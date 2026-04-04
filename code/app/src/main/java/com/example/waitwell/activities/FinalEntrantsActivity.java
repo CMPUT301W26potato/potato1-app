@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -47,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Confirmed (final) entrants for an event.
  */
-public class FinalEntrantsActivity extends AppCompatActivity implements FinalEntrantAdapter.Listener {
+public class FinalEntrantsActivity extends OrganizerBaseActivity implements FinalEntrantAdapter.Listener {
 
     public static final String EXTRA_EVENT_ID = "event_id";
     private static final int REQ_EXPORT_STORAGE = 7021;
@@ -73,10 +72,7 @@ public class FinalEntrantsActivity extends AppCompatActivity implements FinalEnt
 
         statusConfirmed = getString(R.string.firestore_waitlist_status_confirmed);
 
-        ImageButton btnHamburger = findViewById(R.id.btnHamburger);
-        ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
-        btnHamburger.setOnClickListener(v -> finish());
-        imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+        setupOrganizerDrawer();
 
         RecyclerView recycler = findViewById(R.id.recyclerFinalEntrants);
         recycler.setLayoutManager(new LinearLayoutManager(this));

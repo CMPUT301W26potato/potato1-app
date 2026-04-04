@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +43,7 @@ import java.util.Set;
  * notification so they know they were invited (US 01.09.01).
  * Javadoc written with help from Claude (claude.ai)
  */
-public class AssignCoOrganizerActivity extends AppCompatActivity {
+public class AssignCoOrganizerActivity extends OrganizerBaseActivity {
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
@@ -77,10 +76,7 @@ public class AssignCoOrganizerActivity extends AppCompatActivity {
             return;
         }
 
-        ImageButton btnHamburger = findViewById(R.id.btnHamburger);
-        ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
-        btnHamburger.setOnClickListener(v -> finish());
-        imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+        setupOrganizerDrawer();
 
         btnSearchName = findViewById(R.id.btnSearchName);
         btnSearchPhone = findViewById(R.id.btnSearchPhone);

@@ -7,8 +7,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.R;
@@ -16,7 +17,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-public class OrganizerCommentsActivity extends AppCompatActivity {
+public class OrganizerCommentsActivity extends OrganizerBaseActivity {
 
     private String eventId;
     private LinearLayout commentsContainer;
@@ -40,8 +41,22 @@ public class OrganizerCommentsActivity extends AppCompatActivity {
 
         commentsContainer = findViewById(R.id.commentsContainer);
 
-        // back button from other fragment
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        setupOrganizerDrawer();
+
+        BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                finish();
+                return true;
+            }
+            if (id == R.id.nav_organizer_bottom_home) {
+                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         loadComments();
     }
