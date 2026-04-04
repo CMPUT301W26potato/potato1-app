@@ -49,6 +49,37 @@ public class FirebaseHelper {
         return db;
     }
 
+    /**
+     * Loads a {@code users} profile for an id stored on {@code waitlist_entries.userId}.
+     * Tries {@code users/{waitlistUserId}} first (document id equals device id), then a query on
+     * {@code deviceId} (entrant self-registration uses auto-generated user document ids).
+     */
+    public void fetchUserDocumentForWaitlistUserId(String waitlistUserId,
+                                                   OnCompleteListener<DocumentSnapshot> listener) {
+        final String collectionUsers = "users";
+        final String fieldDeviceId = "deviceId";
+        db.collection(collectionUsers).document(waitlistUserId).get().addOnCompleteListener(task -> {
+            DocumentSnapshot direct = task.getResult();
+            if (task.isSuccessful() && direct != null && direct.exists()) {
+                if (listener != null) {
+                    listener.onComplete(task);
+                }
+                return;
+            }
+            db.collection(collectionUsers).whereEqualTo(fieldDeviceId, waitlistUserId).limit(1).get()
+                    .addOnCompleteListener(qTask -> {
+                        if (listener == null) {
+                            return;
+                        }
+                        if (!qTask.isSuccessful() || qTask.getResult() == null || qTask.getResult().isEmpty()) {
+                            listener.onComplete(task);
+                            return;
+                        }
+                        listener.onComplete(Tasks.forResult(qTask.getResult().getDocuments().get(0)));
+                    });
+        });
+    }
+
     //Event Queries
 
     /**

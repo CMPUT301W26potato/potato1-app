@@ -125,21 +125,20 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
                             continue;
                         }
                         String entryDocId = entryDoc.getId();
-                        db.collection("users").document(userId).get()
-                                .addOnCompleteListener(task -> {
-                                    String name = getString(R.string.unknown_user);
-                                    if (task.isSuccessful() && task.getResult() != null
-                                            && task.getResult().exists()) {
-                                        String n = task.getResult().getString("name");
-                                        if (!TextUtils.isEmpty(n)) {
-                                            name = n;
-                                        }
-                                    }
-                                    buf.add(new CancelledEntrantAdapter.CancelledEntrantItem(userId, name, entryDocId));
-                                    if (done.incrementAndGet() == total) {
-                                        finishLoad(buf);
-                                    }
-                                });
+                        FirebaseHelper.getInstance().fetchUserDocumentForWaitlistUserId(userId, task -> {
+                            String name = getString(R.string.unknown_user);
+                            if (task.isSuccessful() && task.getResult() != null
+                                    && task.getResult().exists()) {
+                                String n = task.getResult().getString("name");
+                                if (!TextUtils.isEmpty(n)) {
+                                    name = n;
+                                }
+                            }
+                            buf.add(new CancelledEntrantAdapter.CancelledEntrantItem(userId, name, entryDocId));
+                            if (done.incrementAndGet() == total) {
+                                finishLoad(buf);
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(e ->

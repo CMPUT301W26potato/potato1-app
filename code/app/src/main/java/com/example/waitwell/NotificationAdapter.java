@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.activities.InvitationResponseActivity;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -92,35 +94,130 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tintIcon(holder.imgNotificationTypeIcon, style.iconRes, muted);
         } else {
             holder.expiredLabel.setVisibility(View.GONE);
-            holder.itemView.setAlpha(1f);
+            if (n.isInviteAlreadyResolvedOnWaitlist()) {
+                holder.itemView.setAlpha(0.5f);
+            } else {
+                holder.itemView.setAlpha(1f);
+            }
         }
 
-        holder.actionButton.setOnClickListener(v -> {
-            if (n.isExpired() && n.getType() == NotificationModel.NotificationType.CHOSEN) {
-                Toast.makeText(context, R.string.toast_notification_invitation_expired, Toast.LENGTH_SHORT).show();
+        maybeFetchInviteWaitlistStatus(holder, position, n, category);
+
+        holder.actionButton.setOnClickListener(v -> onNotificationActionClick(holder, n));
+    }
+
+    private void maybeFetchInviteWaitlistStatus(ViewHolder holder, int position, NotificationModel n,
+                                                NotificationDisplayCategorizer.NotificationItemCategory category) {
+        boolean inviteLike = category == NotificationDisplayCategorizer.NotificationItemCategory.INVITATION
+                || category == NotificationDisplayCategorizer.NotificationItemCategory.REMINDER;
+        if (n.isExpired()
+                || n.getType() != NotificationModel.NotificationType.CHOSEN
+                || !inviteLike
+                || TextUtils.isEmpty(n.getEventId())
+                || n.isInviteWaitlistStatusFetchStarted()) {
+            return;
+        }
+        n.setInviteWaitlistStatusFetchStarted(true);
+        final int pos = position;
+        final NotificationModel modelRef = n;
+        final String waitlistCollection = "waitlist_entries";
+        final String fieldStatus = "status";
+        String uid = DeviceUtils.getDeviceId(context);
+        String entryDocId = uid + "_" + n.getEventId();
+        String confirmed = context.getString(R.string.firestore_waitlist_status_confirmed);
+        String cancelled = context.getString(R.string.firestore_waitlist_status_cancelled);
+        FirebaseFirestore.getInstance()
+                .collection(waitlistCollection)
+                .document(entryDocId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful() || task.getResult() == null || !task.getResult().exists()) {
+                        return;
+                    }
+                    String st = task.getResult().getString(fieldStatus);
+                    if (confirmed.equals(st) || cancelled.equals(st)) {
+                        modelRef.setInviteAlreadyResolvedOnWaitlist(true);
+                    }
+                    holder.itemView.post(() -> {
+                        if (pos < 0 || pos >= notifications.size() || notifications.get(pos) != modelRef) {
+                            return;
+                        }
+                        NotificationAdapter.this.notifyItemChanged(pos);
+                    });
+                });
+    }
+
+    private void onNotificationActionClick(ViewHolder holder, NotificationModel n) {
+        if (n.isExpired() && n.getType() == NotificationModel.NotificationType.CHOSEN) {
+            Toast.makeText(context, R.string.toast_notification_invitation_expired, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (n.getType() == NotificationModel.NotificationType.CHOSEN) {
+            if (TextUtils.isEmpty(n.getEventId())) {
+                startChosenInvitationActivity(n, holder.getBindingAdapterPosition());
                 return;
             }
-            Intent intent;
-            //navigations based on the notification type
-            if (n.getType() == NotificationModel.NotificationType.CHOSEN) {
-                intent = new Intent(context, InvitationResponseActivity.class);
-            } else {
-                intent = new Intent(context, EntrantNotChosenScreen.class);
-            }
-
-            intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
-            intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
-            intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
-
-            if (parentActivity != null) {
-                String notificationId = parentActivity.getNotificationId(position);
+            final int pos = holder.getBindingAdapterPosition();
+            final String waitlistCollection = "waitlist_entries";
+            final String fieldStatus = "status";
+            String uid = DeviceUtils.getDeviceId(context);
+            String entryDocId = uid + "_" + n.getEventId();
+            String confirmed = context.getString(R.string.firestore_waitlist_status_confirmed);
+            String cancelled = context.getString(R.string.firestore_waitlist_status_cancelled);
+            FirebaseFirestore.getInstance()
+                    .collection(waitlistCollection)
+                    .document(entryDocId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful() || task.getResult() == null || !task.getResult().exists()) {
+                            holder.itemView.post(() -> startChosenInvitationActivity(n, pos));
+                            return;
+                        }
+                        String st = task.getResult().getString(fieldStatus);
+                        if (confirmed.equals(st)) {
+                            holder.itemView.post(() ->
+                                    Toast.makeText(context, R.string.toast_invitation_already_accepted,
+                                            Toast.LENGTH_SHORT).show());
+                            return;
+                        }
+                        if (cancelled.equals(st)) {
+                            holder.itemView.post(() ->
+                                    Toast.makeText(context, R.string.toast_invitation_already_declined,
+                                            Toast.LENGTH_SHORT).show());
+                            return;
+                        }
+                        holder.itemView.post(() -> startChosenInvitationActivity(n, pos));
+                    });
+            return;
+        }
+        Intent intent = new Intent(context, EntrantNotChosenScreen.class);
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+        intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
+        if (parentActivity != null) {
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                String notificationId = parentActivity.getNotificationId(pos);
                 if (notificationId != null) {
                     intent.putExtra(InvitationResponseActivity.EXTRA_NOTIFICATION_ID, notificationId);
                 }
             }
+        }
+        context.startActivity(intent);
+    }
 
-            context.startActivity(intent);
-        });
+    private void startChosenInvitationActivity(NotificationModel n, int position) {
+        Intent intent = new Intent(context, InvitationResponseActivity.class);
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+        intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
+        if (parentActivity != null && position != RecyclerView.NO_POSITION) {
+            String notificationId = parentActivity.getNotificationId(position);
+            if (notificationId != null) {
+                intent.putExtra(InvitationResponseActivity.EXTRA_NOTIFICATION_ID, notificationId);
+            }
+        }
+        context.startActivity(intent);
     }
 
     @NonNull

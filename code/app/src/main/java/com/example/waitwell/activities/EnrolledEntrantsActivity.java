@@ -15,7 +15,6 @@ import com.example.waitwell.FirebaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 /**
@@ -114,7 +113,6 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
         int count = snapshot.size();
         txtCount.setText(getString(R.string.enrolled_count, count));
 
-        FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (DocumentSnapshot entryDoc : snapshot.getDocuments()) {
@@ -122,27 +120,36 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
             String entryDocId = entryDoc.getId();
             if (userId == null) continue;
 
-            db.collection("users").document(userId).get()
-                    .addOnSuccessListener(userDoc -> {
-                        String name = userDoc.getString("name");
-                        String email = userDoc.getString("email");
-                        if (name == null) name = getString(R.string.unknown_user);
-                        if (email == null) email = "";
+            FirebaseHelper.getInstance().fetchUserDocumentForWaitlistUserId(userId, task -> {
+                runOnUiThread(() -> {
+                    String name = getString(R.string.unknown_user);
+                    String email = "";
+                    if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                        DocumentSnapshot userDoc = task.getResult();
+                        String n = userDoc.getString("name");
+                        String em = userDoc.getString("email");
+                        if (n != null) {
+                            name = n;
+                        }
+                        if (em != null) {
+                            email = em;
+                        }
+                    } else if (!task.isSuccessful()) {
+                        Log.e(TAG, "Failed to load user: " + userId, task.getException());
+                    }
 
-                        View row = inflater.inflate(R.layout.item_enrolled_entrant_row, entrantListContainer, false);
-                        ((TextView) row.findViewById(R.id.txtEntrantName)).setText(name);
-                        ((TextView) row.findViewById(R.id.txtEntrantEmail)).setText(email);
+                    View row = inflater.inflate(R.layout.item_enrolled_entrant_row, entrantListContainer, false);
+                    ((TextView) row.findViewById(R.id.txtEntrantName)).setText(name);
+                    ((TextView) row.findViewById(R.id.txtEntrantEmail)).setText(email);
 
-                        // store final copies for use inside the lambda
-                        String finalName = name;
-                        Button btnCancel = row.findViewById(R.id.btnCancelEntrant);
-                        btnCancel.setOnClickListener(v ->
-                                showCancelConfirmDialog(entryDocId, finalName, row));
+                    String finalName = name;
+                    Button btnCancel = row.findViewById(R.id.btnCancelEntrant);
+                    btnCancel.setOnClickListener(v ->
+                            showCancelConfirmDialog(entryDocId, finalName, row));
 
-                        entrantListContainer.addView(row);
-                    })
-                    .addOnFailureListener(e ->
-                            Log.e(TAG, "Failed to load user: " + userId, e));
+                    entrantListContainer.addView(row);
+                });
+            });
         }
     }
 

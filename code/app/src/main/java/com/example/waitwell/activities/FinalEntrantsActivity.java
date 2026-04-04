@@ -27,8 +27,6 @@ import com.example.waitwell.CsvExportHelper;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -163,20 +161,25 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
             shareOrToast(f);
             return;
         }
-        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-        for (FinalEntrantAdapter.FinalEntrantItem item : loadedEntrantItems) {
-            tasks.add(db.collection("users").document(item.userId).get());
-        }
-        Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(task -> {
+        int n = loadedEntrantItems.size();
+        final DocumentSnapshot[] userDocs = new DocumentSnapshot[n];
+        AtomicInteger remaining = new AtomicInteger(n);
+        for (int i = 0; i < n; i++) {
+            final int idx = i;
+            FinalEntrantAdapter.FinalEntrantItem item = loadedEntrantItems.get(i);
+            FirebaseHelper.getInstance().fetchUserDocumentForWaitlistUserId(item.userId, task -> {
+                if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                    userDocs[idx] = task.getResult();
+                }
+                if (remaining.decrementAndGet() == 0) {
                     List<CsvExportHelper.FinalEntrant> list = new ArrayList<>();
-                    for (int i = 0; i < tasks.size(); i++) {
-                        Task<DocumentSnapshot> t = tasks.get(i);
-                        FinalEntrantAdapter.FinalEntrantItem item = loadedEntrantItems.get(i);
-                        if (t.isSuccessful() && t.getResult() != null && t.getResult().exists()) {
-                            list.add(buildFinalEntrantFromDoc(t.getResult(), item.displayName));
+                    for (int j = 0; j < n; j++) {
+                        FinalEntrantAdapter.FinalEntrantItem itemJ = loadedEntrantItems.get(j);
+                        DocumentSnapshot doc = userDocs[j];
+                        if (doc != null) {
+                            list.add(buildFinalEntrantFromDoc(doc, itemJ.displayName));
                         } else {
-                            list.add(new CsvExportHelper.FinalEntrant(item.displayName, "", "", "", "", ""));
+                            list.add(new CsvExportHelper.FinalEntrant(itemJ.displayName, "", "", "", "", ""));
                         }
                     }
                     runOnUiThread(() -> {
@@ -184,7 +187,9 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
                                 this, eventTitle != null ? eventTitle : "", list);
                         shareOrToast(f);
                     });
-                });
+                }
+            });
+        }
     }
 
     private CsvExportHelper.FinalEntrant buildFinalEntrantFromDoc(
@@ -261,21 +266,20 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
                             continue;
                         }
                         String entryDocId = entryDoc.getId();
-                        db.collection("users").document(userId).get()
-                                .addOnCompleteListener(task -> {
-                                    String name = getString(R.string.unknown_user);
-                                    if (task.isSuccessful() && task.getResult() != null
-                                            && task.getResult().exists()) {
-                                        String n = task.getResult().getString("name");
-                                        if (!TextUtils.isEmpty(n)) {
-                                            name = n;
-                                        }
-                                    }
-                                    buf.add(new FinalEntrantAdapter.FinalEntrantItem(userId, name, entryDocId));
-                                    if (done.incrementAndGet() == total) {
-                                        finishLoad(buf);
-                                    }
-                                });
+                        FirebaseHelper.getInstance().fetchUserDocumentForWaitlistUserId(userId, task -> {
+                            String name = getString(R.string.unknown_user);
+                            if (task.isSuccessful() && task.getResult() != null
+                                    && task.getResult().exists()) {
+                                String n = task.getResult().getString("name");
+                                if (!TextUtils.isEmpty(n)) {
+                                    name = n;
+                                }
+                            }
+                            buf.add(new FinalEntrantAdapter.FinalEntrantItem(userId, name, entryDocId));
+                            if (done.incrementAndGet() == total) {
+                                finishLoad(buf);
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(e ->
