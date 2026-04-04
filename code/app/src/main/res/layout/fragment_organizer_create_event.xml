@@ -12,20 +12,20 @@
         android:paddingEnd="16dp">
 
         <ImageButton
-            android:id="@+id/btnHamburger"
+            android:id="@+id/btnTopBarBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_menu_hamburger"
-            android:contentDescription="Menu" />
+            android:src="@drawable/ic_circle_arrow_left"
+            android:contentDescription="Back" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/app_name"
+            android:text="Create Event"
             android:textColor="@color/text_primary"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -53,15 +53,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnOrganizerBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/organizer_back"
-                android:textColor="@color/primary"
-                android:textAllCaps="false"
-                android:fontFamily="@font/poppins" />
 
             <TextView
                 android:layout_width="wrap_content"

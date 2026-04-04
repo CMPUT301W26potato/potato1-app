@@ -12,13 +12,18 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.waitwell.DeviceUtils;
+import com.example.waitwell.EntrantNotificationOptions;
 import com.example.waitwell.EntrantNotificationScreen;
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.example.waitwell.WaitlistFirestoreStatus;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -58,7 +63,7 @@ public class WaitListActivity extends AppCompatActivity {
         scrollEntries = findViewById(R.id.scrollEntries);
         btnQuit = findViewById(R.id.btnQuit);
 
-        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+        setupDrawer();
         btnQuit.setOnClickListener(v -> showQuitDialog());
         setupBottomNav();
     }
@@ -249,6 +254,31 @@ public class WaitListActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void setupDrawer() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+
+        findViewById(R.id.btnHamburger).setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, Profile.class));
+            } else if (id == R.id.nav_delete_profile) {
+                // handled in MainActivity; no-op here
+            } else if (id == R.id.nav_notification_options) {
+                startActivity(new Intent(this, EntrantNotificationOptions.class));
+            } else if (id == R.id.nav_lottery_selection_criteria) {
+                startActivity(new Intent(this, EntrantLotteryCriteria.class));
+            } else if (id == R.id.nav_logout) {
+                startActivity(new Intent(this, RegisterActivity.class));
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
     }
 
     private void setupBottomNav() {

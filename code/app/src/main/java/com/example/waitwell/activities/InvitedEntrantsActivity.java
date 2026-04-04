@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Invited / enrolled / declined entrants for an event (status {@code selected}, {@code confirmed}, {@code cancelled}).
  */
-public class InvitedEntrantsActivity extends AppCompatActivity implements InvitedEntrantAdapter.Listener {
+public class InvitedEntrantsActivity extends OrganizerBaseActivity implements InvitedEntrantAdapter.Listener {
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
@@ -67,10 +66,7 @@ public class InvitedEntrantsActivity extends AppCompatActivity implements Invite
         statusConfirmed = getString(R.string.firestore_waitlist_status_confirmed);
         statusCancelled = getString(R.string.firestore_waitlist_status_cancelled);
 
-        ImageButton btnHamburger = findViewById(R.id.btnHamburger);
-        ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
-        btnHamburger.setOnClickListener(v -> finish());
-        imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+        setupOrganizerDrawer();
 
         RecyclerView recycler = findViewById(R.id.recyclerInvited);
         recycler.setLayoutManager(new LinearLayoutManager(this));

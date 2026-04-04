@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.waitwell.activities.MainActivity;
-import com.example.waitwell.activities.RegisterActivity;
 import com.example.waitwell.activities.WaitListActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -44,16 +43,8 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // get stored user id from shared preferences
-        userId = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
-                .getString("userId", null);
-
-        // if no user id is found, redirect to register screen
-        if (userId == null) {
-            startActivity(new Intent(this, RegisterActivity.class));
-            finish();
-            return;
-        }
+        // get the stable device-based user id
+        userId = DeviceUtils.getDeviceId(this);
 
         // setup top bar back button
         ImageButton btnBack = findViewById(R.id.btnBack);

@@ -123,7 +123,7 @@
                 android:background="@drawable/bg_button_white_outlined"
                 android:text="@string/organizer_view_my_events"
                 android:textAllCaps="false"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/white"
                 android:fontFamily="@font/poppins" />
 
             <View

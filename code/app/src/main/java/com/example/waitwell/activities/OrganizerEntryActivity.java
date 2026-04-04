@@ -170,7 +170,9 @@ public class OrganizerEntryActivity extends AppCompatActivity {
 
     private void navigateToMyEventsClearingBackStack() {
         FragmentManager fm = getSupportFragmentManager();
-        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        while (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+        }
         fm.beginTransaction()
                 .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())
                 .commit();

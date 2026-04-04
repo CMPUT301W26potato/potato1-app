@@ -149,12 +149,15 @@ public class OrganizerCreateEventFragment extends Fragment {
         txtCategories.setOnClickListener(v -> showCategoryPicker());
 
 
-        // Simple back button that just pops this fragment off the Organizer stack.
-        view.findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> {
+        // Top bar back button.
+        view.findViewById(R.id.btnTopBarBack).setOnClickListener(v -> {
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                 getParentFragmentManager().popBackStack();
+            } else if (getActivity() != null) {
+                getActivity().onBackPressed();
             }
         });
+
         // When the organizer taps this, we launch the system picker for an image banner.
         view.findViewById(R.id.btnUploadPoster).setOnClickListener(v ->
                 pickImage.launch("image/*"));

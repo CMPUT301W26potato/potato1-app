@@ -216,7 +216,7 @@
                     android:background="@drawable/bg_button_white_outlined"
                     android:text="Enter the redraw"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:fontFamily="@font/poppins" />
 
 
@@ -229,7 +229,7 @@
                     android:background="@drawable/bg_button_white_outlined"
                     android:text="Back to Notifications"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:fontFamily="@font/poppins" />
 
 

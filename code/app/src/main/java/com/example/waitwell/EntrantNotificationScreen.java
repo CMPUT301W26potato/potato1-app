@@ -8,11 +8,17 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.waitwell.activities.EntrantLotteryCriteria;
+import com.example.waitwell.activities.MainActivity;
+import com.example.waitwell.activities.RegisterActivity;
 import com.example.waitwell.activities.WaitListActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -46,7 +52,7 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         adapter = new NotificationAdapter(notifications);
         recyclerView.setAdapter(adapter);
 
-        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
+        setupDrawer();
 
         // Load notifications from Firestore
         loadNotifications();
@@ -240,6 +246,29 @@ public class EntrantNotificationScreen extends AppCompatActivity {
             return notificationIds.get(position);
         }
         return null;
+    }
+
+    private void setupDrawer() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+
+        findViewById(R.id.btnHamburger).setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, Profile.class));
+            } else if (id == R.id.nav_notification_options) {
+                startActivity(new Intent(this, EntrantNotificationOptions.class));
+            } else if (id == R.id.nav_lottery_selection_criteria) {
+                startActivity(new Intent(this, EntrantLotteryCriteria.class));
+            } else if (id == R.id.nav_logout) {
+                startActivity(new Intent(this, RegisterActivity.class));
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
     }
 
     /**

@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Loads {@code waitlist_entries} with status {@code waiting}, accepts map to {@code selected}
  * (same as lottery) with CHOSEN notification; declines set {@code rejected} and NOT_CHOSEN notification.
  */
-public class ViewRequestsActivity extends AppCompatActivity implements WaitlistEntrantAdapter.Listener {
+public class ViewRequestsActivity extends OrganizerBaseActivity implements WaitlistEntrantAdapter.Listener {
 
     private String eventId;
     private String eventTitle;
@@ -62,10 +61,7 @@ public class ViewRequestsActivity extends AppCompatActivity implements WaitlistE
             eventTitle = "";
         }
 
-        ImageButton btnHamburger = findViewById(R.id.btnHamburger);
-        ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
-        btnHamburger.setOnClickListener(v -> finish());
-        imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+        setupOrganizerDrawer();
 
         BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {
