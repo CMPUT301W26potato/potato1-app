@@ -21,6 +21,10 @@ import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /** Karina's features:
  * stories: creating new events and seeing their current status (US 02.01.01,
  * 02.03.01, 02.04.01, 02.04.02).
@@ -164,10 +168,21 @@ public class OrganizerHomeFragment extends Fragment {
             View row = inflater.inflate(R.layout.item_organizer_event_row, eventsList, false);
 
             TextView titleView = row.findViewById(R.id.item_organizer_event_title);
+            TextView dateView = row.findViewById(R.id.item_organizer_event_date);
             TextView statusBadge = row.findViewById(R.id.item_organizer_event_status);
             Button manageBtn = row.findViewById(R.id.item_organizer_btn_manage);
 
             titleView.setText(title);
+
+            Date eventDate = doc.getDate("eventDate");
+            if (eventDate != null) {
+                SimpleDateFormat fmt = new SimpleDateFormat("MMM d, yyyy · h:mm a", Locale.getDefault());
+                dateView.setText(fmt.format(eventDate));
+                dateView.setVisibility(View.VISIBLE);
+            } else {
+                dateView.setVisibility(View.GONE);
+            }
+
             applyStatusBadge(statusBadge, status);
 
             manageBtn.setOnClickListener(v -> onManageClicked(eventId));
