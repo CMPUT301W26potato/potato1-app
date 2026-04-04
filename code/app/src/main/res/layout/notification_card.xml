@@ -91,6 +91,15 @@
                     android:visibility="gone" />
             </LinearLayout>
 
+        <Button
+            android:id="@+id/actionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_green"
+            android:textColor="@color/text_white"
+            android:text="Check Event"
+            />
+
             <Button
                 android:id="@+id/actionButton"
                 android:layout_width="wrap_content"
