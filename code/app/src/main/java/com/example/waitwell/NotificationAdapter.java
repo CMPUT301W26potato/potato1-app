@@ -101,6 +101,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             }
         }
 
+        if (category == NotificationDisplayCategorizer.NotificationItemCategory.CONFIRMED) {
+            holder.actionButton.setVisibility(View.GONE);
+        } else {
+            holder.actionButton.setVisibility(View.VISIBLE);
+        }
+
         maybeFetchInviteWaitlistStatus(holder, position, n, category);
 
         holder.actionButton.setOnClickListener(v -> onNotificationActionClick(holder, n));

@@ -6,9 +6,11 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/notification_card_margin">
 
+    <!-- Strip + main body: horizontal so the border never steals width from the content column. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <View
@@ -17,94 +19,120 @@
             android:layout_height="match_parent"
             android:background="@color/primary" />
 
+        <!-- Fills remaining width after the strip (weight + 0dp width). -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:minWidth="0dp"
+            android:orientation="vertical"
             android:padding="@dimen/notification_card_inner_padding">
 
-            <FrameLayout
-                android:id="@+id/iconContainer"
-                android:layout_width="@dimen/notification_icon_container_size"
-                android:layout_height="@dimen/notification_icon_container_size"
-                android:background="@drawable/bg_waitlist_icon_dark"
-                android:contentDescription="@string/notification_type_icon_container_desc">
-
-                <ImageView
-                    android:id="@+id/imgNotificationTypeIcon"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/notification_type_icon_desc"
-                    android:padding="@dimen/notification_icon_inner_padding"
-                    android:scaleType="centerInside"
-                    tools:src="@drawable/ic_notifications_selected" />
-            </FrameLayout>
-
+            <!-- Icon + text stack: horizontal row; text column must expand (0dp + weight 1). -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/notification_icon_text_gap"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/categoryTitleText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppinsmedium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/notification_category_title_text_size"
-                    android:textStyle="bold"
-                    tools:text="@string/notification_category_invitation" />
+                <FrameLayout
+                    android:id="@+id/iconContainer"
+                    android:layout_width="@dimen/notification_icon_container_size"
+                    android:layout_height="@dimen/notification_icon_container_size"
+                    android:background="@drawable/bg_waitlist_icon_dark"
+                    android:contentDescription="@string/notification_type_icon_container_desc">
 
-                <TextView
-                    android:id="@+id/titleText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/notification_event_title_margin_top"
-                    android:fontFamily="@font/poppinsmedium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/notification_event_title_text_size"
-                    android:textStyle="bold"
-                    tools:text="Event title" />
+                    <ImageView
+                        android:id="@+id/imgNotificationTypeIcon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/notification_type_icon_desc"
+                        android:padding="@dimen/notification_icon_inner_padding"
+                        android:scaleType="centerInside"
+                        tools:src="@drawable/ic_notifications_selected" />
+                </FrameLayout>
 
-                <TextView
-                    android:id="@+id/messageText"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/notification_message_margin_top"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="@dimen/notification_message_text_size"
-                    tools:text="Notification body" />
+                    android:layout_marginStart="@dimen/notification_icon_text_gap"
+                    android:layout_weight="1"
+                    android:minWidth="0dp"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/expiredLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/notification_expired_label_margin_top"
-                    android:text="@string/notification_list_expired_label"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/categoryTitleText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:maxLines="2"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/notification_category_title_text_size"
+                        android:textStyle="bold"
+                        tools:text="@string/notification_category_invitation" />
+
+                    <TextView
+                        android:id="@+id/titleText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/notification_event_title_margin_top"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:maxLines="2"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/notification_event_title_text_size"
+                        android:textStyle="bold"
+                        tools:text="Event title" />
+
+                    <TextView
+                        android:id="@+id/messageText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/notification_message_margin_top"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins"
+                        android:maxLines="3"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/notification_message_text_size"
+                        tools:text="Notification body" />
+
+                    <TextView
+                        android:id="@+id/expiredLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="@dimen/notification_expired_label_margin_top"
+                        android:text="@string/notification_list_expired_label"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/notification_expired_label_text_size"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
 
-        <Button
-            android:id="@+id/actionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_button_green"
-            android:textColor="@color/text_white"
-            android:text="Check Event"
-            />
-
-            <Button
-                android:id="@+id/actionButton"
-                android:layout_width="wrap_content"
+            <!-- Action below text so the button never competes for horizontal space with the body. -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/notification_action_button_margin_start" />
+                android:layout_marginTop="@dimen/notification_button_row_margin_top"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/actionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/invitation_cta_height"
+                    android:background="@drawable/bg_button_green"
+                    android:fontFamily="@font/poppinsmedium"
+                    android:minHeight="@dimen/invitation_cta_height"
+                    android:paddingStart="@dimen/notification_card_inner_padding"
+                    android:paddingEnd="@dimen/notification_card_inner_padding"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_white"
+                    android:textSize="@dimen/notification_message_text_size"
+                    tools:text="@string/entrant_accept_event" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

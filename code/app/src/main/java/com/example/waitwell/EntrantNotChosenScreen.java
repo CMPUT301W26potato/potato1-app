@@ -82,8 +82,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
 
-        Button redrawButton = findViewById(R.id.entrantRedraw);
-        redrawButton.setOnClickListener(v -> handleEnterRedraw());
+        // Redraw entry disabled — button hidden in layout; listener removed (visual-only).
+        // Button redrawButton = findViewById(R.id.entrantRedraw);
+        // redrawButton.setOnClickListener(v -> handleEnterRedraw());
     }
 
     /**
