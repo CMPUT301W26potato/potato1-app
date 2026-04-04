@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.ProfilePreviewHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.example.waitwell.WaitlistFirestoreStatus;
@@ -189,7 +190,7 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
 
     @Override
     public void onViewProfile(@NonNull WaitlistEntrantAdapter.WaitlistEntrantItem item) {
-        Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+        ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 
     @Override

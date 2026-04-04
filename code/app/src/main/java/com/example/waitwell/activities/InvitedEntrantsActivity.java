@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.ProfilePreviewHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -266,7 +267,7 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
 
     @Override
     public void onViewProfile(@NonNull InvitedEntrantAdapter.InvitedEntrantItem item) {
-        Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+        ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 
     @Override

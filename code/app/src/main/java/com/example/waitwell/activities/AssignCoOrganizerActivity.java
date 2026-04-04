@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.ProfilePreviewHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -88,8 +89,7 @@ public class AssignCoOrganizerActivity extends OrganizerBaseActivity {
         adapter = new CoOrganizerAdapter(results, new CoOrganizerAdapter.Listener() {
             @Override
             public void onViewProfile(@NonNull CoOrganizerUserItem item) {
-                Toast.makeText(AssignCoOrganizerActivity.this,
-                        R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+                ProfilePreviewHelper.showProfileDialog(AssignCoOrganizerActivity.this, item.userId);
             }
 
             @Override

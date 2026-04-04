@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.ProfilePreviewHelper;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -144,6 +145,6 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
 
     @Override
     public void onViewProfile(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
-        Toast.makeText(this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+        ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 }
