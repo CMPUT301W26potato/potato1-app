@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -51,8 +52,9 @@ public class OrganizerCommentsActivity extends OrganizerBaseActivity {
                 return true;
             }
             if (id == R.id.nav_organizer_bottom_home) {
-                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
-                finish();
+                Intent intent = new Intent(this, OrganizerEntryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
             }
             return false;

@@ -61,9 +61,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Post"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/poppins" />
+            android:fontFamily="@font/poppinsmedium"
+            android:text="Post"
+            android:background="@drawable/bg_button_white_outlined"/>
 
         <ScrollView
             android:layout_width="match_parent"

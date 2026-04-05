@@ -19,10 +19,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.waitwell.EventDeletionHelper;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -124,7 +126,8 @@ public class OrganizerEventDetailFragment extends Fragment {
         btnInviteEntrants = view.findViewById(R.id.btnInviteEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
         Button btnViewComments = view.findViewById(R.id.btnViewComments);
-        View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        //View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        BottomNavigationView nav = view.findViewById(R.id.organizerBottomNavigation);
 
         View btnHamburger = view.findViewById(R.id.btnHamburger);
         if (btnHamburger != null && getActivity() instanceof OrganizerEntryActivity) {
@@ -185,12 +188,21 @@ public class OrganizerEventDetailFragment extends Fragment {
         btnDrawReplacement.setOnClickListener(v -> showDrawReplacementDialog());
         btnEdit.setOnClickListener(v -> openEditEvent());
 
-        btnBack.setOnClickListener(v -> {
-            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                getParentFragmentManager().popBackStack();
-            } else if (getActivity() != null) {
-                getActivity().onBackPressed();
+
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                if (getActivity() instanceof OrganizerEntryActivity) {
+                    OrganizerEntryActivity activity = (OrganizerEntryActivity) getActivity();
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    while (fm.getBackStackEntryCount() > 0) {
+                        fm.popBackStackImmediate();
+                    }
+                    activity.replaceWithOrganizerFragment(new OrganizerHomeFragment());
+                }
+                return true;
             }
+            return false;
         });
 
         btnViewComments.setOnClickListener(v -> {

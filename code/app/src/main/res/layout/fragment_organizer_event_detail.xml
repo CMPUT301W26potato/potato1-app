@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,10 +17,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_menu_hamburger"
-            android:contentDescription="Menu" />
+            android:contentDescription="Menu"
+            android:src="@drawable/ic_menu_hamburger" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,16 +52,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-
-            <Button
-                android:id="@+id/btnOrganizerBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/organizer_back"
-                android:textColor="@color/primary"
-                android:textAllCaps="false"
-                android:fontFamily="@font/poppinsmedium" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -401,5 +391,12 @@
         </LinearLayout>
     </LinearLayout>
     </ScrollView>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/organizerBottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:background="@color/bg_white"
+        app:itemTextColor="@color/text_hint"
+        app:menu="@menu/bottom_nav_menu_organizer"  />
 </LinearLayout>
 

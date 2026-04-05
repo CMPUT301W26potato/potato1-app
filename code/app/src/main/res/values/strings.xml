@@ -70,7 +70,7 @@
     <string name="organizer_view_canceled_entrants">View Canceled Entrants</string>
     <string name="organizer_view_invited_entrants">View Invited Entrants</string>
     <string name="organizer_view_sampled_entrants">View Sampled Entrants</string>
-    <string name="organizer_event_created_title">Event Created</string>
+    <string name="organizer_event_created_title">Event Created Successfully</string>
     <string name="organizer_share_event_title">Share this Event</string>
     <string name="organizer_view_my_events">View My Events</string>
     <string name="qr_code">QR code</string>
