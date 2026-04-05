@@ -24,7 +24,7 @@
         <!-- REHAAN'S ADDITION — US 02.02.02 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
+            android:value="AIzaSyCxq6ab9En0oIrMJujp1okriXmfp1yH1xY" />
         <!-- END REHAAN'S ADDITION -->
 
         <!-- Splash screen  -->

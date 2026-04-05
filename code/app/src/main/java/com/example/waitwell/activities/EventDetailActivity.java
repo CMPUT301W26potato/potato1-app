@@ -81,10 +81,11 @@ public class EventDetailActivity extends AppCompatActivity {
     private TextView txtEventClosed;
 
 
-
     // REHAAN'S ADDITION — US 02.02.02
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private FusedLocationProviderClient fusedLocationClient;
+    private String pendingJoinTitle;
+    private boolean pendingGeolocationRequired;
     // END REHAAN'S ADDITION
     private View btnPostComment;
     private LinearLayout commentsContainer;
@@ -403,77 +404,106 @@ public class EventDetailActivity extends AppCompatActivity {
 
     // REHAAN'S ADDITION — US 02.02.02 (modified runJoinWaitlist to capture location)
     private void runJoinWaitlist(String title) {
-        FirebaseHelper.getInstance().joinWaitlist(
-                deviceId, eventId, title,
-                task -> {
-                    if (task.isSuccessful()) {
-                        captureAndSaveLocation();
-                        Intent intent = new Intent(this, ConfirmationActivity.class);
-                        intent.putExtra("event_title", title);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
-                    }
-                });
+        FirebaseHelper.getInstance().getEvent(eventId).addOnSuccessListener(eventDoc -> {
+            boolean geolocationRequired = Boolean.TRUE.equals(eventDoc.getBoolean("geolocationRequired"));
+            FirebaseHelper.getInstance().joinWaitlist(
+                    deviceId, eventId, title,
+                    task -> {
+                        if (task.isSuccessful()) {
+                            if (geolocationRequired) {
+                                pendingJoinTitle = title;
+                                pendingGeolocationRequired = true;
+                                captureAndSaveLocation();
+                                // navigation deferred to captureAndSaveLocation flow
+                            } else {
+                                navigateToConfirmation(title);
+                            }
+                        } else {
+                            Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+                            btnJoin.setEnabled(true);
+                        }
+                    });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_SHORT).show();
+            btnJoin.setEnabled(true);
+        });
     }
-
+    // END REHAAN'S ADDITION
     /**
      * Requests location permission if needed, then saves the device's
      * last known location to the waitlist_entries document.
      * Best-effort — join already succeeded, so failure here is silent.
      * Javadoc written with help from Claude (claude.ai)
      */
+// REHAAN'S ADDITION — US 02.02.02
     private void captureAndSaveLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            // Permission not yet granted — request it; navigation happens in onRequestPermissionsResult
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
-        writeLocationToEntry();
+        // Permission already granted — write location then navigate
+        writeLocationToEntryThenNavigate();
     }
+    // END REHAAN'S ADDITION
 
     /**
      * Reads last known location from FusedLocationProviderClient and
      * writes it to the waitlist_entries document for this user+event.
      */
-    private void writeLocationToEntry() {
+    // REHAAN'S ADDITION — US 02.02.02
+    private void writeLocationToEntryThenNavigate() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            navigateToConfirmation(pendingJoinTitle);
             return;
         }
         String entryDocId = deviceId + "_" + eventId;
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(location -> {
-                    if (location == null) return;
-                    FirebaseHelper.getInstance().updateEntryLocation(
-                            entryDocId,
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            null);
-                });
+                    if (location != null) {
+                        FirebaseHelper.getInstance().updateEntryLocation(
+                                entryDocId,
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                null);
+                    }
+                    // Navigate regardless — location write is best-effort
+                    navigateToConfirmation(pendingJoinTitle);
+                })
+                .addOnFailureListener(e -> navigateToConfirmation(pendingJoinTitle));
     }
+
+    private void navigateToConfirmation(String title) {
+        Intent intent = new Intent(this, ConfirmationActivity.class);
+        intent.putExtra("event_title", title != null ? title : "");
+        startActivity(intent);
+        finish();
+    }
+    // END REHAAN'S ADDITION
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // REHAAN'S ADDITION — US 02.02.02
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE
-                && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            writeLocationToEntry();
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && pendingGeolocationRequired) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                writeLocationToEntryThenNavigate();
+            } else {
+                // Denied — join already succeeded, navigate without location
+                navigateToConfirmation(pendingJoinTitle);
+            }
         }
         // END REHAAN'S ADDITION
     }
-    // END REHAAN'S ADDITION
     private static boolean isEventFullFailure(Throwable e) {
         while (e != null) {
             if (e instanceof IllegalStateException

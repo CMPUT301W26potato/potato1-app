@@ -25,7 +25,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Menu"
+                android:contentDescription="@string/lottery_criteria_menu_desc"
                 android:src="@drawable/ic_circle_arrow_left" />
 
             <TextView
@@ -57,10 +57,127 @@
                 app:contentPadding="24dp"
                 >
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Entrant Lottery Criteria " />
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_title"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step1_heading"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step1_body"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/inter"
+                            android:lineSpacingMultiplier="1.4"
+                            android:paddingBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step2_heading"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step2_body"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/inter"
+                            android:lineSpacingMultiplier="1.4"
+                            android:paddingBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step3_heading"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step3_body"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/inter"
+                            android:lineSpacingMultiplier="1.4"
+                            android:paddingBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step4_heading"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step4_body"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/inter"
+                            android:lineSpacingMultiplier="1.4"
+                            android:paddingBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step5_heading"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:paddingBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lottery_criteria_step5_body"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/inter"
+                            android:lineSpacingMultiplier="1.4"
+                            android:paddingBottom="8dp" />
+
+                    </LinearLayout>
+                </ScrollView>
 
             </androidx.cardview.widget.CardView>
 
