@@ -28,7 +28,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_circle_arrow_left"
+                android:src="@drawable/ic_menu_hamburger"
                 android:contentDescription="Menu" />
 
             <!-- "Wait Well" title -->
@@ -83,7 +83,8 @@
             android:layout_width="match_parent"
             android:layout_height="74dp"
             android:background="@color/bg_white"
-            app:itemTextColor="@color/text_hint"
+            app:itemIconTint="@color/bottom_nav_item_color"
+            app:itemTextColor="@color/bottom_nav_item_color"
             app:menu="@menu/bottom_nav_menu_main_activity" />
 
     </LinearLayout>

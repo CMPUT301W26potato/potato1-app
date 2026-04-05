@@ -144,9 +144,9 @@ public class RegisterActivity extends AppCompatActivity {
                             return;
                         }
                         db.collection("users")
-                                .add(user)
+                                .document(deviceId)
+                                .set(user)
                                 .addOnSuccessListener(aVoid -> {
-                                    // existing success logic
                                     Log.d(TAG, "User registered: " + deviceId);
                                     getSharedPreferences("WaitWellPrefs", MODE_PRIVATE)
                                             .edit().putString("userId", deviceId)

@@ -130,7 +130,8 @@
             android:layout_width="match_parent"
             android:layout_height="74dp"
             android:background="@color/bg_white"
-            app:itemTextColor="@color/text_hint"
+            app:itemIconTint="@color/bottom_nav_item_color"
+            app:itemTextColor="@color/bottom_nav_item_color"
             app:menu="@menu/bottom_nav_menu_main_activity" />
 
     </LinearLayout>

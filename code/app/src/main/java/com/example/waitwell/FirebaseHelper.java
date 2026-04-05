@@ -490,22 +490,43 @@ public class FirebaseHelper {
     }
 
     public Task<Void> deleteUser(String userId) {
-        WriteBatch batch = db.batch();
-
-        // delete waitlist entries for this user
-        db.collection("waitlist_entries")
+        // Run both queries in parallel, then commit one batch that:
+        // deletes every waitlist_entry for this user
+        // removes userId from each event's waitlistEntrantIds array
+        // deletes the user document(s) - queried by deviceId field to handle
+        // both old accounts (random Firestore ID) and new ones (users/{deviceId})
+        Task<QuerySnapshot> entriesQuery = db.collection("waitlist_entries")
                 .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        batch.delete(doc.getReference());
-                    }
-                    // delete the user document
-                    batch.delete(db.collection("users").document(userId));
-                    batch.commit();
-                });
+                .get();
+        Task<QuerySnapshot> userQuery = db.collection("users")
+                .whereEqualTo("deviceId", userId)
+                .get();
 
-        return Tasks.forResult(null);
+        return Tasks.whenAll(entriesQuery, userQuery)
+                .continueWithTask(ignored -> {
+                    WriteBatch batch = db.batch();
+
+                    if (entriesQuery.isSuccessful() && entriesQuery.getResult() != null) {
+                        for (DocumentSnapshot entry : entriesQuery.getResult().getDocuments()) {
+                            String docId = entry.getId();
+                            if (docId.length() > userId.length() + 1) {
+                                String eventId = docId.substring(userId.length() + 1);
+                                batch.update(
+                                        db.collection("events").document(eventId),
+                                        "waitlistEntrantIds", FieldValue.arrayRemove(userId));
+                            }
+                            batch.delete(entry.getReference());
+                        }
+                    }
+
+                    if (userQuery.isSuccessful() && userQuery.getResult() != null) {
+                        for (DocumentSnapshot userDoc : userQuery.getResult().getDocuments()) {
+                            batch.delete(userDoc.getReference());
+                        }
+                    }
+
+                    return batch.commit();
+                });
     }
 
     /**

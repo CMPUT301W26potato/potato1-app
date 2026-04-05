@@ -25,8 +25,7 @@ public class EntrantLotteryCriteria extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.navigation_view);
 
-        findViewById(R.id.btnHamburger).setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.START));
+        findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
 
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();

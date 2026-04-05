@@ -33,9 +33,11 @@ import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     /** All events fetched from Firestore. Kept in memory for quick access. */
     private List<DocumentSnapshot> allEventDocs = new ArrayList<>();
+
+    private String activeTab = "mostViewed";
 
     /**
      * Standard Android lifecycle entry point. Wires up the main layout,
@@ -113,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadEvents();
+        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
+        if (nav != null) nav.setSelectedItemId(R.id.nav_home);
     }
 
     /**
@@ -182,9 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void onEventsLoaded(QuerySnapshot snapshot) {
         allEventDocs = snapshot.getDocuments();
 
-        // Clear any previous views
         eventCardsContainer.removeAllViews();
-        popularEventsContainer.removeAllViews();
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
@@ -196,20 +200,9 @@ public class MainActivity extends AppCompatActivity {
             String title = getEventTitle(doc);
             String organizer = getOrganizerName(doc);
             String priceText = getPriceText(doc);
-            String lifecycle = EventStatusUtils.computeStatus(doc);
-            boolean isOpen = "open".equals(lifecycle);
             String eventId = doc.getId();
 
-            //if (title == null) title = "Untitled Event";
-            //if (organizer == null) organizer = "";
-
-            //String priceText = priceObj != null ? String.format("$%.2f", priceObj): "Free";
-
-            //boolean isOpen = "open".equals(status);
-
-            // Build a horizontal card
             View card = inflater.inflate(R.layout.item_event_card, eventCardsContainer, false);
-
             ((TextView) card.findViewById(R.id.txtCardTitle)).setText(title);
             ((TextView) card.findViewById(R.id.txtCardOrganizer)).setText(organizer);
             ((TextView) card.findViewById(R.id.txtCardPrice)).setText(priceText);
@@ -221,16 +214,57 @@ public class MainActivity extends AppCompatActivity {
             }
 
             card.setOnClickListener(v -> onEventCardClicked(eventId));
-
             eventCardsContainer.addView(card);
+        }
 
-            //Build a popular-event list row
+        renderPopularEvents(activeTab);
+
+        if (allEventDocs.isEmpty()) {
+            Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void renderPopularEvents(String tab) {
+        popularEventsContainer.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        List<DocumentSnapshot> docs = new ArrayList<>();
+        for (DocumentSnapshot doc : allEventDocs) {
+            if (!Boolean.TRUE.equals(doc.getBoolean("isPrivate"))) {
+                docs.add(doc);
+            }
+        }
+
+        if ("latest".equals(tab)) {
+            docs.sort((a, b) -> {
+                Date da = a.getDate("createdAt");
+                Date db = b.getDate("createdAt");
+                if (da == null && db == null) return 0;
+                if (da == null) return 1;
+                if (db == null) return -1;
+                return db.compareTo(da);
+            });
+            if (docs.size() > 5) docs = docs.subList(0, 5);
+        } else {
+            // mostViewed — sort by viewCount descending, cap at 5
+            docs.sort((a, b) -> {
+                long va = a.getLong("viewCount") != null ? a.getLong("viewCount") : 0;
+                long vb = b.getLong("viewCount") != null ? b.getLong("viewCount") : 0;
+                return Long.compare(vb, va);
+            });
+            if (docs.size() > 5) docs = docs.subList(0, 5);
+        }
+
+        for (DocumentSnapshot doc : docs) {
+            String title = getEventTitle(doc);
+            String eventId = doc.getId();
+            String lifecycle = EventStatusUtils.computeStatus(doc);
+            boolean isOpen = "open".equals(lifecycle);
+
             View row = inflater.inflate(R.layout.item_event_row, popularEventsContainer, false);
-
             ((TextView) row.findViewById(R.id.txtRowName)).setText(title);
 
             TextView badge = row.findViewById(R.id.txtRowStatus);
-
             if ("completed".equals(lifecycle)) {
                 badge.setText(R.string.organizer_status_completed);
                 badge.setBackgroundResource(R.drawable.bg_status_completed);
@@ -246,12 +280,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             row.setOnClickListener(v -> onEventCardClicked(eventId));
-
             popularEventsContainer.addView(row);
-        }
-
-        if (allEventDocs.isEmpty()) {
-            Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -283,6 +312,9 @@ public class MainActivity extends AppCompatActivity {
      * entrant can see the full description and decide whether to join.
      */
     private void onEventCardClicked(String eventId) {
+        FirebaseHelper.getInstance().getDb()
+                .collection("events").document(eventId)
+                .update("viewCount", FieldValue.increment(1));
         Intent i = new Intent(this, EventDetailActivity.class);
         i.putExtra("event_id", eventId);
         startActivity(i);
@@ -318,19 +350,21 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnViewAll).setOnClickListener(v ->
                 startActivity(new Intent(this, AllEventsActivity.class)));
 
-        // Filter tabs – toggle selected state
+        // Filter tabs
         TextView tabMostViewed = findViewById(R.id.tabMostViewed);
-        TextView tabNearby = findViewById(R.id.tabNearby);
         TextView tabLatest = findViewById(R.id.tabLatest);
 
-        tabMostViewed.setOnClickListener(v ->
-                selectTab(tabMostViewed, tabNearby, tabLatest));
+        tabMostViewed.setOnClickListener(v -> {
+            activeTab = "mostViewed";
+            selectTab(tabMostViewed, tabLatest);
+            renderPopularEvents(activeTab);
+        });
 
-        tabNearby.setOnClickListener(v ->
-                selectTab(tabNearby, tabMostViewed, tabLatest));
-
-        tabLatest.setOnClickListener(v ->
-                selectTab(tabLatest, tabMostViewed, tabNearby));
+        tabLatest.setOnClickListener(v -> {
+            activeTab = "latest";
+            selectTab(tabLatest, tabMostViewed);
+            renderPopularEvents(activeTab);
+        });
     }
 
 
@@ -404,39 +438,21 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void deleteUserProfile() {
+        String userId = com.example.waitwell.DeviceUtils.getDeviceId(this);
 
-        // get stored user id
-        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
-        String userId = prefs.getString("userId", null);
-
-        if (userId == null) {
-
-            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-            startActivity(intent);
-            finish();
-            return;
-        }
-
-        // delete user from firestore
         FirebaseHelper.getInstance().deleteUser(userId)
-
                 .addOnSuccessListener(aVoid -> {
-
                     Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
 
-                    prefs.edit().remove("userId").apply();
+                    // Clear stored prefs (UUID fallback + any cached userId)
+                    getSharedPreferences("waitwell_prefs", MODE_PRIVATE).edit().clear().apply();
+                    getSharedPreferences("WaitWellPrefs", MODE_PRIVATE).edit().clear().apply();
 
                     Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
                     startActivity(intent);
                     finish();
                 })
-
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
@@ -444,23 +460,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void openRegistrationHistory() {
-
-        // Get the user ID from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
-        String userId = prefs.getString("userId", null);
-
-        if (userId == null) {
-
-            Toast.makeText(this, "No user profile found", Toast.LENGTH_SHORT).show();
-
-            startActivity(new Intent(this, RegisterActivity.class));
-            finish();
-            return;
-        }
-
-        Intent intent = new Intent(this, RegistrationHistoryActivity.class);
-        intent.putExtra("userId", userId);
-
-        startActivity(intent);
+        startActivity(new Intent(this, RegistrationHistoryActivity.class));
     }
 }
