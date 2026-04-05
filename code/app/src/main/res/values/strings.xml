@@ -135,7 +135,7 @@
     <string name="calendar_weekday_sat">S</string>
 
     <!-- Organizer: View Requests / waiting list -->
-    <string name="waitlist_screen_title">Waiting List</string>
+    <string name="waitlist_screen_title">Wait Well</string>
     <string name="waitlist_section_label">Waiting List</string>
     <string name="waitlist_view_map">View Map</string>
     <string name="waitlist_notify_all">Notify All</string>

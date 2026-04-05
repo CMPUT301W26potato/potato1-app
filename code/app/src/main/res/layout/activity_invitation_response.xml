@@ -54,17 +54,6 @@
             android:orientation="vertical"
             android:padding="@dimen/invitation_screen_padding">
 
-            <TextView
-                android:id="@+id/txtBackLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:fontFamily="@font/poppins"
-                android:paddingTop="@dimen/invitation_back_link_padding_top"
-                android:paddingBottom="@dimen/invitation_back_link_padding_bottom"
-                android:text="@string/back"
-                android:textColor="@color/primary"
-                android:textSize="@dimen/invitation_back_link_text_size" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -207,7 +196,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/invitation_cta_height"
                 android:layout_marginTop="@dimen/invitation_button_margin_top_first"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_accept_event"
@@ -221,7 +210,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/invitation_cta_height"
                 android:layout_marginTop="@dimen/invitation_button_margin_top_stack"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_decline_event"
@@ -235,7 +224,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/invitation_cta_height"
                 android:layout_marginTop="@dimen/invitation_button_margin_top_stack"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_back_notifications"
