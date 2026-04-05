@@ -1,6 +1,7 @@
 package com.example.waitwell;
 
 import android.app.Activity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,10 +45,23 @@ public class ProfilePreviewHelper {
 
                 String profileImageUrl = task.getResult().getString("profileImageUrl");
 
-                // Build a custom view with image + text
+                // Build a custom view with title + image + text
                 LinearLayout layout = new LinearLayout(activity);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.setPadding(48, 32, 48, 16);
+
+                // Title as part of layout so we can center it
+                TextView titleView = new TextView(activity);
+                titleView.setText(R.string.profile_preview_title);
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setTextSize(20);
+                titleView.setTypeface(null, android.graphics.Typeface.BOLD);
+                LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                titleParams.bottomMargin = 24;
+                titleView.setLayoutParams(titleParams);
+                layout.addView(titleView);
 
                 if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
                     ImageView imageView = new ImageView(activity);
@@ -62,10 +76,10 @@ public class ProfilePreviewHelper {
 
                 TextView textView = new TextView(activity);
                 textView.setText(activity.getString(R.string.profile_preview_body, name, joinDateStr));
+                textView.setGravity(Gravity.CENTER);
                 layout.addView(textView);
 
                 new AlertDialog.Builder(activity)
-                        .setTitle(R.string.profile_preview_title)
                         .setView(layout)
                         .setPositiveButton(android.R.string.ok, null)
                         .show();

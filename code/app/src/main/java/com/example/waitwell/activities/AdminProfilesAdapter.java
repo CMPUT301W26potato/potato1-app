@@ -93,7 +93,7 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
         String profileImageUrl = doc.getString("profileImageUrl");
         ImageView profileImage = holder.itemView.findViewById(R.id.profileImage);
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-            Glide.with(context).load(profileImageUrl).circleCrop().into(profileImage);
+            Glide.with(context).load(profileImageUrl).centerCrop().into(profileImage);
         } else {
             profileImage.setImageResource(R.drawable.waitwell_logo);
         }
