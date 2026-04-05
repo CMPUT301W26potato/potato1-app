@@ -1,6 +1,7 @@
 package com.example.waitwell;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import com.example.waitwell.activities.MainActivity;
 import com.example.waitwell.activities.WaitListActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -46,8 +48,8 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         // get the stable device-based user id
-        userId = DeviceUtils.getDeviceId(this);
-
+        SharedPreferences prefs = getSharedPreferences("WaitWellPrefs", MODE_PRIVATE);
+        userId = prefs.getString("userId", DeviceUtils.getDeviceId(this));
         // setup top bar back button
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish()); // go back when pressed
@@ -100,15 +102,18 @@ public class Profile extends AppCompatActivity {
         // get the document for the current user id
         FirebaseFirestore.getInstance()
                 .collection("users")
-                .document(userId)
+                .whereEqualTo("deviceId", DeviceUtils.getDeviceId(this))
+                .whereEqualTo("role", "entrant")
+                .limit(1)
                 .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        // get the values or set empty string if null
+                .addOnSuccessListener(snapshot -> {
+
+                    if (!snapshot.isEmpty()) {
+                        DocumentSnapshot doc = snapshot.getDocuments().get(0);
+
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
-                        //joindate addition for profile
                         Date joinDate_date = doc.getDate("createdAt");
 
                         // populate editable fields
@@ -120,10 +125,17 @@ public class Profile extends AppCompatActivity {
                         currentName.setText("Current Name: " + (name != null ? name : "Not set"));
                         currentEmail.setText("Current Email: " + (email != null ? email : "Not set"));
                         currentPhone.setText("Current Phone: " + (phone != null ? phone : "Not set"));
-                        joinDate.setText("No join date found" + (joinDate_date != null ? joinDate_date : "Not set"));
+
+                        if (joinDate_date != null) {
+                            joinDate.setText("Joined: " + joinDate_date.toString());
+                        } else {
+                            joinDate.setText("No join date found");
+                        }
+
+                        // IMPORTANT: update userId so saveProfile works correctly
+                        userId = doc.getId();
 
                     } else {
-                        // if document not found, show 'not found'
                         currentName.setText("Current Name: Not found");
                         currentEmail.setText("Current Email: Not found");
                         currentPhone.setText("Current Phone: Not found");
@@ -131,7 +143,8 @@ public class Profile extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
+                );
     }
 
     /**
