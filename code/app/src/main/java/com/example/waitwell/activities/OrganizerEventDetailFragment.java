@@ -195,11 +195,24 @@ public class OrganizerEventDetailFragment extends Fragment {
                 if (getActivity() instanceof OrganizerEntryActivity) {
                     OrganizerEntryActivity activity = (OrganizerEntryActivity) getActivity();
                     FragmentManager fm = activity.getSupportFragmentManager();
-                    while (fm.getBackStackEntryCount() > 0) {
-                        fm.popBackStackImmediate();
+
+                    // check if the top fragment is already homefragment
+                    Fragment current = fm.findFragmentById(R.id.organizer_fragment_container);
+                    if (!(current instanceof OrganizerHomeFragment)) {
+                        // clear back stack
+                        fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                        // replace with home fragment
+                        activity.replaceWithOrganizerFragment(new OrganizerHomeFragment());
                     }
-                    activity.replaceWithOrganizerFragment(new OrganizerHomeFragment());
+
+                } else {
+                    // not in entryactivity then start fresh
+                    Intent intent = new Intent(getContext(), OrganizerEntryActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
                 }
+
                 return true;
             }
             return false;

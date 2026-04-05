@@ -18,6 +18,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+/**
+ * OrganizerCommentsActivity allows an organizer to view, post, and delete
+ * comments for a specific event. Comments are stored in Firestore with
+ * the organizer's userId and role. Each comment is displayed in a box
+ * with a delete button for easy moderation.
+ *
+ * author: Sarang Kim
+ */
 public class OrganizerCommentsActivity extends OrganizerBaseActivity {
 
     private String eventId;
@@ -63,6 +71,11 @@ public class OrganizerCommentsActivity extends OrganizerBaseActivity {
         loadComments();
     }
 
+    /**
+     * Loads comments for the current event from Firestore, orders
+     * them by timestamp descending, and dynamically creates a view
+     * for each comment. Organizer comments are labeled as such.
+     */
     private void loadComments() {
         commentsContainer.removeAllViews();
 
@@ -125,6 +138,12 @@ public class OrganizerCommentsActivity extends OrganizerBaseActivity {
                 });
     }
 
+    /**
+     * Deletes a comment with the given ID from Firestore and refreshes
+     * the comment list.
+     *
+     * @param commentId the Firestore document ID of the comment to delete
+     */
     private void deleteComment(String commentId) {
         FirebaseFirestore.getInstance()
                 .collection("events")

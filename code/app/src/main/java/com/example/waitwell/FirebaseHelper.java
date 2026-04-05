@@ -489,6 +489,14 @@ public class FirebaseHelper {
                 });
     }
 
+    /**
+     * Deletes a user and all related waitlist entries.
+     * Removes userId from event waitlists and deletes user documents.
+     * Queries run in parallel and are committed in a single batch.
+     *
+     * @param userId The ID of the user to delete.
+     * @return A Task representing the async delete operation
+     */
     public Task<Void> deleteUser(String userId) {
         // Run both queries in parallel, then commit one batch that:
         // deletes every waitlist_entry for this user
