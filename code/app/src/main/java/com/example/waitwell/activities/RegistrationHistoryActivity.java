@@ -102,8 +102,8 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        for (int i = 0; i < filteredEntries.size(); i++) {
-            DocumentSnapshot doc = filteredEntries.get(i);
+        int displayIndex = 0;
+        for (DocumentSnapshot doc : filteredEntries) {
             String title = doc.getString("eventTitle");
             String status = doc.getString("status");
 
@@ -116,9 +116,14 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
                 continue;
             }
 
+            // Entry doc ID is "userId_eventId" — strip the userId prefix to get the event ID.
+            String docId = doc.getId();
+            String eventId = docId.contains("_") ? docId.substring(docId.indexOf('_') + 1) : null;
+
+            displayIndex++;
             View row = inflater.inflate(R.layout.item_waitlist_entry, historyContainer, false);
 
-            ((TextView) row.findViewById(R.id.txtNumber)).setText((i + 1) + ".");
+            ((TextView) row.findViewById(R.id.txtNumber)).setText(displayIndex + ".");
             ((TextView) row.findViewById(R.id.txtEntryTitle)).setText(title != null ? title : "Unknown Event");
 
             TextView badge = row.findViewById(R.id.txtEntryStatus);
@@ -129,6 +134,15 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
             } else {
                 badge.setBackgroundResource(R.drawable.bg_status_closed);
                 badge.setTextColor(getColor(R.color.status_closed_text));
+            }
+
+            if (eventId != null) {
+                String finalEventId = eventId;
+                row.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, EventDetailActivity.class);
+                    intent.putExtra("event_id", finalEventId);
+                    startActivity(intent);
+                });
             }
 
             historyContainer.addView(row);

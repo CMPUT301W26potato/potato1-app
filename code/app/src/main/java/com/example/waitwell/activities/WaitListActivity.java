@@ -72,6 +72,8 @@ public class WaitListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadEntries();
+        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
+        if (nav != null) nav.setSelectedItemId(R.id.nav_waitlist);
     }
 
     private void loadEntries() {
@@ -268,7 +270,7 @@ public class WaitListActivity extends AppCompatActivity {
             if (id == R.id.nav_profile) {
                 startActivity(new Intent(this, Profile.class));
             } else if (id == R.id.nav_delete_profile) {
-                // handled in MainActivity; no-op here
+                showDeleteProfileDialog();
             } else if (id == R.id.nav_notification_options) {
                 startActivity(new Intent(this, EntrantNotificationOptions.class));
             } else if (id == R.id.nav_lottery_selection_criteria) {
@@ -303,5 +305,30 @@ public class WaitListActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    private void showDeleteProfileDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Are you sure you want to delete your profile? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteUserProfile())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteUserProfile() {
+        String userId = DeviceUtils.getDeviceId(this);
+        FirebaseHelper.getInstance().deleteUser(userId)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+                    getSharedPreferences("waitwell_prefs", MODE_PRIVATE).edit().clear().apply();
+                    getSharedPreferences("WaitWellPrefs", MODE_PRIVATE).edit().clear().apply();
+                    Intent intent = new Intent(this, RegisterActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 }

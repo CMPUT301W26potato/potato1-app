@@ -53,24 +53,22 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkDeviceRegistered() {
-        Log.d("SplashActivity", "deviceId=" + DeviceUtils.getDeviceId(this));
         String deviceId = DeviceUtils.getDeviceId(this);
-        Log.d("SplashActivity", "deviceId=" + DeviceUtils.getDeviceId(this));
+        Log.d(TAG, "deviceId=" + deviceId);
         FirebaseFirestore.getInstance()
                 .collection("users")
-                .document(deviceId)
+                .whereEqualTo("deviceId", deviceId)
+                .limit(1)
                 .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        // Role-based routing: organizer gets isolated Organizer flow
-                        String role = doc.getString("role");
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.isEmpty()) {
+                        String role = snapshot.getDocuments().get(0).getString("role");
                         if ("organizer".equalsIgnoreCase(role)) {
                             destination = OrganizerEntryActivity.class;
-
                         } else if ("admin".equalsIgnoreCase(role)) {
                             destination = AdminMainMenuActivity.class;
                         } else {
-                            destination = MainActivity.class; // entrant, admin, or unknown
+                            destination = MainActivity.class;
                         }
                     } else {
                         destination = RegisterActivity.class;
@@ -80,7 +78,7 @@ public class SplashActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Firestore check failed", e);
-                    destination = RegisterActivity.class; // fallback
+                    destination = RegisterActivity.class;
                     checkDone = true;
                     navigateIfReady();
                 });
