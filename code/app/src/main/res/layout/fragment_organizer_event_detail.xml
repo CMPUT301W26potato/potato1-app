@@ -62,7 +62,7 @@
                 android:text="@string/organizer_back"
                 android:textColor="@color/primary"
                 android:textAllCaps="false"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -105,7 +105,7 @@
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:fontFamily="@font/poppinsmedium"
+                        android:fontFamily="@font/inter24ptmedium"
                         android:maxLines="2"
                         android:ellipsize="end" />
 
@@ -227,7 +227,7 @@
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:fontFamily="@font/poppinsmedium" />
+                        android:fontFamily="@font/inter24ptmedium" />
                 </LinearLayout>
             </LinearLayout>
         </FrameLayout>
@@ -253,7 +253,7 @@
                     android:text="@string/organizer_delete_event"
                     android:textAllCaps="false"
                     android:textColor="@color/text_white"
-                    android:fontFamily="@font/poppinsmedium" />
+                    android:fontFamily="@font/inter24ptmedium" />
 
                 <View
                     android:layout_width="12dp"
@@ -268,7 +268,7 @@
                     android:text="@string/organizer_edit_event"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppinsmedium" />
+                    android:fontFamily="@font/inter24ptmedium" />
             </LinearLayout>
 
             <LinearLayout
@@ -287,7 +287,7 @@
                     android:text="@string/organizer_share"
                     android:textAllCaps="false"
                     android:textColor="@color/text_white"
-                    android:fontFamily="@font/poppinsmedium" />
+                    android:fontFamily="@font/inter24ptmedium" />
 
                 <View
                     android:id="@+id/spaceBetweenButtons"
@@ -303,7 +303,7 @@
                     android:text="@string/organizer_view_requests"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppinsmedium" />
+                    android:fontFamily="@font/inter24ptmedium" />
             </LinearLayout>
 
             <Button
@@ -315,7 +315,7 @@
                 android:text="@string/organizer_view_final_entrants"
                 android:textAllCaps="false"
                 android:textColor="@color/text_white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <Button
                 android:id="@+id/btnViewCanceledEntrants"
@@ -326,7 +326,7 @@
                 android:text="@string/organizer_view_canceled_entrants"
                 android:textAllCaps="false"
                 android:textColor="@color/text_white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <Button
                 android:id="@+id/btnViewInvitedEntrants"
@@ -337,7 +337,7 @@
                 android:text="@string/organizer_view_invited_entrants"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <Button
                 android:id="@+id/btnInviteEntrants"
@@ -349,7 +349,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/text_white"
                 android:visibility="gone"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <Button
                 android:id="@+id/btnViewSampledEntrants"
@@ -360,7 +360,7 @@
                 android:text="@string/organizer_view_sampled_entrants"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 <!--Rehaan's addition for 02.05.02-->
             <!-- draw a replacement when someone cancels/rejects -->
             <Button
@@ -372,7 +372,7 @@
                 android:text="@string/organizer_draw_replacement"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <Button
                 android:id="@+id/btnViewComments"
@@ -382,7 +382,7 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_button_white_outlined"
                 android:textAllCaps="false"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
 
             <!-- REHAAN'S ADDITION — US 02.09.01 -->
             <Button
@@ -394,7 +394,7 @@
                 android:text="@string/organizer_assign_co_organizer"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:fontFamily="@font/inter24ptmedium" />
             <!-- END REHAAN'S ADDITION -->
 
             <View
