@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- REHAAN'S ADDITION — US 02.09.01 Part 2 — row for co-organised events in WaitListActivity -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <!-- Visual dot matching item_waitlist_entry.xml -->
+    <View
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:background="@drawable/ic_event_item" />
+
+    <!-- Card body -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/bg_waitlist_card"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtCoOrganizerEventTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppinsbold"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnManageCoOrganizerEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_button_primary_filled"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="@string/co_organizer_manage_button"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>

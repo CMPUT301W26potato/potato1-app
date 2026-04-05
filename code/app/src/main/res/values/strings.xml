@@ -176,6 +176,7 @@
     <string name="notification_entrant_not_selected">Unfortunately, you were not selected for %1$s.</string>
     <string name="notification_list_expired_label">Expired</string>
     <string name="notification_category_invitation">You Have Been Selected</string>
+    <string name="notification_category_co_organizer">Co-Organizer Invitation</string>
     <string name="notification_category_reminder">Response Needed</string>
     <string name="notification_category_confirmed">You Are Confirmed</string>
     <string name="notification_category_rejected">Not Selected</string>
@@ -301,8 +302,17 @@
     <string name="co_organizer_assign_title">Assign Co-Organizer</string>
     <string name="co_organizer_assign_button_desc">Assign as co-organizer</string>
     <string name="co_organizer_assigned_toast">%1$s assigned as co-organizer</string>
+    <string name="co_organizer_invited_toast">%1$s has been invited as co-organizer</string>
     <string name="co_organizer_notification_message">You have been invited to be a co-organizer for %1$s.</string>
     <string name="organizer_assign_co_organizer">Assign Co-Organizer</string>
+    <!-- REHAAN'S ADDITION — Co-Organizer Invite Response + Manage button -->
+    <string name="co_organizer_invite_response_title">Co-Organizer Invitation</string>
+    <string name="co_organizer_invite_accept">Accept Co-Organizer Role</string>
+    <string name="co_organizer_invite_decline">Decline Invitation</string>
+    <string name="co_organizer_invite_accept_success">You are now a co-organizer for this event!</string>
+    <string name="co_organizer_invite_decline_success">Invitation declined.</string>
+    <string name="co_organizer_event_section_header">Events I Co-Organize</string>
+    <string name="co_organizer_manage_button">Manage</string>
     <!-- END REHAAN'S ADDITION -->
 </resources>
 

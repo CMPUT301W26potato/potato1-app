@@ -3,7 +3,10 @@ package com.example.waitwell;
 public class NotificationModel {
     public enum NotificationType {
         CHOSEN,
-        NOT_CHOSEN
+        NOT_CHOSEN,
+        // REHAAN'S ADDITION — Co-organizer invite (US 02.09.01 Part 2)
+        CO_ORGANIZER
+        // END REHAAN'S ADDITION
     }
     //fixed set of named constants, public accessibility
 

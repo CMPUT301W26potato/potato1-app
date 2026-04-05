@@ -51,6 +51,10 @@ public class WaitListActivity extends AppCompatActivity {
 
     private List<DocumentSnapshot> entryDocs = new ArrayList<>();
 
+    // REHAAN'S ADDITION — US 02.09.01 Part 2 — co-organizer events the entrant accepted
+    private List<DocumentSnapshot> coOrganizerEventDocs = new ArrayList<>();
+    // END REHAAN'S ADDITION
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +96,14 @@ public class WaitListActivity extends AppCompatActivity {
     private void renderEntries() {
         entriesContainer.removeAllViews();
         if (entryDocs.isEmpty()) {
+            // Don't show emptyState yet — co-organizer events may still populate the list.
+            // loadCoOrganizerEvents() will decide final empty state.
             scrollEntries.setVisibility(View.GONE);
             emptyState.setVisibility(View.VISIBLE);
             btnQuit.setVisibility(View.GONE);
+            // REHAAN'S ADDITION — always check for co-organizer events too
+            loadCoOrganizerEvents();
+            // END REHAAN'S ADDITION
             return;
         }
 
@@ -162,6 +171,9 @@ public class WaitListActivity extends AppCompatActivity {
             });
             entriesContainer.addView(row);
         }
+        // REHAAN'S ADDITION — append co-organizer events after waitlist entries
+        loadCoOrganizerEvents();
+        // END REHAAN'S ADDITION
     }
 
     /**
@@ -202,6 +214,75 @@ public class WaitListActivity extends AppCompatActivity {
             badge.setTextColor(getColor(R.color.status_waiting_text));
         }
     }
+
+    // REHAAN'S ADDITION — US 02.09.01 Part 2 — co-organizer events section
+
+    /**
+     * Queries events where the current device's userId is in coOrganizerIds
+     * (i.e. they accepted a co-organizer invite) and renders them below the
+     * waitlist entries with a Manage button.
+     */
+    private void loadCoOrganizerEvents() {
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("events")
+                .whereArrayContains("coOrganizerIds", deviceId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    coOrganizerEventDocs = snapshot.getDocuments();
+                    renderCoOrganizerEvents();
+                })
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "Failed to load co-organizer events", e));
+    }
+
+    /**
+     * Appends a "Events I Co-Organize" section to entriesContainer.
+     * If co-organizer events exist, the ScrollView is forced visible even if
+     * the entrant has no waitlist entries.
+     */
+    private void renderCoOrganizerEvents() {
+        if (coOrganizerEventDocs.isEmpty()) {
+            // If also no waitlist entries, emptyState is already visible — nothing to do.
+            return;
+        }
+
+        // Co-organizer events exist: make sure the scroll container is shown.
+        scrollEntries.setVisibility(View.VISIBLE);
+        emptyState.setVisibility(View.GONE);
+
+        // Section header
+        TextView header = new TextView(this);
+        header.setText(getString(R.string.co_organizer_event_section_header));
+        header.setTextColor(getColor(R.color.text_secondary));
+        header.setTextSize(13f);
+        android.view.ViewGroup.MarginLayoutParams lp =
+                new android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((android.widget.LinearLayout.LayoutParams) lp).setMargins(0, 16, 0, 8);
+        header.setLayoutParams(lp);
+        entriesContainer.addView(header);
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (DocumentSnapshot doc : coOrganizerEventDocs) {
+            String title   = doc.getString("title");
+            String eventId = doc.getId();
+            if (title == null) title = getString(R.string.waitlist_unknown_event);
+
+            View row = inflater.inflate(R.layout.item_co_organizer_event_row, entriesContainer, false);
+            ((TextView) row.findViewById(R.id.txtCoOrganizerEventTitle)).setText(title);
+
+            final String eid        = eventId;
+            row.findViewById(R.id.btnManageCoOrganizerEvent).setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerEntryActivity.class);
+                intent.putExtra(OrganizerEntryActivity.EXTRA_OPEN_EVENT_ID, eid);
+                startActivity(intent);
+            });
+
+            entriesContainer.addView(row);
+        }
+    }
+    // END REHAAN'S ADDITION
 
     //Quit waitlist (US 01.01.02)
     /**
