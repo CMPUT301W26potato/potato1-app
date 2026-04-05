@@ -1,7 +1,11 @@
 package com.example.waitwell.activities;
 
 import android.os.Bundle;
+import android.widget.ImageView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
 import com.example.waitwell.R;
 
 /**
@@ -29,6 +33,16 @@ public class AdminEventRemovedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Load the confirmation layout for deleted events
         setContentView(R.layout.activity_admin_event_deleted);
+        String imageUrl = getIntent().getStringExtra("image_url");
+
+        ImageView img = findViewById(R.id.imgEvent);
+
+        Glide.with(this)
+                .load(imageUrl)
+                .onlyRetrieveFromCache(true)
+                .into(img);
+
+
         // Back button simply closes this activity and returns to the previous admin page
         findViewById(R.id.backBtn).setOnClickListener(v -> {
             finish();
