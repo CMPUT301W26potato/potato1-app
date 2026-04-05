@@ -21,6 +21,9 @@ public class User {
     // The user's phone number
     public String phone;
 
+    // The user's profile image URL (Firebase Storage)
+    public String profileImageUrl;
+
     /**
      * Default constructor required for Firebase.
      *
