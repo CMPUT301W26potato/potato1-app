@@ -276,6 +276,21 @@
     <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
     <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
 
+    <!-- REHAAN'S ADDITION — US 01.05.05 -->
+    <string name="lottery_criteria_title">How the Lottery Works</string>
+    <string name="lottery_criteria_step1_heading">1. Join the Waiting List</string>
+    <string name="lottery_criteria_step1_body">Express your interest by joining the waiting list for any open event. There is no first-come advantage — everyone on the waiting list has an equal chance of being selected.</string>
+    <string name="lottery_criteria_step2_heading">2. Random Selection</string>
+    <string name="lottery_criteria_step2_body">Once registration closes, the organizer runs the lottery. The system randomly selects a set number of entrants from the waiting list. Every entrant has an equal probability of being chosen — no weighting, no priority.</string>
+    <string name="lottery_criteria_step3_heading">3. You Get Notified</string>
+    <string name="lottery_criteria_step3_body">After the draw, all entrants are notified. Selected entrants receive an invitation to confirm their spot. Entrants who were not selected are notified and may still get a chance if a selected entrant declines.</string>
+    <string name="lottery_criteria_step4_heading">4. Accept or Decline</string>
+    <string name="lottery_criteria_step4_body">If selected, you can accept or decline the invitation. Accepting confirms your spot. Declining opens your spot for a replacement draw from the remaining waiting list.</string>
+    <string name="lottery_criteria_step5_heading">5. Replacement Draws</string>
+    <string name="lottery_criteria_step5_body">If a selected entrant declines, the organizer can draw one replacement at a time from the remaining waiting list. Replacement draws are also random and fair.</string>
+    <string name="lottery_criteria_menu_desc">Menu</string>
+    <!-- END REHAAN'S ADDITION -->
+
     <!-- REHAAN'S ADDITION — US 02.02.02 -->
     <string name="waitlist_map_title">Waitlist Map</string>
     <string name="waitlist_map_content_desc">Map showing where entrants joined the waitlist</string>

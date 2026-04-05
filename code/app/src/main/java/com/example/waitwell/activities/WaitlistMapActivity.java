@@ -62,9 +62,11 @@ public class WaitlistMapActivity extends AppCompatActivity implements OnMapReady
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
+        // REHAAN'S ADDITION — US 02.02.02
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        // END REHAAN'S ADDITION
         loadEntrantLocations();
     }
-
     private void loadEntrantLocations() {
         FirebaseHelper.getInstance().getEntriesWithLocationByEvent(eventId)
                 .addOnSuccessListener(snapshot -> {
