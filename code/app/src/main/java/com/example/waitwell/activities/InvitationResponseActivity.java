@@ -48,6 +48,8 @@ public class InvitationResponseActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_PRICE = "eventPrice";
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_NOTIFICATION_ID = "notificationId";
+    /** Pass "confirmed" or "cancelled" to show read-only mode (already responded). */
+    public static final String EXTRA_ALREADY_RESPONDED = "alreadyResponded";
 
     private String eventId;
     private String notificationId;
@@ -58,6 +60,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
     private TextView messageText;
     private TextView txtRegistrationClosed;
     private boolean cardDataPrefilledFromIntent;
+    private boolean isReadOnly;
 
     /**
      * Fills intent extras for location, registration / event date range, and formatted price from a loaded event.
@@ -135,7 +138,10 @@ public class InvitationResponseActivity extends AppCompatActivity {
             txtEventPrice.setText(in.getStringExtra(EXTRA_EVENT_PRICE));
         }
 
-        applyInvitationMessage(message, eventName);
+        isReadOnly = !TextUtils.isEmpty(in.getStringExtra(EXTRA_ALREADY_RESPONDED));
+        if (!isReadOnly) {
+            applyInvitationMessage(message, eventName);
+        }
 
         ImageButton btnHamburger = findViewById(R.id.btnHamburger);
         btnHamburger.setOnClickListener(v -> finish());
@@ -151,12 +157,26 @@ public class InvitationResponseActivity extends AppCompatActivity {
         }
 
         Button acceptButton = findViewById(R.id.accept);
-        acceptButton.setOnClickListener(v -> handleAcceptEvent());
-
         Button declineButton = findViewById(R.id.decline);
-        declineButton.setOnClickListener(v -> handleDeclineEvent());
-
         Button backButton = findViewById(R.id.back_button);
+
+        String alreadyResponded = in.getStringExtra(EXTRA_ALREADY_RESPONDED);
+        if (alreadyResponded != null) {
+            // Read-only mode: show what the entrant did, no action buttons
+            acceptButton.setVisibility(View.GONE);
+            declineButton.setVisibility(View.GONE);
+            txtRegistrationClosed.setVisibility(View.GONE);
+            if ("confirmed".equals(alreadyResponded)) {
+                messageText.setText(R.string.toast_invitation_already_accepted);
+            } else {
+                messageText.setText(R.string.toast_invitation_already_declined);
+            }
+            messageText.setVisibility(View.VISIBLE);
+        } else {
+            acceptButton.setOnClickListener(v -> handleAcceptEvent());
+            declineButton.setOnClickListener(v -> handleDeclineEvent());
+        }
+
         backButton.setOnClickListener(v ->
                 startActivity(new Intent(this, EntrantNotificationScreen.class)));
     }
@@ -194,7 +214,8 @@ public class InvitationResponseActivity extends AppCompatActivity {
                         String titleForMessage = txtEventTitle.getText() != null
                                 ? txtEventTitle.getText().toString()
                                 : "";
-                        if (TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
+                        if (!isReadOnly
+                                && TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
                                 && !TextUtils.isEmpty(titleForMessage)) {
                             messageText.setText(getString(R.string.waitlist_chosen_notification_message, titleForMessage));
                         }

@@ -161,19 +161,6 @@
                 android:src="@drawable/ic_back_arrow"
                 app:tint="@color/text_white" />
 
-            <ImageButton
-                android:id="@+id/btnBookmark"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/bg_event_detail_floating_pill"
-                android:contentDescription="@string/event_detail_bookmark"
-                android:padding="10dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_bookmark_outline"
-                app:tint="@color/text_white" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 

@@ -136,7 +136,7 @@
                         android:textSize="13sp"
                         app:backgroundTint="@null" />
                 </LinearLayout>
-                <!-- "Title >" section header -->
+                <!-- "Recent Events >" section header -->
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -147,7 +147,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Title"
+                        android:text="Recent Events"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"

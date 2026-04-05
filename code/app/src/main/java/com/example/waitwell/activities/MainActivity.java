@@ -186,7 +186,15 @@ public class MainActivity extends AppCompatActivity {
      * focuses on "My Events" instead.
      */
     private void onEventsLoaded(QuerySnapshot snapshot) {
-        allEventDocs = snapshot.getDocuments();
+        allEventDocs = new ArrayList<>(snapshot.getDocuments());
+        allEventDocs.sort((a, b) -> {
+            Date da = a.getDate("createdAt");
+            Date db = b.getDate("createdAt");
+            if (da == null && db == null) return 0;
+            if (da == null) return 1;
+            if (db == null) return -1;
+            return db.compareTo(da);
+        });
 
         eventCardsContainer.removeAllViews();
 

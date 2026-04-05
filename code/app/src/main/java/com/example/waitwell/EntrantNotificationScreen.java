@@ -90,7 +90,6 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         FirebaseFirestore.getInstance()
                 .collection("notifications")
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("responded", false)  // Only show unresponded notifications
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
@@ -204,7 +203,6 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         notificationListener = FirebaseFirestore.getInstance()
                 .collection("notifications")
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("responded", false)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.w(TAG, "Listen failed.", e);
