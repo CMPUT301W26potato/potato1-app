@@ -5,10 +5,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.waitwell.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -86,6 +88,16 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
 // ID
         ((TextView) holder.itemView.findViewById(R.id.txtID))
                 .setText("ID: " + userId);
+
+// Profile image
+        String profileImageUrl = doc.getString("profileImageUrl");
+        ImageView profileImage = holder.itemView.findViewById(R.id.profileImage);
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            Glide.with(context).load(profileImageUrl).circleCrop().into(profileImage);
+        } else {
+            profileImage.setImageResource(R.drawable.waitwell_logo);
+        }
+
         String id = doc.getId();
 
 
