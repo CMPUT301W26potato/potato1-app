@@ -281,8 +281,10 @@ public class EventDetailActivity extends AppCompatActivity {
             return;
         }
         if (!isOpen) {
-            joinButtonContainer.setVisibility(View.GONE);
+            joinButtonContainer.setVisibility(View.VISIBLE);
+            btnJoin.setVisibility(View.VISIBLE);
             return;
+
         }
         if (alreadyOnWaitlistArray || alreadyInAttendingList) {
             joinButtonContainer.setVisibility(View.GONE);
