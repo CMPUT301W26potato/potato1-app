@@ -126,7 +126,10 @@ public class OrganizerEventDetailFragment extends Fragment {
         btnInviteEntrants = view.findViewById(R.id.btnInviteEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
         Button btnViewComments = view.findViewById(R.id.btnViewComments);
-        //View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> navigateBackFromManage());
+        }
         BottomNavigationView nav = view.findViewById(R.id.organizerBottomNavigation);
 
         View btnHamburger = view.findViewById(R.id.btnHamburger);

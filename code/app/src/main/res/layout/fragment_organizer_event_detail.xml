@@ -54,6 +54,16 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <Button
+                android:id="@+id/btnOrganizerBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:text="@string/organizer_back"
+                android:textColor="@color/primary"
+                android:textAllCaps="false"
+                android:fontFamily="@font/poppinsmedium" />
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
