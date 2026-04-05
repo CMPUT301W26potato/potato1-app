@@ -518,6 +518,8 @@ public class AllEventsActivity extends AppCompatActivity {
 
             View root = row.findViewById(R.id.rowRoot);
             root.setBackgroundResource(isOpen ? R.drawable.bg_event_row : R.drawable.bg_event_row_closed);
+            row.setAlpha(isOpen ? 1.0f : 0.5f);
+
             row.setOnClickListener(v -> {
                 Intent i = new Intent(this, EventDetailActivity.class);
                 i.putExtra("event_id", eventId);

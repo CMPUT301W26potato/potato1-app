@@ -432,21 +432,8 @@
             app:drawableEndCompat="@drawable/ic_send_small"
             app:drawableTint="@color/text_white"
             android:drawablePadding="10dp" />
-    </FrameLayout>
-    <FrameLayout
-        android:id="@+id/closedButtonContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/bg_light"
-        android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="12dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/txtEventClosed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -458,7 +445,9 @@
             android:padding="12dp"
             android:visibility="gone"
             />
+
     </FrameLayout>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
