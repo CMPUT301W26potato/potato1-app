@@ -206,4 +206,23 @@ public class OrganizerEntryActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
+
+    public void goToHomeFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE); // clear back stack
+        fm.beginTransaction()
+                .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())
+                .commit();
+    }
+
+    /** Go back one fragment in the back stack, or go home if nothing left */
+    public void goBack() {
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+        } else {
+            goToHomeFragment();
+        }
+    }
+
 }

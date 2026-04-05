@@ -1,9 +1,12 @@
 package com.example.waitwell.activities;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,10 +26,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.EventStatusUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -159,14 +165,28 @@ public class OrganizerCreateEventFragment extends Fragment {
         txtCategories = view.findViewById(R.id.txtCategories);
         txtCategories.setOnClickListener(v -> showCategoryPicker());
 
-
-        // Top bar back button.
-        view.findViewById(R.id.btnTopBarBack).setOnClickListener(v -> {
-            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                getParentFragmentManager().popBackStack();
-            } else if (getActivity() != null) {
-                getActivity().onBackPressed();
+        BottomNavigationView nav = getView().findViewById(R.id.organizerBottomNavigation);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_organizer_bottom_back) {
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
             }
+            if (id == R.id.nav_organizer_bottom_home) {
+                if (getActivity() instanceof OrganizerEntryActivity) {
+                    OrganizerEntryActivity activity = (OrganizerEntryActivity) getActivity();
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    while (fm.getBackStackEntryCount() > 0) {
+                        fm.popBackStackImmediate();
+                    }
+                    activity.replaceWithOrganizerFragment(new OrganizerHomeFragment());
+                }
+                return true;
+            }
+            return false;
         });
 
         // When the organizer taps this, we launch the system picker for an image banner.

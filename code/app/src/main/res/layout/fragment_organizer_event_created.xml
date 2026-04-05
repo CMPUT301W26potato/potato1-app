@@ -83,37 +83,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:background="@drawable/bg_button_green"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_check_white" />
+                android:background="@color/bg_light"
+                android:gravity="center"
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/txtEventCreatedBanner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppinsmedium"
                     android:text="@string/organizer_event_created_title"
-                    android:textColor="@color/text_white"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppinsmedium" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <Button
                 android:id="@+id/btnShare"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="49dp"
                 android:layout_marginTop="24dp"
-                android:background="@drawable/bg_button_dark_rounded"
+                android:background="@drawable/bg_button_white_outlined"
+                android:fontFamily="@font/poppinsmedium"
                 android:text="@string/organizer_share"
                 android:textAllCaps="false"
-                android:textColor="@color/text_white"
-                android:fontFamily="@font/poppinsmedium" />
+                android:textColor="@color/text_white" />
 
             <Button
                 android:id="@+id/btnViewMyEvents"
@@ -121,10 +116,10 @@
                 android:layout_height="52dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_button_white_outlined"
+                android:fontFamily="@font/poppinsmedium"
                 android:text="@string/organizer_view_my_events"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:fontFamily="@font/poppins" />
+                android:textColor="@color/white" />
 
             <View
                 android:layout_width="match_parent"

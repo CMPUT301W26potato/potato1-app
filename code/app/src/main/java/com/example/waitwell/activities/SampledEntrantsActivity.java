@@ -1,5 +1,6 @@
 package com.example.waitwell.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -73,12 +74,14 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
         BottomNavigationView nav = findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_organizer_bottom_back) {
-                finish();
+            if (id == R.id.nav_organizer_bottom_home) {
+                Intent intent = new Intent(this, OrganizerEntryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
             }
-            if (id == R.id.nav_organizer_bottom_home) {
-                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
+
+            if (id == R.id.nav_organizer_bottom_back) {
                 finish();
                 return true;
             }

@@ -71,8 +71,9 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
                 return true;
             }
             if (id == R.id.nav_organizer_bottom_home) {
-                startActivity(OrganizerEntryActivity.intentNavigateToMyEvents(this));
-                finish();
+                Intent intent = new Intent(this, OrganizerEntryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
             }
             return false;
