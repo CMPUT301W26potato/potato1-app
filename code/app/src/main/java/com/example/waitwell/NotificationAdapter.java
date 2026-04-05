@@ -154,6 +154,26 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     private void onNotificationActionClick(ViewHolder holder, NotificationModel n) {
+        // REHAAN'S ADDITION — CO_ORGANIZER routing (US 02.09.01 Part 2)
+        if (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER) {
+            Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
+            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
+            if (parentActivity != null) {
+                int pos = holder.getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    String notifId = parentActivity.getNotificationId(pos);
+                    if (notifId != null) {
+                        intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_NOTIFICATION_ID, notifId);
+                    }
+                }
+            }
+            context.startActivity(intent);
+            return;
+        }
+        // END REHAAN'S ADDITION
+
         if (n.isExpired() && n.getType() == NotificationModel.NotificationType.CHOSEN) {
             Toast.makeText(context, R.string.toast_notification_invitation_expired, Toast.LENGTH_SHORT).show();
             return;
@@ -254,6 +274,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         ContextCompat.getColor(context, R.color.status_closed_text),
                         R.drawable.ic_minus_white,
                         R.string.notification_category_cancelled);
+            // REHAAN'S ADDITION — US 02.09.01 Part 2
+            case CO_ORGANIZER:
+                return new CategoryStyle(
+                        ContextCompat.getColor(context, R.color.primary),
+                        R.drawable.ic_notifications_selected,
+                        R.string.notification_category_co_organizer);
+            // END REHAAN'S ADDITION
             case GENERAL:
             default:
                 return new CategoryStyle(

@@ -178,25 +178,25 @@ public class AssignCoOrganizerActivity extends OrganizerBaseActivity {
                             excludedUserIds.add(userId);
                         }
                     }
-                    // also exclude anyone already a co-organizer on this event
+                    // also exclude anyone already a co-organizer or pending invite on this event
+                    // REHAAN'S ADDITION — also exclude pendingCoOrganizerIds
                     db.collection("events").document(eventId).get()
                             .addOnSuccessListener(eventDoc -> {
                                 if (eventDoc != null && eventDoc.exists()) {
-                                    Object raw = eventDoc.get("coOrganizerIds");
-                                    List<String> existing = new ArrayList<>();
-                                    if (raw instanceof List) {
-                                        for (Object o : (List<?>) raw) {
-                                            if (o instanceof String) {
-                                                existing.add((String) o);
+                                    for (String field : new String[]{"coOrganizerIds", "pendingCoOrganizerIds"}) {
+                                        Object raw = eventDoc.get(field);
+                                        if (raw instanceof List) {
+                                            for (Object o : (List<?>) raw) {
+                                                if (o instanceof String) {
+                                                    excludedUserIds.add((String) o);
+                                                }
                                             }
                                         }
-                                    }
-                                    if (existing != null) {
-                                        excludedUserIds.addAll(existing);
                                     }
                                 }
                                 runSearch();
                             });
+                    // END REHAAN'S ADDITION
                 });
     }
 
@@ -265,11 +265,13 @@ public class AssignCoOrganizerActivity extends OrganizerBaseActivity {
         String entryDocId = item.userId + "_" + eventId;
 
         db.runTransaction(transaction -> {
-            // add to coOrganizerIds array on the event
+            // REHAAN'S ADDITION — write to pendingCoOrganizerIds first (US 02.09.01 Part 2)
+            // Entrant must accept via notification before moving to coOrganizerIds
             com.google.firebase.firestore.DocumentReference eventRef =
                     db.collection("events").document(eventId);
-            transaction.update(eventRef, "coOrganizerIds",
+            transaction.update(eventRef, "pendingCoOrganizerIds",
                     com.google.firebase.firestore.FieldValue.arrayUnion(item.userId));
+            // END REHAAN'S ADDITION
             // remove from waitlist array in case they were on it
             transaction.update(eventRef, "waitlistEntrantIds",
                     com.google.firebase.firestore.FieldValue.arrayRemove(item.userId));
@@ -281,18 +283,20 @@ public class AssignCoOrganizerActivity extends OrganizerBaseActivity {
         }).addOnSuccessListener(v -> {
             // US 01.09.01 — notify the entrant they have been invited as co-organizer
             String message = getString(R.string.co_organizer_notification_message, titleForMsg);
+            // REHAAN'S ADDITION — use CO_ORGANIZER type so notification routes to invite screen
             FirebaseHelper.getInstance().createNotification(
                     item.userId,
                     eventId,
                     titleForMsg,
                     message,
-                    "CHOSEN",
+                    "CO_ORGANIZER",
+            // END REHAAN'S ADDITION
                     task -> {
                         if (task.isSuccessful()) {
                             excludedUserIds.add(item.userId);
                             removeResult(item.userId);
                             Toast.makeText(this,
-                                    getString(R.string.co_organizer_assigned_toast, item.name),
+                                    getString(R.string.co_organizer_invited_toast, item.name),
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // assignment succeeded but notification failed — still show partial success

@@ -11,18 +11,17 @@ import androidx.annotation.NonNull;
  */
 public final class NotificationDisplayCategorizer {
 
-    private NotificationDisplayCategorizer() {
-    }
-
     public enum NotificationItemCategory {
         INVITATION,
         REMINDER,
         CONFIRMED,
         REJECTED,
         CANCELLED,
+        // REHAAN'S ADDITION — US 02.09.01 Part 2
+        CO_ORGANIZER,
+        // END REHAAN'S ADDITION
         GENERAL
     }
-
     /**
      * Categorizes using only data already present on the notification document
      * (exposed through {@link NotificationModel}: message body and coarse type).
@@ -35,6 +34,12 @@ public final class NotificationDisplayCategorizer {
         if (eventName == null) {
             eventName = "";
         }
+
+// REHAAN'S ADDITION — CO_ORGANIZER type (US 02.09.01 Part 2)
+        if (model.getType() == NotificationModel.NotificationType.CO_ORGANIZER) {
+            return NotificationItemCategory.CO_ORGANIZER;
+        }
+        // END REHAAN'S ADDITION
 
         if (model.getType() == NotificationModel.NotificationType.CHOSEN) {
             if (messageMatches(context, R.string.invited_notify_pending_message, eventName, message)) {

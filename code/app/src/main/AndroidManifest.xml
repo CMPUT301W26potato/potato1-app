@@ -196,6 +196,10 @@
         <activity
             android:name=".activities.AssignCoOrganizerActivity"
             android:exported="false" />
+        <!-- REHAAN'S ADDITION — US 02.09.01 Part 2 — co-organizer invite accept/decline -->
+        <activity
+            android:name=".activities.CoOrganizerInviteResponseActivity"
+            android:exported="false" />
         <!-- END REHAAN'S ADDITION -->
 
         <!-- REHAAN'S ADDITION — US 02.02.02 -->

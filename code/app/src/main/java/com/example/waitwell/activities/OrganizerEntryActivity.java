@@ -48,6 +48,10 @@ public class OrganizerEntryActivity extends AppCompatActivity {
      */
     public static final String EXTRA_NAVIGATE_TO_MY_EVENTS = "navigate_to_my_events";
 
+    // REHAAN'S ADDITION — US 02.09.01 Part 2 — open detail directly for a specific event (co-organizer Manage button)
+    public static final String EXTRA_OPEN_EVENT_ID = "open_event_id";
+    // END REHAAN'S ADDITION
+
     public static Intent intentNavigateToMyEvents(Context context) {
         Intent i = new Intent(context, OrganizerEntryActivity.class);
         i.putExtra(EXTRA_NAVIGATE_TO_MY_EVENTS, true);
@@ -99,9 +103,19 @@ public class OrganizerEntryActivity extends AppCompatActivity {
         // ---------------------------------------------------------
 
         boolean navigateMyEvents = getIntent().getBooleanExtra(EXTRA_NAVIGATE_TO_MY_EVENTS, false);
+        // REHAAN'S ADDITION — open detail fragment directly for co-organizer Manage button
+        String openEventId = getIntent().getStringExtra(EXTRA_OPEN_EVENT_ID);
+        // END REHAAN'S ADDITION
         if (navigateMyEvents) {
             navigateToMyEventsClearingBackStack();
             getIntent().removeExtra(EXTRA_NAVIGATE_TO_MY_EVENTS);
+        } else if (openEventId != null && savedInstanceState == null) {
+            // REHAAN'S ADDITION — go straight to the event detail fragment
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.organizer_fragment_container,
+                            OrganizerEventDetailFragment.newInstance(openEventId))
+                    .commit();
+            // END REHAAN'S ADDITION
         } else if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.organizer_fragment_container, new OrganizerHomeFragment())

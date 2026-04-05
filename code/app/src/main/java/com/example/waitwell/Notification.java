@@ -123,12 +123,20 @@ public class Notification implements Serializable {
      * Helper method to convert to NotificationModel for adapter
      */
     public NotificationModel toNotificationModel() {
-        NotificationModel.NotificationType notifType =
-            "CHOSEN".equals(type) ? NotificationModel.NotificationType.CHOSEN
-                                  : NotificationModel.NotificationType.NOT_CHOSEN;
-
-        String buttonLabel = "CHOSEN".equals(type) ? "View Invitation" : "View Details";
-
+        // REHAAN'S ADDITION — CO_ORGANIZER type mapping (US 02.09.01 Part 2)
+        NotificationModel.NotificationType notifType;
+        String buttonLabel;
+        if ("CO_ORGANIZER".equals(type)) {
+            notifType = NotificationModel.NotificationType.CO_ORGANIZER;
+            buttonLabel = "View Invite";
+        } else if ("CHOSEN".equals(type)) {
+            notifType = NotificationModel.NotificationType.CHOSEN;
+            buttonLabel = "View Invitation";
+        } else {
+            notifType = NotificationModel.NotificationType.NOT_CHOSEN;
+            buttonLabel = "View Details";
+        }
+        // END REHAAN'S ADDITION
         return new NotificationModel(eventId, eventName, message, buttonLabel, notifType);
     }
 }
