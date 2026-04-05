@@ -101,7 +101,8 @@
         android:layout_height="wrap_content"
         android:text="Current Name: "
         android:textStyle="bold"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins"/>
 
     <TextView
         android:id="@+id/currentEmail"
@@ -109,7 +110,8 @@
         android:layout_height="wrap_content"
         android:text="Current Email: "
         android:textStyle="bold"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins"/>
 
     <TextView
         android:id="@+id/currentPhone"
@@ -117,7 +119,8 @@
         android:layout_height="wrap_content"
         android:text="Current Phone: "
         android:textStyle="bold"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins"/>
 
     <TextView
         android:id="@+id/joinDate"
