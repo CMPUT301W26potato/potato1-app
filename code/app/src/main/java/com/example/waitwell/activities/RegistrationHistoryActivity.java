@@ -20,12 +20,32 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Shows a user's registration history for all events they've interacted with.
+ * <p>
+ * This activity fetches the waitlist entries for the current device from Firestore,
+ * filters out entries that aren't relevant (keeps only "selected", "confirmed", or "rejected"),
+ * and displays them in list. Each item shows the event title and a status badge.
+ * Clicking on an entry takes the user to the event's detail page.
+ * <p>
+ * The activity also includes bottom navigation so users can quickly switch between Home,
+ * Waitlist, and Notifications. There's also a back button for easy navigation.
+ *
+ * @author Sarang
+ */
+
 public class RegistrationHistoryActivity extends AppCompatActivity {
 
     private LinearLayout historyContainer;
     private TextView tvEmpty;
     private String deviceId;
 
+    /**
+     * Sets up the UI, initializes views, handles the back button and bottom navigation,
+     * retrieves the device ID, and loads the user's registration history.
+     *
+     * @param savedInstanceState Standard Android saved state bundle.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +64,10 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
 
         loadHistory();
     }
+    /**
+     * Configures the bottom navigation bar. Tapping an icon will navigate to
+     * home, waitlist, or notifications.
+     */
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setOnItemSelectedListener(item -> {
@@ -67,6 +91,11 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads all waitlist entries for this device from Firestore. Filters out
+     * irrelevant entries (keeps only "selected", "confirmed", or "rejected"),
+     * and passes them to {@link #renderHistory} for display.
+     */
     private void loadHistory() {
         FirebaseHelper.getInstance().getUserWaitlistEntries(deviceId)
                 .addOnSuccessListener(snap -> {
@@ -90,6 +119,14 @@ public class RegistrationHistoryActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Displays the filtered registration history in the layout. Each item shows
+     * the event number, title, and a colored badge for its status.
+     * <p>
+     * Clicking an entry opens {@link EventDetailActivity} for that specific event.
+     *
+     * @param filteredEntries List of filtered Firestore documents to display.
+     */
     private void renderHistory(List<DocumentSnapshot> filteredEntries) {
         historyContainer.removeAllViews();
 

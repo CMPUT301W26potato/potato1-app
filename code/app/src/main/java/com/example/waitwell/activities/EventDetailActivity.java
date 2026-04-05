@@ -515,6 +515,12 @@ public class EventDetailActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Sets up the bottom navigation bar for the activity. Each menu item
+     * navigates to a different screen: Home, Waitlist, or Notifications.
+     * Uses FLAG_ACTIVITY_CLEAR_TOP and FLAG_ACTIVITY_SINGLE_TOP to prevent
+     * multiple instances of the same activity in the back stack.
+     */
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setOnItemSelectedListener(item -> {
@@ -571,6 +577,12 @@ public class EventDetailActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "waitlist status check failed", e));
     }
+    /**
+     * Posts a comment entered by the user. Validates input,
+     * fetches username from 'users' collection, generates a unique
+     * comment ID, and saves the comment to Firestore.
+     * Refreshes the comment list after posting.
+     */
     private void postComment() {
         String commentText = editComment.getText().toString().trim();
         if (commentText.isEmpty()) {
@@ -578,7 +590,7 @@ public class EventDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Fetch username from users collection
+        // fetch username from users collection
         FirebaseHelper.getInstance().getDb()
                 .collection("users")
                 .document(deviceId)
@@ -618,6 +630,13 @@ public class EventDetailActivity extends AppCompatActivity {
                                     Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show());
                 });
     }
+    /**
+     * Loads the event poster from a Firebase Storage URL
+     * and displays it in the ImageView. Handles errors for
+     * invalid URLs or failed downloads.
+     *
+     * @param url the URL of the poster image in Firebase Storage
+     */
     private void loadPosterImage(String url) {
         try {
             StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(url);
@@ -634,6 +653,13 @@ public class EventDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Loads all comments for the current event from Firestore,
+     * fetches the username for each comment, and dynamically
+     * creates a TextView for each. Comments are displayed in
+     * descending order by timestamp. Organizer comments are
+     * labeled accordingly.
+     */
     private void loadComments() {
         commentsContainer.removeAllViews();
 
