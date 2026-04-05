@@ -95,8 +95,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         } else {
             holder.expiredLabel.setVisibility(View.GONE);
             if (n.isInviteAlreadyResolvedOnWaitlist()) {
+                @ColorInt int hint = ContextCompat.getColor(context, R.color.text_hint);
+                holder.leftBorderStrip.setBackgroundColor(hint);
+                holder.iconContainer.setBackgroundTintList(ColorStateList.valueOf(hint));
+                holder.actionButton.setBackgroundTintList(ColorStateList.valueOf(hint));
                 holder.itemView.setAlpha(0.5f);
             } else {
+                holder.actionButton.setBackgroundTintList(null);
                 holder.itemView.setAlpha(1f);
             }
         }
@@ -201,15 +206,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         }
                         String st = task.getResult().getString(fieldStatus);
                         if (confirmed.equals(st)) {
-                            holder.itemView.post(() ->
-                                    Toast.makeText(context, R.string.toast_invitation_already_accepted,
-                                            Toast.LENGTH_SHORT).show());
+                            holder.itemView.post(() -> startChosenInvitationReadOnly(n, pos, confirmed));
                             return;
                         }
                         if (cancelled.equals(st)) {
-                            holder.itemView.post(() ->
-                                    Toast.makeText(context, R.string.toast_invitation_already_declined,
-                                            Toast.LENGTH_SHORT).show());
+                            holder.itemView.post(() -> startChosenInvitationReadOnly(n, pos, cancelled));
                             return;
                         }
                         holder.itemView.post(() -> startChosenInvitationActivity(n, pos));
@@ -237,6 +238,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
         intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
         intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
+        if (parentActivity != null && position != RecyclerView.NO_POSITION) {
+            String notificationId = parentActivity.getNotificationId(position);
+            if (notificationId != null) {
+                intent.putExtra(InvitationResponseActivity.EXTRA_NOTIFICATION_ID, notificationId);
+            }
+        }
+        context.startActivity(intent);
+    }
+
+    private void startChosenInvitationReadOnly(NotificationModel n, int position, String resolvedStatus) {
+        Intent intent = new Intent(context, InvitationResponseActivity.class);
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+        intent.putExtra(InvitationResponseActivity.EXTRA_ALREADY_RESPONDED, resolvedStatus);
         if (parentActivity != null && position != RecyclerView.NO_POSITION) {
             String notificationId = parentActivity.getNotificationId(position);
             if (notificationId != null) {
