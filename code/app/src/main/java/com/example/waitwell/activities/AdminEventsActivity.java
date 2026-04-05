@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.waitwell.DeviceUtils;
 import com.example.waitwell.FirebaseHelper;
 import com.example.waitwell.R;
@@ -167,6 +169,16 @@ public class AdminEventsActivity extends AppCompatActivity {
                 String title = doc.getString("title");
                 String organizerId = doc.getString("organizerId");
                 TextView organizerView = holder.itemView.findViewById(R.id.txtOrganizer);
+                String imageUrl = doc.getString("imageUrl");
+
+                ImageView imgPoster = holder.itemView.findViewById(R.id.eventImage);
+
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    Glide.with(holder.itemView.getContext())
+                            .load(imageUrl)
+                            .into(imgPoster);
+                }
+
 
                 if (organizerId == null) {
                     organizerView.setText("Unknown");
@@ -192,7 +204,10 @@ public class AdminEventsActivity extends AppCompatActivity {
 
                 // Delete button (with confirmation)
                 holder.itemView.findViewById(R.id.btnRemoveEvent)
-                        .setOnClickListener(v -> showDeleteDialog(doc.getId()));
+                        .setOnClickListener(v -> {
+
+                            showDeleteDialog(doc.getId(), imageUrl);
+                        });
 
                 // Open comments screen
                 holder.itemView.findViewById(R.id.btnRemoveComments)
@@ -215,12 +230,12 @@ public class AdminEventsActivity extends AppCompatActivity {
     /**
      * Delete confirmation dialog
      */
-    private void showDeleteDialog(String eventId) {
+    private void showDeleteDialog(String eventId, String imageUrl) {
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Delete Event")
                 .setMessage("Are you sure you want to delete this event?")
-                .setPositiveButton("Yes", (dialog, which) -> removeEvent(eventId))
+                .setPositiveButton("Yes", (dialog, which) -> removeEvent(eventId, imageUrl))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
@@ -228,13 +243,14 @@ public class AdminEventsActivity extends AppCompatActivity {
     /**
      * Remove event from Firestore
      */
-    private void removeEvent(String eventId) {
+    private void removeEvent(String eventId, String imageUrl) {
 
         FirebaseHelper.getInstance()
                 .removeEvent(eventId)
                 .addOnSuccessListener(unused -> {
 
                     Intent intent = new Intent(this, AdminEventRemovedActivity.class);
+                    intent.putExtra("image_url", imageUrl);
                     startActivity(intent);
                 });
     }
@@ -287,8 +303,10 @@ public class AdminEventsActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Setup filter buttons
-     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadEvents(); // reload so that prev screen doesn't display old display
+    }
 
 }

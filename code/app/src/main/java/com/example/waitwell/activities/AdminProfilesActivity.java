@@ -212,4 +212,10 @@ public class AdminProfilesActivity extends AppCompatActivity {
                     startActivity(intent);
                 });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadProfiles(); // reload so old profiles page is not there when going back
+    }
 }
