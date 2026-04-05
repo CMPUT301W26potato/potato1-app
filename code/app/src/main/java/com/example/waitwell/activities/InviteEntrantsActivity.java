@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.waitwell.FirebaseHelper;
+import com.example.waitwell.ProfilePreviewHelper;
 import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -82,7 +83,7 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         adapter = new InviteAdapter(results, new InviteAdapter.Listener() {
             @Override
             public void onViewProfile(@NonNull InviteUserItem item) {
-                Toast.makeText(InviteEntrantsActivity.this, R.string.waitlist_profile_preview_placeholder, Toast.LENGTH_SHORT).show();
+                ProfilePreviewHelper.showProfileDialog(InviteEntrantsActivity.this, item.userId);
             }
 
             @Override

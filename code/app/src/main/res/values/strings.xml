@@ -144,6 +144,9 @@
     <string name="waitlist_accept_entrant">Accept entrant</string>
     <string name="waitlist_decline_entrant">Decline entrant</string>
     <string name="waitlist_profile_preview_placeholder">Profile preview is not available for other users.</string>
+    <string name="profile_preview_fetch_failed">Could not load profile. Please try again.</string>
+    <string name="profile_preview_title">Entrant Profile</string>
+    <string name="profile_preview_body">Name: %1$s\nJoined: %2$s</string>
     <string name="waitlist_chosen_notification_message">Congratulations! You have been selected for %1$s. Please accept or decline the invitation.</string>
     <string name="waitlist_accepted_sent">Invitation sent.</string>
     <string name="waitlist_declined_sent">Entrant declined.</string>
