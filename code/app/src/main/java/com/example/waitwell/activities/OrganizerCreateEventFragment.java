@@ -139,6 +139,7 @@ public class OrganizerCreateEventFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_organizer_create_event, container, false);
     }
 
+
     /**
      * Binds all views, hooks up click listeners, and optionally loads an
      * existing event into the form if an {@code event_id} argument is present.
@@ -164,6 +165,18 @@ public class OrganizerCreateEventFragment extends Fragment {
         btnSubmitEvent = view.findViewById(R.id.btnSubmitEvent);
         txtCategories = view.findViewById(R.id.txtCategories);
         txtCategories.setOnClickListener(v -> showCategoryPicker());
+
+        View btnHamburger = view.findViewById(R.id.btnHamburger);
+        if (btnHamburger != null) {
+            btnHamburger.setOnClickListener(v -> {
+                // call the helper method in the parent activity to slide the drawer open
+                if (getActivity() instanceof OrganizerEntryActivity) {
+                    ((OrganizerEntryActivity) getActivity()).openDrawer();
+                } else {
+                    Log.w(TAG, "getActivity() is not an instance of OrganizerEntryActivity");
+                }
+            });
+        }
 
         BottomNavigationView nav = getView().findViewById(R.id.organizerBottomNavigation);
         nav.setOnItemSelectedListener(item -> {

@@ -307,8 +307,11 @@ public class OrganizerEventDetailFragment extends Fragment {
             loadPosterImage(imageUrl);
         }
         Boolean privateEvent = doc.getBoolean("isPrivate");
+        boolean isPrivate = Boolean.TRUE.equals(privateEvent);
+        View spacer = requireView().findViewById(R.id.spaceBetweenButtons);
         btnInviteEntrants.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.VISIBLE : View.GONE);
         btnShare.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.GONE : View.VISIBLE);
+        spacer.setVisibility(isPrivate ? View.GONE : View.VISIBLE);
     }
 
     private void openEventQrShareFromManage() {

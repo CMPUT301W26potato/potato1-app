@@ -76,7 +76,6 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         }
 
         findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
-        findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> finish());
 
         Button backButton = findViewById(R.id.back_button);
 

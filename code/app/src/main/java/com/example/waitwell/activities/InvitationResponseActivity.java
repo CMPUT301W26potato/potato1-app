@@ -143,9 +143,6 @@ public class InvitationResponseActivity extends AppCompatActivity {
         ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
         imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
 
-        TextView txtBackLink = findViewById(R.id.txtBackLink);
-        txtBackLink.setOnClickListener(v -> finish());
-
         if (!TextUtils.isEmpty(eventId)) {
             loadEventFromFirestore();
         } else if (!cardDataPrefilledFromIntent) {

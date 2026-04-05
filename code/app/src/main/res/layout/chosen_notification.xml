@@ -54,17 +54,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/txtBackLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:fontFamily="@font/poppins"
-                android:paddingTop="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/back"
-                android:textColor="@color/primary"
-                android:textSize="16sp" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -195,7 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="24dp"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_accept_event"
@@ -209,7 +198,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_decline_event"
@@ -223,7 +212,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_button_primary_filled"
+                android:background="@drawable/bg_button_green"
                 android:fontFamily="@font/poppinsmedium"
                 android:gravity="center"
                 android:text="@string/entrant_back_notifications"
