@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Helper for building/exporting the final entrants CSV file.
  * Keeps CSV formatting logic out of activity classes.
  *
- * Addresses: US 02.06.05 - Organizer: Export Enrolled List CSV
+ * Addresses: US 02.06.05 - Organizer: Export Enrolled List CSVs
  *
  * @author Karina Zhang
  * @version 1.0
