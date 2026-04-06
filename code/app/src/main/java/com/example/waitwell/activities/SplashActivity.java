@@ -25,6 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
  *  * so whichever finishes last triggers the navigation. This means
  *  * the user always sees the splash for at least 2 seconds but never
  *  * waits longer than necessary.
+ * @author Viktoria
+ *  Troubleshoot with the help from Claude (claude.ai)
  */
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SplashActivity";

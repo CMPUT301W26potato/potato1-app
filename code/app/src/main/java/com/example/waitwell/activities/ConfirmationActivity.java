@@ -14,7 +14,7 @@ import com.example.waitwell.R;
  *
  * Addresses: US 01.05.07 - Entrant: Accept/Decline Private Event
  *
- * @author Karina Zhang
+ * @author Karina Zhang, Viktoria Lysenko
  * @version 1.0
  * @see WaitListActivity
  */

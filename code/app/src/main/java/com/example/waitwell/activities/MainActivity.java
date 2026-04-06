@@ -41,15 +41,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Entrant-facing main menu screen that shows featured events and navigation.
- * This is the default landing page for the Entrant side of the app and does
- * not mix in Organizer or Admin views. It pulls events from Firestore and
- * renders them as a horizontal card row plus a popular-events list.
- * From a user story point of view this backs the general "browse and
- * discover events" experience before an entrant decides to join.
- * I also leaned on ChatGPT and the Mockito tutorial at
- * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
- * when designing the small static helper methods that MainActivityTest mocks.
+ * Entrant landing screen. Loads events from Firestore and renders a featured
+ * card row plus a popular-events list, and hosts the navigation drawer and
+ * bottom nav for the Entrant flow.
+ *
+ * @author WaitWell team
  */
 public class MainActivity extends AppCompatActivity {
 

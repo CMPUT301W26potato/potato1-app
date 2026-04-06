@@ -52,10 +52,6 @@ import com.google.android.gms.location.LocationServices;
 // END REHAAN'S ADDITION
 
 
-
-
-
-
 /**
  * Event detail screen (US 01.01.01 – join waitlist).
  *
@@ -64,6 +60,8 @@ import com.google.android.gms.location.LocationServices;
  * FirebaseHelper.joinWaitlist() then navigates to the confirmation screen.
  *
  * If the user is already on this event's waitlist, the button is hidden and a message is shown instead.
+ *
+ *  @author WaitWell Team
  */
 public class EventDetailActivity extends AppCompatActivity {
 
