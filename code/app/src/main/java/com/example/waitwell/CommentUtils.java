@@ -10,6 +10,7 @@ public class CommentUtils {
      * @param commentEventOwnerId the userId of the organizer who created the event the comment belongs to
      * @param currentUserId   the userId of the current user
      * @return true if the user can delete the comment
+     * @author Sarang Kim
      */
     public static boolean canDelete(String role, String commentEventOwnerId, String currentUserId) {
         if (role == null || currentUserId == null) return false;

@@ -9,8 +9,14 @@ import org.junit.Test;
 
 import java.util.Map;
 
+/**
+ * Unit tests for {@link ProfileUtils}.
+ * Verifies profile map creation and field retrieval from Firestore documents.
+ * @author Sarang Kim
+ */
 public class ProfileUtilsTest {
 
+    /** Tests that buildProfileMap correctly constructs a map with all fields. */
     @Test
     public void testBuildProfileMap() {
         Map<String, Object> map = ProfileUtils.buildProfileMap("Alice", "alice@test.com", "1234567890", "url");
@@ -20,6 +26,7 @@ public class ProfileUtilsTest {
         assertEquals("url", map.get("profileImageUrl"));
     }
 
+    /** Tests that getNameFromDoc, getEmailFromDoc, and getPhoneFromDoc return correct values. */
     @Test
     public void testGetFieldsFromDoc() {
         DocumentSnapshot mockDoc = mock(DocumentSnapshot.class);
