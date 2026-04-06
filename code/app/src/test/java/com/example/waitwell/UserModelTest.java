@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
  * Unit tests for the User model class with profileImageUrl field.
  * Tests User class functionality including the new profile picture URL field,
  * serialization/deserialization, and backward compatibility.
- *
+ ** Written with help from Claude (claude.ai)
  * @author Nathaniel Chan
  */
 @RunWith(MockitoJUnitRunner.class)
