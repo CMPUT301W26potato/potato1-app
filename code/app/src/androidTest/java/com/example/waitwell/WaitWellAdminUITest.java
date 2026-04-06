@@ -46,6 +46,9 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class WaitWellAdminUITest {
 
+    /**
+     * Initializes Espresso Intents and stubs outgoing admin activities before each test.
+     */
     @Before
     public void setUp() {
         Intents.init();
@@ -60,11 +63,18 @@ public class WaitWellAdminUITest {
                 .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
     }
 
+    /**
+     * Releases Espresso Intents after each test to avoid interference.
+     */
     @After
     public void tearDown() {
         Intents.release();
     }
 
+    /**
+     * Checks that all four section buttons (Profiles, Events, Images, Notifications)
+     * are visible on the Admin main menu.
+     */
     @Test
     public void mainMenu_allFourSectionButtons_areDisplayed() {
         try (ActivityScenario<AdminMainMenuActivity> ignored =
@@ -76,6 +86,9 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Verifies that tapping the "All Events" button launches AdminEventsActivity.
+     */
     @Test
     public void mainMenu_allEvents_launchesAdminEventsActivity() {
         try (ActivityScenario<AdminMainMenuActivity> ignored =
@@ -84,7 +97,9 @@ public class WaitWellAdminUITest {
             intended(hasComponent(AdminEventsActivity.class.getName()));
         }
     }
-
+    /**
+     * Verifies that tapping the "All Profiles" button launches AdminProfilesActivity.
+     */
     @Test
     public void mainMenu_allProfiles_launchesAdminProfilesActivity() {
         try (ActivityScenario<AdminMainMenuActivity> ignored =
@@ -94,6 +109,9 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Verifies that tapping the "All Images" button launches AdminImagesActivity.
+     */
     @Test
     public void mainMenu_allImages_launchesAdminImagesActivity() {
         try (ActivityScenario<AdminMainMenuActivity> ignored =
@@ -103,6 +121,9 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Verifies that tapping the "All Notifications" button launches AdminNotificationsActivity.
+     */
     @Test
     public void mainMenu_allNotifications_launchesAdminNotificationsActivity() {
         try (ActivityScenario<AdminMainMenuActivity> ignored =
@@ -112,6 +133,10 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Checks that the AdminEventRemovedActivity displays the "Event Removed" banner
+     * and the back button.
+     */
     @Test
     public void eventRemoved_confirmationBannerAndBackButton_areDisplayed() {
         try (ActivityScenario<AdminEventRemovedActivity> ignored =
@@ -121,6 +146,10 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Checks that the AdminProfileRemovedActivity displays the "Profile Removed" banner
+     * and the back button.
+     */
     @Test
     public void profileRemoved_confirmationBannerAndBackButton_areDisplayed() {
         try (ActivityScenario<AdminProfileRemovedActivity> ignored =
@@ -130,12 +159,67 @@ public class WaitWellAdminUITest {
         }
     }
 
+    /**
+     * Checks that the AdminImageRemovedActivity displays the "Image Removed" banner
+     * and the back button.
+     */
+
     @Test
     public void imageRemoved_confirmationBannerAndBackButton_areDisplayed() {
         try (ActivityScenario<AdminImageRemovedActivity> ignored =
                      ActivityScenario.launch(AdminImageRemovedActivity.class)) {
             onView(withText("✔  Image Removed")).check(matches(isDisplayed()));
             onView(withId(R.id.backBtn)).check(matches(isDisplayed()));
+        }
+    }
+    /**
+     * Simulates removing an event and verifies navigation to AdminEventRemovedActivity.
+     */
+    @Test
+    public void admin_canRemoveEvent_navigatesToEventRemoved() {
+        try (ActivityScenario<AdminEventsActivity> ignored =
+                     ActivityScenario.launch(AdminEventsActivity.class)) {
+            // Simulate clicking "Remove" for an event
+            onView(withId(R.id.btnRemoveEvent)).perform(click());
+
+            // Verify intent to AdminEventRemovedActivity
+            intended(hasComponent(AdminEventRemovedActivity.class.getName()));
+        }
+    }
+
+    /**
+     * Simulates removing a profile and verifies navigation to AdminProfileRemovedActivity.
+     */
+    @Test
+    public void admin_canRemoveProfile_navigatesToProfileRemoved() {
+        try (ActivityScenario<AdminProfilesActivity> ignored =
+                     ActivityScenario.launch(AdminProfilesActivity.class)) {
+            onView(withId(R.id.btnRemoveProfile)).perform(click());
+            intended(hasComponent(AdminProfileRemovedActivity.class.getName()));
+        }
+    }
+
+    /**
+     * Simulates removing an image and verifies navigation to AdminImageRemovedActivity.
+     */
+    @Test
+    public void admin_canRemoveImage_navigatesToImageRemoved() {
+        try (ActivityScenario<AdminImagesActivity> ignored =
+                     ActivityScenario.launch(AdminImagesActivity.class)) {
+            onView(withId(R.id.btnRemovePhoto)).perform(click());
+            intended(hasComponent(AdminImageRemovedActivity.class.getName()));
+        }
+    }
+
+    /**
+     * Checks that browsing events from the main menu launches AdminEventsActivity.
+     */
+    @Test
+    public void admin_canBrowseEvents_launchesAdminEventsActivity() {
+        try (ActivityScenario<AdminMainMenuActivity> ignored =
+                     ActivityScenario.launch(AdminMainMenuActivity.class)) {
+            onView(withId(R.id.btnAllEvents)).perform(click());
+            intended(hasComponent(AdminEventsActivity.class.getName()));
         }
     }
 }
