@@ -1,6 +1,6 @@
 package com.example.waitwell.activities;
 
-import android.app.Activity;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.graphics.Bitmap;
@@ -47,6 +47,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+// REHAAN'S ADDITION — Places autocomplete inline dropdown
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.ArrayAdapter;
+import android.widget.ListPopupWindow;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import java.util.Arrays;
+// END REHAAN'S ADDITION
+
 /**
  * Karina's features:
  * It mainly covers user stories 02.01.01 (Create Event & QR), 02.01.04 (Registration Period),
@@ -78,6 +92,14 @@ public class OrganizerCreateEventFragment extends Fragment {
     private ImageView imgPosterPreview;
     private Button btnSubmitEvent;
     private Uri posterUri;
+
+    // REHAAN'S ADDITION — Places inline dropdown
+    private Double selectedPlaceLat = null;
+    private Double selectedPlaceLng = null;
+    private PlacesClient placesClient;
+    private ListPopupWindow locationPopup;
+    private List<AutocompletePrediction> currentPredictions = new ArrayList<>();
+// END REHAAN'S ADDITION
 
     // I used ChatGPT to better understand how we can treat this device based
     // identifier as the organizer's "account id" and reuse it consistently.
@@ -151,6 +173,12 @@ public class OrganizerCreateEventFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         editEventName = view.findViewById(R.id.editEventName);
         editLocation = view.findViewById(R.id.editLocation);
+        // REHAAN'S ADDITION — initialize Places SDK once
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext().getApplicationContext(),
+                    getString(R.string.google_maps_key));
+        }
+// END REHAAN'S ADDITION
         editRegistrationStart = view.findViewById(R.id.editRegistrationStart);
         editRegistrationDeadline = view.findViewById(R.id.editRegistrationDeadline);
         editEventDate = view.findViewById(R.id.editEventDate);
@@ -211,6 +239,82 @@ public class OrganizerCreateEventFragment extends Fragment {
         // These fields are all read-only text inputs that open pickers instead of keyboards.
         // I used ChatGPT to learn, step by step, how to swap a plain text/date input
         // for a proper Calendar style DatePicker so organizers choose real dates.
+        // REHAAN'S ADDITION — inline Places autocomplete dropdown
+        placesClient = Places.createClient(requireContext());
+        locationPopup = new ListPopupWindow(requireContext());
+        locationPopup.setAnchorView(editLocation);
+        locationPopup.setModal(false);
+
+        editLocation.setFocusableInTouchMode(true);
+        editLocation.setFocusable(true);
+        editLocation.setCursorVisible(true);
+
+        editLocation.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // clear confirmed place when user edits manually
+                selectedPlaceLat = null;
+                selectedPlaceLng = null;
+                String query = s.toString().trim();
+                if (query.length() < 2) {
+                    locationPopup.dismiss();
+                    return;
+                }
+                FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest
+                        .builder()
+                        .setQuery(query)
+                        .build();
+                placesClient.findAutocompletePredictions(request)
+                        .addOnSuccessListener(response -> {
+                            if (!isAdded()) return;
+                            currentPredictions = response.getAutocompletePredictions();
+                            if (currentPredictions.isEmpty()) {
+                                locationPopup.dismiss();
+                                return;
+                            }
+                            List<String> labels = new ArrayList<>();
+                            for (AutocompletePrediction p : currentPredictions) {
+                                labels.add(p.getFullText(null).toString());
+                            }
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                    requireContext(),
+                                    android.R.layout.simple_list_item_1,
+                                    labels);
+                            locationPopup.setAdapter(adapter);
+                            locationPopup.setOnItemClickListener((parent, v, position, id) -> {
+                                AutocompletePrediction prediction = currentPredictions.get(position);
+                                String placeId = prediction.getPlaceId();
+                                FetchPlaceRequest fetchRequest = FetchPlaceRequest.newInstance(
+                                        placeId,
+                                        Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS));
+                                placesClient.fetchPlace(fetchRequest)
+                                        .addOnSuccessListener(fetchResponse -> {
+                                            if (!isAdded()) return;
+                                            Place place = fetchResponse.getPlace();
+                                            // suppress the TextWatcher while we set confirmed text
+                                            editLocation.removeTextChangedListener(this);
+                                            editLocation.setText(place.getAddress() != null
+                                                    ? place.getAddress() : place.getName());
+                                            editLocation.setSelection(editLocation.getText().length());
+                                            editLocation.addTextChangedListener(this);
+                                            if (place.getLatLng() != null) {
+                                                selectedPlaceLat = place.getLatLng().latitude;
+                                                selectedPlaceLng = place.getLatLng().longitude;
+                                            }
+                                            locationPopup.dismiss();
+                                        })
+                                        .addOnFailureListener(e ->
+                                                Log.e(TAG, "fetchPlace failed", e));
+                            });
+                            if (!locationPopup.isShowing()) {
+                                locationPopup.show();
+                            }
+                        })
+                        .addOnFailureListener(e -> Log.e(TAG, "autocomplete failed", e));
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+// END REHAAN'S ADDITION
         editRegistrationStart.setOnClickListener(v -> showDatePicker(editRegistrationStart));
         editRegistrationDeadline.setOnClickListener(v -> showDatePicker(editRegistrationDeadline));
         editEventDate.setOnClickListener(v -> showDatePicker(editEventDate));
@@ -328,6 +432,12 @@ public class OrganizerCreateEventFragment extends Fragment {
             Toast.makeText(requireContext(), R.string.organizer_error_fill_required, Toast.LENGTH_SHORT).show();
             return;
         }
+        // REHAAN'S ADDITION — reject if location was typed freely without picking a real place
+        if (selectedPlaceLat == null || selectedPlaceLng == null) {
+            Toast.makeText(requireContext(), R.string.organizer_error_location_not_selected, Toast.LENGTH_SHORT).show();
+            return;
+        }
+// END REHAAN'S ADDITION
         if (eventTimeHour < 0) {
             Toast.makeText(requireContext(), R.string.organizer_error_event_time, Toast.LENGTH_SHORT).show();
             return;
@@ -434,6 +544,10 @@ public class OrganizerCreateEventFragment extends Fragment {
         event.put("title", title);
         event.put("description", description);
         event.put("location", location);
+        // REHAAN'S ADDITION — store event lat/lng for future map use
+        event.put("eventLatitude", selectedPlaceLat);
+        event.put("eventLongitude", selectedPlaceLng);
+// END REHAAN'S ADDITION
         event.put("geolocationRequired", geolocationRequired);
         event.put("registrationOpen", registrationOpen);
         event.put("registrationClose", registrationClose);
@@ -479,6 +593,12 @@ public class OrganizerCreateEventFragment extends Fragment {
         updates.put("title", title);
         updates.put("description", description);
         updates.put("location", location);
+        // REHAAN'S ADDITION — update event lat/lng
+        if (selectedPlaceLat != null && selectedPlaceLng != null) {
+            updates.put("eventLatitude", selectedPlaceLat);
+            updates.put("eventLongitude", selectedPlaceLng);
+        }
+// END REHAAN'S ADDITION
         updates.put("geolocationRequired", geolocationRequired);
         updates.put("registrationOpen", registrationOpen);
         updates.put("registrationClose", registrationClose);
@@ -537,6 +657,15 @@ public class OrganizerCreateEventFragment extends Fragment {
 
                     if (title != null) editEventName.setText(title);
                     if (location != null) editLocation.setText(location);
+
+                    // REHAAN'S ADDITION — restore confirmed lat/lng so edit submit passes validation
+                    Double savedLat = doc.getDouble("eventLatitude");
+                    Double savedLng = doc.getDouble("eventLongitude");
+                    if (savedLat != null && savedLng != null) {
+                        selectedPlaceLat = savedLat;
+                        selectedPlaceLng = savedLng;
+                    }
+// END REHAAN'S ADDITION
                     if (description != null) editDescription.setText(description);
                     if (geoRequired != null) switchGeolocation.setChecked(geoRequired);
                     switchPrivateEvent.setChecked(privateEvent != null && privateEvent);

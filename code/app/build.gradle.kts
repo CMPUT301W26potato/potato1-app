@@ -76,6 +76,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
 // END REHAAN'S ADDITION
+    // REHAAN'S ADDITION — Places autocomplete for location field
+    implementation("com.google.android.libraries.places:places:3.4.0")
+// END REHAAN'S ADDITION
 
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
