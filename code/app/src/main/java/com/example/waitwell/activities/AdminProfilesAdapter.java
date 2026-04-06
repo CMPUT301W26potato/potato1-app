@@ -19,6 +19,25 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * AdminProfilesAdapter is used to display user profiles
+ * in the admin panel RecyclerView.
+ *
+ * Each item shows:
+ * - name
+ * - email
+ * - role
+ * - user ID
+ * - profile image
+ * - number of events joined
+ *
+ * Supports:
+ * - search filtering
+ * - role filtering
+ * - deleting profiles
+ *
+ * @author Grace Shin
+ */
 public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdapter.ViewHolder> {
 
     private Context context;
@@ -27,12 +46,18 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
     List<DocumentSnapshot> allEvents;
     java.util.Map<String, Integer> eventCountCache = new java.util.HashMap<>();
 
+    /**
+     * Callback interface for delete button clicks.
+     */
     public interface OnDeleteClick {
         void onDelete(String userId);
     }
 
     private OnDeleteClick deleteListener;
 
+    /**
+     * Constructor initializes adapter data.
+     */
     public AdminProfilesAdapter(Context context,
                                 List<DocumentSnapshot> profiles,
                                 List<DocumentSnapshot> events,
@@ -45,6 +70,9 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
         this.deleteListener = listener;
     }
 
+    /**
+     * ViewHolder for profile item.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, role, email, id;
         View deleteBtn;
@@ -75,15 +103,15 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
         String role = doc.getString("role");
         String userId = doc.getId();
 
-// Name
+// name
         ((TextView) holder.itemView.findViewById(R.id.txtName))
                 .setText("Name: " + (name != null ? name : "Unknown"));
 
-// Email
+// email
         ((TextView) holder.itemView.findViewById(R.id.txtEmail))
                 .setText("Email: " + (email != null ? email : "Unknown"));
 
-// Role
+// role
         ((TextView) holder.itemView.findViewById(R.id.txtRole))
                 .setText("Role: " + (role != null ? role : "Unknown"));
 
@@ -91,7 +119,7 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
         ((TextView) holder.itemView.findViewById(R.id.txtID))
                 .setText("ID: " + userId);
 
-// Profile image
+// profile image
         String profileImageUrl = doc.getString("profileImageUrl");
         ImageView profileImage = holder.itemView.findViewById(R.id.profileImage);
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
@@ -136,6 +164,9 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
     }
 
 
+    /**
+     * Filtering search by name, email, or ID
+     */
     public void filterSearch(String text) {
         filteredList.clear();
 
@@ -160,7 +191,9 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
         notifyDataSetChanged();
     }
 
-
+    /**
+     * Filter buttons by role
+     */
     public void filterRole(String roleFilter) {
         filteredList.clear();
 
@@ -180,6 +213,9 @@ public class AdminProfilesAdapter extends RecyclerView.Adapter<AdminProfilesAdap
     }
 
 
+    /**
+     * Show delete dialog with confirmation
+     */
     private void showDeleteDialog(String userId) {
         new AlertDialog.Builder(context)
                 .setTitle("Delete Profile")

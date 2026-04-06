@@ -18,6 +18,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * AdminNotificationsActivity shows all notifications
+ * stored in Firestore across all users.
+ *
+ * Notifications are displayed in a vertical list.
+ * Each notification includes:
+ * - message
+ * - associated user ID
+ *
+ * @author Grace Shin
+ */
 public class AdminNotificationsActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminNotifications";
@@ -32,6 +43,7 @@ public class AdminNotificationsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_notifications);
 
         recyclerView = findViewById(R.id.recyclerView);
+        // vertical list
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         notifications = new ArrayList<>();
@@ -43,6 +55,9 @@ public class AdminNotificationsActivity extends AppCompatActivity {
         loadAllNotifications();
     }
 
+    /**
+     * Loads all notifications from Firestore.
+     */
     private void loadAllNotifications() {
 
         FirebaseFirestore.getInstance()
@@ -64,7 +79,7 @@ public class AdminNotificationsActivity extends AppCompatActivity {
 
                         if (notification != null) {
                             NotificationModel model = notification.toNotificationModel();
-                            //show user id
+                            // show user id for visibility
                             model.setMessage(
                                     model.getMessage() + "\n(User: " + notification.getUserId() + ")"
                             );

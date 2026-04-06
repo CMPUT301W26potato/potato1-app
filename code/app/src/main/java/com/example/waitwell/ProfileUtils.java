@@ -31,4 +31,23 @@ public class ProfileUtils {
         if (doc == null) return null;
         return doc.getString("phone");
     }
+    public static boolean canDeleteProfile(String role, String userId) {
+        if (role == null || userId == null) return false;
+
+        return role.equalsIgnoreCase("admin");
+    }
+    public static boolean canViewProfiles(String role) {
+        return role != null && role.equalsIgnoreCase("admin");
+    }
+
+    public interface DeleteUserCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    public static void deleteUserProfile(String userId, DeleteUserCallback callback) {
+        FirebaseHelper.getInstance().deleteUser(userId)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
 }

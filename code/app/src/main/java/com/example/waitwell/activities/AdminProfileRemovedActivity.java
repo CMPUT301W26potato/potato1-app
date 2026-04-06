@@ -14,8 +14,6 @@ import com.example.waitwell.R;
  * The page confirms the deletion and allows the admin
  * to return to the profiles list.
  *
- * AI Usage:
- *
  * @author Grace Shin
  */
 public class AdminProfileRemovedActivity extends AppCompatActivity {
