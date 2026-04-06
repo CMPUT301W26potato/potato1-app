@@ -3,7 +3,7 @@ package com.example.waitwell;
 public class ImageUtils {
 
     /**
-     * Determines if a user can delete or view an image
+     * Determines if a user can delete or view an image.
      */
     public static boolean canDeleteImage(String role, String imageUrl) {
         if (role == null || imageUrl == null) return false;
