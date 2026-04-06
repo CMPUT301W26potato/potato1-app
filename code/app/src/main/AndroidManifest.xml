@@ -5,10 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- REHAAN'S ADDITION — US 02.02.02 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- END REHAAN'S ADDITION -->
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -22,13 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WaitWell"
         tools:targetApi="31">
-        <!-- REHAAN'S ADDITION — US 02.02.02 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCxq6ab9En0oIrMJujp1okriXmfp1yH1xY" />
-        <!-- END REHAAN'S ADDITION -->
 
-        <!-- Splash screen  -->
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true"
@@ -39,23 +34,19 @@
             </intent-filter>
         </activity>
 
-        <!-- Register: shown to first-time users -->
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.WaitWell.Splash" />
 
-        <!-- Main menu screen (Entrant/Admin) -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="false" />
 
-        <!-- Entrant Notification Screen -->
         <activity
             android:name=".EntrantNotificationScreen"
             android:exported="false" />
 
-        <!-- Entrant Chosen Accept Screen -->
         <activity
             android:name=".EntrantChosenAccept"
             android:exported="false" />
@@ -63,16 +54,13 @@
             android:name=".activities.InvitationResponseActivity"
             android:exported="false" />
 
-        <!-- Entrant Not Chosen Screen -->
         <activity
             android:name=".EntrantNotChosenScreen"
             android:exported="false" />
 
-        <!-- Entrant Notification Options Screen -->
         <activity
             android:name=".EntrantNotificationOptions"
             android:exported="false" />
-        <!-- Entrant Event Detail Screen -->
         <activity android:name=".activities.EventDetailActivity"
             android:exported="false" />
         <activity android:name=".activities.ConfirmationActivity"
@@ -83,32 +71,25 @@
         <activity
             android:name=".activities.EntrantCalendarActivity"
             android:exported="false" />
-        <!-- QR Code Scanner (US 01.06.01) -->
         <activity android:name=".activities.QrScanActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-        <!-- Lock ZXing's scanner to portrait -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
 
-        <!-- Organizer-only entry: no Entrant/Admin UI -->
         <activity
             android:name=".activities.OrganizerEntryActivity"
             android:exported="false"
             android:launchMode="singleTop" />
-        <!-- Rehaan;s addition for US 02.06.01 : Invited entrants list for organizers -->
-        <!-- Rehaan's addition for US 02.06.01 : Invited entrants list for organizers -->
         <activity
             android:name=".activities.InvitedEntrantsActivity"
             android:exported="false" />
 
-<!--Rehaan's addition for US 02.06.02 Cancelled entrants list for organizers -->
         <activity
             android:name=".activities.CancelledEntrantsActivity"
             android:exported="false" />
-        <!-- Rehaan's addition for US 02.06.04: Enrolled entrants list, organizer can cancel no-shows -->
         <activity
             android:name=".activities.EnrolledEntrantsActivity"
             android:exported="false" />
@@ -131,7 +112,6 @@
             android:name=".activities.AllEventsActivity"
             android:exported="false" />
 
-<!--        admin-->
         <activity
             android:name=".activities.AdminMainMenuActivity"
             android:exported="false"/>
@@ -160,13 +140,6 @@
         <activity android:name=".activities.AdminImageRemovedActivity"
             android:exported="false"/>
 
-<!--        <activity android:name=".activities.AdminImagesActivity"-->
-<!--            android:exported="false" />-->
-
-
-
-
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.waitwell.fileprovider"
@@ -177,11 +150,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!--US 01.02.02: Update Profile Details -->
-        <!--US 01.02.02: Update Profile Details -->
         <activity android:name=".Profile" />
 
-        <!-- Registration History Screen -->
         <activity
             android:name=".activities.RegistrationHistoryActivity"
             android:exported="false" />
@@ -193,21 +163,16 @@
         <activity
             android:name=".activities.AdminCommentsActivity"
             android:exported="false" />
-        <!-- REHAAN'S ADDITION — US 02.09.01 -->
         <activity
             android:name=".activities.AssignCoOrganizerActivity"
             android:exported="false" />
-        <!-- REHAAN'S ADDITION — US 02.09.01 Part 2 — co-organizer invite accept/decline -->
         <activity
             android:name=".activities.CoOrganizerInviteResponseActivity"
             android:exported="false" />
-        <!-- END REHAAN'S ADDITION -->
 
-        <!-- REHAAN'S ADDITION — US 02.02.02 -->
         <activity
             android:name=".activities.WaitlistMapActivity"
             android:exported="false" />
-        <!-- END REHAAN'S ADDITION -->
 
         <activity
             android:name=".activities.EntrantLotteryCriteria"

@@ -12,7 +12,7 @@
     <string name="latest">Latest</string>
     <string name="reject_notifications">Reject Notifications</string>
     <string name="accept_notifications">Accept Notifications"</string>
-<!--    (rehaan) addition-->
+
     <string name="back">Back</string>
     <string name="invited_entrants_title">Invited Entrants</string>
     <string name="loading">Loading…</string>
@@ -20,7 +20,6 @@
     <string name ="invited">Invited</string>
     <string name ="user_icon">User icon</string>
 
-    <!-- Organizer module -->
     <string name="organizer_my_events">My Events</string>
     <string name="organizer_create_new_event">Create New Event</string>
     <string name="organizer_logout">Log out</string>
@@ -52,10 +51,8 @@
     <string name="organizer_error_registration_start_past">Registration start date cannot be in the past</string>
     <string name="organizer_error_upload">Poster upload failed</string>
     <string name="organizer_error_save">Failed to save event</string>
-    <!-- REHAAN'S ADDITION — Places autocomplete -->
     <string name="google_maps_key" translatable="false">AIzaSyCxq6ab9En0oIrMJujp1okriXmfp1yH1xY</string>
     <string name="organizer_error_location_not_selected">Please select a location from the suggestions</string>
-    <!-- END REHAAN'S ADDITION -->
     <string name="organizer_event_poster">Event poster</string>
     <string name="organizer_price_label">Price</string>
     <string name="organizer_price_free">Free</string>
@@ -80,8 +77,6 @@
     <string name="qr_code">QR code</string>
     <string name="invited_count">%d invited</string>
 
-
-<!-- rehaan's addition for US.02.07.01-->
     <string name="cancelled_entrants_title">Cancelled Entrants</string>
     <string name="no_cancelled_entrants">No cancelled entrants</string>
     <string name="cancelled_count">%d cancelled</string>
@@ -90,7 +85,6 @@
     <string name="unknown_user">Unknown</string>
     <string name="status_cancelled">Cancelled</string>
 
-    <!-- Rehaan's addition for US 02.05.02: -->
     <string name="lottery_dialog_title">Run Lottery</string>
     <string name="lottery_dialog_message">Enter the number of entrants to select from the waiting list.</string>
     <string name="lottery_dialog_hint">Number of entrants</string>
@@ -101,7 +95,6 @@
     <string name="lottery_error_enter_number">Please enter a number</string>
     <string name="lottery_error_positive">Number must be greater than 0</string>
     <string name="lottery_error_failed">Lottery failed : please try again</string>
-    <!-- rehaan 02.05.03 - draw replacement button and dialog strings -->
     <string name="organizer_draw_replacement">Draw Replacement Applicant</string>
     <string name="replacement_dialog_title">Draw Replacement</string>
     <string name="replacement_dialog_message">This will draw one entrant from the waiting list to fill a cancelled or rejected spot.</string>
@@ -138,7 +131,6 @@
     <string name="calendar_weekday_fri">F</string>
     <string name="calendar_weekday_sat">S</string>
 
-    <!-- Organizer: View Requests / waiting list -->
     <string name="waitlist_screen_title">Wait Well</string>
     <string name="waitlist_section_label">Waiting List</string>
     <string name="waitlist_view_map">View Map</string>
@@ -228,16 +220,13 @@
     <string name="waitlist_status_display_confirmed">Confirmed</string>
     <string name="waitlist_status_display_cancelled">Cancelled</string>
 
-    <!-- Firestore waitlist status values (must match existing backend strings) -->
     <string name="firestore_waitlist_status_waiting" translatable="false">waiting</string>
     <string name="firestore_waitlist_status_selected" translatable="false">selected</string>
     <string name="firestore_waitlist_status_confirmed" translatable="false">confirmed</string>
     <string name="firestore_waitlist_status_cancelled" translatable="false">cancelled</string>
     <string name="firestore_waitlist_status_rejected" translatable="false">rejected</string>
-    <!-- Optional client-side alias if backend ever stores a separate pending label -->
     <string name="waitlist_entry_status_pending_alias" translatable="false">pending</string>
 
-    <!-- Organizer: post-sampling confirmation + sampled entrants -->
     <string name="organizer_content_desc_menu">Menu</string>
     <string name="organizer_bottom_nav_back">Back</string>
     <string name="organizer_nav_home">Home</string>
@@ -257,11 +246,9 @@
     <string name="sampled_confirm_success">Entrant confirmed.</string>
 
     <string name="sampled_remove_success">Entrant removed from sampled list.</string>
-    <!-- REHAAN'S ADDITION — remove sampled entrant dialog -->
     <string name="sampled_remove_dialog_title">Remove Entrant</string>
     <string name="sampled_remove_dialog_message">Remove %1$s from the sampled list? They will be marked as not selected. Use Draw Replacement from the event page to fill the spot.</string>
     <string name="sampled_remove_dialog_confirm">Remove</string>
-    <!-- END REHAAN'S ADDITION -->
     <string name="notification_invite_expired">Invite expired</string>
     <string name="enrolled_entrants_title">Enrolled Entrants</string>
     <string name="no_enrolled_entrants">No enrolled entrants</string>
@@ -288,11 +275,8 @@
     <string name="waitlist_no_entrants_to_notify">No entrants to notify</string>
     <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
     <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
-    <!-- REHAAN'S ADDITION — US 02.09.01 -->
     <string name="co_organizer_cannot_join">Co-organizers cannot join the entrant pool for this event.</string>
-    <!-- END REHAAN'S ADDITION -->
 
-    <!-- REHAAN'S ADDITION — US 01.05.05 -->
     <string name="lottery_criteria_title">How the Lottery Works</string>
     <string name="lottery_criteria_step1_heading">1. Join the Waiting List</string>
     <string name="lottery_criteria_step1_body">Express your interest by joining the waiting list for any open event. There is no first-come advantage — everyone on the waiting list has an equal chance of being selected.</string>
@@ -305,22 +289,17 @@
     <string name="lottery_criteria_step5_heading">5. Replacement Draws</string>
     <string name="lottery_criteria_step5_body">If a selected entrant declines, the organizer can draw one replacement at a time from the remaining waiting list. Replacement draws are also random and fair.</string>
     <string name="lottery_criteria_menu_desc">Menu</string>
-    <!-- END REHAAN'S ADDITION -->
 
-    <!-- REHAAN'S ADDITION — US 02.02.02 -->
     <string name="waitlist_map_title">Waitlist Map</string>
     <string name="waitlist_map_content_desc">Map showing where entrants joined the waitlist</string>
     <string name="waitlist_map_no_locations">No location data available for this waitlist</string>
-    <!-- END REHAAN'S ADDITION -->
 
-    <!-- REHAAN'S ADDITION — US 02.09.01 + US 01.09.01 -->
     <string name="co_organizer_assign_title">Assign Co-Organizer</string>
     <string name="co_organizer_assign_button_desc">Assign as co-organizer</string>
     <string name="co_organizer_assigned_toast">%1$s assigned as co-organizer</string>
     <string name="co_organizer_invited_toast">%1$s has been invited as co-organizer</string>
     <string name="co_organizer_notification_message">You have been invited to be a co-organizer for %1$s.</string>
     <string name="organizer_assign_co_organizer">Assign Co-Organizer</string>
-    <!-- REHAAN'S ADDITION — Co-Organizer Invite Response + Manage button -->
     <string name="co_organizer_invite_response_title">Co-Organizer Invitation</string>
     <string name="co_organizer_invite_accept">Accept Co-Organizer Role</string>
     <string name="co_organizer_invite_decline">Decline Invitation</string>
@@ -328,6 +307,5 @@
     <string name="co_organizer_invite_decline_success">Invitation declined.</string>
     <string name="co_organizer_event_section_header">Events I Co-Organize</string>
     <string name="co_organizer_manage_button">Manage</string>
-    <!-- END REHAAN'S ADDITION -->
 </resources>
 

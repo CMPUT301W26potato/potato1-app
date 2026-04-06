@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base app theme -->
     <style name="Theme.WaitWell" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
@@ -9,7 +8,6 @@
         <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
-    <!-- Splash screen theme: green status bar, no action bar -->
     <style name="Theme.WaitWell.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_splash_gradient</item>
         <item name="android:statusBarColor">#C8E6C9</item>
