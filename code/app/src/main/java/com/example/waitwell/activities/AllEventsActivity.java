@@ -300,6 +300,16 @@ public class AllEventsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Displays a Material Design date range picker dialog for filtering events by date.
+     *
+     * Opens a date range selection dialog that allows users to pick a start and end date.
+     * Once a range is selected, it updates the filter mode to "date_range", stores the
+     * selected dates in milliseconds, refreshes the UI chip styles to show the active
+     * date range, and applies the filter to the events list.
+     *
+     * The selected date range is displayed in "MMM d – MMM d" format on the filter chip.
+     */
     private void showDateRangePicker() {
         MaterialDatePicker<Pair<Long, Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText("Select date range")
