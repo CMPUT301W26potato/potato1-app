@@ -244,6 +244,15 @@ public class EventDetailActivity extends AppCompatActivity {
 
         boolean alreadyJoined = waitlist != null && waitlist.contains(deviceId);
         boolean alreadyFinalEntrant = attending != null && attending.contains(deviceId);
+
+// REHAAN'S ADDITION — US 02.09.01: co-organizers cannot join the entrant pool
+        @SuppressWarnings("unchecked")
+        List<String> coOrganizerIds = (List<String>) doc.get("coOrganizerIds");
+        @SuppressWarnings("unchecked")
+        List<String> pendingCoOrganizerIds = (List<String>) doc.get("pendingCoOrganizerIds");
+        boolean isCoOrganizer = (coOrganizerIds != null && coOrganizerIds.contains(deviceId))
+                || (pendingCoOrganizerIds != null && pendingCoOrganizerIds.contains(deviceId));
+// END REHAAN'S ADDITION
         Long waitlistLimitVal = doc.getLong("waitlistLimit");
         int limit = waitlistLimitVal != null ? waitlistLimitVal.intValue() : 0;
         int confirmedCount = attending != null ? attending.size() : 0;
@@ -256,10 +265,13 @@ public class EventDetailActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(entryDoc -> {
                     String entryStatus = entryDoc.exists() ? entryDoc.getString("status") : null;
-                    applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, entryStatus, eventFullByConfirmed);
+                    // REHAAN'S ADDITION — US 02.09.01
+                    applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, entryStatus, eventFullByConfirmed, isCoOrganizer);
+                    // END REHAAN'S ADDITION
                     maybeShowWaitlistStatusSnack(entryStatus);
                 })
-                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, null, eventFullByConfirmed));
+                .addOnFailureListener(e -> applyJoinAvailability(isOpen, alreadyJoined, alreadyFinalEntrant, null, eventFullByConfirmed, isCoOrganizer));
+
     }
 
     /**
@@ -273,9 +285,11 @@ public class EventDetailActivity extends AppCompatActivity {
                 || WaitlistFirestoreStatus.CANCELLED.equals(status);
     }
 
+    // REHAAN'S ADDITION — US 02.09.01: added isCoOrganizer param
     private void applyJoinAvailability(boolean isOpen, boolean alreadyOnWaitlistArray,
                                        boolean alreadyInAttendingList, String entryStatus,
-                                       boolean eventFullByConfirmedLimit) {
+                                       boolean eventFullByConfirmedLimit, boolean isCoOrganizer) {
+// END REHAAN'S ADDITION
         if (joinButtonContainer == null) {
             return;
         }
@@ -283,12 +297,18 @@ public class EventDetailActivity extends AppCompatActivity {
             joinButtonContainer.setVisibility(View.VISIBLE);
             btnJoin.setVisibility(View.VISIBLE);
             return;
-
         }
+        // REHAAN'S ADDITION — US 02.09.01: block co-organizers from joining
+        if (isCoOrganizer) {
+            joinButtonContainer.setVisibility(View.GONE);
+            return;
+        }
+        // END REHAAN'S ADDITION
         if (alreadyOnWaitlistArray || alreadyInAttendingList) {
             joinButtonContainer.setVisibility(View.GONE);
             return;
         }
+        // ... rest of method unchanged
         joinButtonContainer.setVisibility(View.VISIBLE);
         if (blocksWaitlistRejoin(entryStatus)) {
             btnJoin.setVisibility(View.GONE);
@@ -372,11 +392,24 @@ public class EventDetailActivity extends AppCompatActivity {
                     if (attending != null && attending.contains(deviceId)) {
                         Toast.makeText(this, R.string.event_detail_already_registered, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
-                        applyJoinAvailability(true, false, true, "confirmed", false);
+                        applyJoinAvailability(true, false, true, "confirmed", false, false);
                         return;
                     }
+// REHAAN'S ADDITION — US 02.09.01: server-side co-organizer guard
+                    @SuppressWarnings("unchecked")
+                    List<String> coOrgIds = eventDoc.exists() ? (List<String>) eventDoc.get("coOrganizerIds") : null;
+                    @SuppressWarnings("unchecked")
+                    List<String> pendingCoOrgIds = eventDoc.exists() ? (List<String>) eventDoc.get("pendingCoOrganizerIds") : null;
+                    if ((coOrgIds != null && coOrgIds.contains(deviceId))
+                            || (pendingCoOrgIds != null && pendingCoOrgIds.contains(deviceId))) {
+                        Toast.makeText(this, R.string.co_organizer_cannot_join, Toast.LENGTH_LONG).show();
+                        btnJoin.setEnabled(true);
+                        applyJoinAvailability(true, false, false, null, false, true);
+                        return;
+                    }
+// END REHAAN'S ADDITION
                     FirebaseFirestore.getInstance()
-                .collection("waitlist_entries")
+                            .collection("waitlist_entries")
                 .document(entryDocId)
                 .get()
                 .addOnSuccessListener(entryDoc -> {
@@ -387,7 +420,7 @@ public class EventDetailActivity extends AppCompatActivity {
                                 : R.string.event_detail_already_registered;
                         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                         btnJoin.setEnabled(true);
-                        applyJoinAvailability(true, false, false, st, false);
+                        applyJoinAvailability(true, false, false, st, false, false);
                         return;
                     }
                     runJoinWaitlist(title);

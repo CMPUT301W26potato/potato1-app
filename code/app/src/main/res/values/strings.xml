@@ -288,6 +288,9 @@
     <string name="waitlist_no_entrants_to_notify">No entrants to notify</string>
     <string name="waitlist_notify_all_message">You are currently on the waiting list for %1$s. We will notify you of any updates.</string>
     <string name="waitlist_notifications_sent">Notifications sent to waiting list</string>
+    <!-- REHAAN'S ADDITION — US 02.09.01 -->
+    <string name="co_organizer_cannot_join">Co-organizers cannot join the entrant pool for this event.</string>
+    <!-- END REHAAN'S ADDITION -->
 
     <!-- REHAAN'S ADDITION — US 01.05.05 -->
     <string name="lottery_criteria_title">How the Lottery Works</string>
