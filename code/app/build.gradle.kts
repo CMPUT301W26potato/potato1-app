@@ -28,13 +28,19 @@ android {
             )
         }
     }
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
-// Prevents the test APK from pulling the wrong protobuf (NoSuchMethodError: registerDefaultInstance).
+// CRITICAL: Force protobuf to 3.21.12 for Firestore 25.0.0 compatibility
+// Firestore 25.0.0 was compiled against protobuf 3.21.12.
+// Version 3.25+ removed GeneratedMessageLite.registerDefaultInstance(),
+// causing NoSuchMethodError at runtime. This must be enforced for ALL configs.
 configurations.all {
     resolutionStrategy {
         force("com.google.protobuf:protobuf-javalite:3.25.3")
@@ -58,17 +64,14 @@ dependencies {
     // Espresso contrib for RecyclerViewActions and stuff
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
     // Firebase BOM first – all Firebase libs use compatible versions (no versions on Firebase deps)
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation("com.google.firebase:firebase-firestore")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-database")
     testImplementation("org.mockito:mockito-core:5.11.0")
-    // Explicit protobuf-javalite so Firestore and tests share a compatible version
-    implementation("com.google.protobuf:protobuf-javalite:3.25.3")
-    // Force test APK to use the same protobuf (fixes NoSuchMethodError: registerDefaultInstance in instrumentation)
-    androidTestImplementation("com.google.protobuf:protobuf-javalite:3.25.3")
-    //
+    // will force all transitive protobuf deps to 3.21.12, which is what Firestore needs.
+
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
 

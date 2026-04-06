@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.TextViewCompat;
 
@@ -698,7 +699,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
                                     // create comment TextView
                                     TextView commentView = new TextView(this);
-                                    commentView.setTypeface(getResources().getFont(R.font.inter));
+                                    commentView.setTypeface(ResourcesCompat.getFont(this, R.font.inter));
                                     commentView.setText(name + ": " + text);
                                     commentView.setTextSize(14);
                                     commentView.setPadding(16, 16, 16, 16);

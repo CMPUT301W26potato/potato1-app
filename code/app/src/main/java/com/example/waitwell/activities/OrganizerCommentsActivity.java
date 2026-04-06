@@ -9,6 +9,7 @@ import android.widget.Toast;
 import android.view.View;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -109,8 +110,7 @@ public class OrganizerCommentsActivity extends OrganizerBaseActivity {
                         box.setLayoutParams(params);
 
                         TextView txt = new TextView(this);
-                        txt.setTypeface(getResources().getFont(R.font.poppins));
-
+                        txt.setTypeface(ResourcesCompat.getFont(this, R.font.poppins));
                         txt.setText((username != null ? username : "User") + ": " + text);
 
                         // shows organizer label
@@ -124,7 +124,7 @@ public class OrganizerCommentsActivity extends OrganizerBaseActivity {
 
                         // DELETE BUTTON
                         TextView deleteBtn = new TextView(this);
-                        deleteBtn.setTypeface(getResources().getFont(R.font.poppinsmedium));
+                        deleteBtn.setTypeface(ResourcesCompat.getFont(this, R.font.poppinsmedium));
 
                         deleteBtn.setText("Delete");
                         deleteBtn.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
