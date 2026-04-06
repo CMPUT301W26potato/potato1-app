@@ -7,14 +7,34 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Represents a notification in the Wait Well system.
- * Firestore collection: "notifications"
- * Notifications are created when:
- * - User is selected in lottery (CHOSEN)
- * - User is not selected in lottery (NOT_CHOSEN)
- * - Other event updates occur
+ * Data model for one notification document from Firestore. This is shared by organizer
+ * notification sends and entrant notification screens.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 02.05.01 - Organizer: Notify Chosen Entrants
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see NotificationModel
  */
 public class Notification implements Serializable {
+    /*
+     * Used Gemini to figure out how to query Firestore for a specific
+     * user's notifications and sort them by timestamp without it getting
+     * weird. Also talked through how to handle the UI update when a
+     * notification gets tapped and the entrant has already responded.
+     *
+     *
+     * Sites I looked at:
+     *
+     * Firestore queries - whereEqualTo and orderBy used together:
+     * https://firebase.google.com/docs/firestore/query-data/queries
+     *
+     * RecyclerView with Firestore - how to bind live data to a list:
+     * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+     *
+     * Handling click events inside a RecyclerView adapter:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+     */
 
     @DocumentId
     private String id;
@@ -29,12 +49,23 @@ public class Notification implements Serializable {
     @ServerTimestamp
     private Date createdAt;
 
-    // Default constructor for Firestore
+    /**
+     * Empty constructor required by Firestore object mapping.
+     *
+     * @author Karina Zhang
+     */
     public Notification() {
     }
 
     /**
-     *  Constructor for creating new notifications
+     * Creates a new notification payload before writing it to Firestore.
+     *
+     * @param userId recipient user id
+     * @param eventId related event id
+     * @param eventName related event title
+     * @param message body text shown in card
+     * @param type notification type string
+     * @author Karina Zhang
      */
 
     public Notification(String userId, String eventId, String eventName, String message, String type) {
@@ -120,10 +151,13 @@ public class Notification implements Serializable {
     }
 
     /**
-     * Helper method to convert to NotificationModel for adapter
+     * Converts this Firestore model to adapter-friendly `NotificationModel`.
+     *
+     * @return mapped notification model for RecyclerView rows
+     * @author Karina Zhang
      */
     public NotificationModel toNotificationModel() {
-        // REHAAN'S ADDITION — CO_ORGANIZER type mapping (US 02.09.01 Part 2)
+        // REHAAN'S ADDITION â€” CO_ORGANIZER type mapping (US 02.09.01 Part 2)
         NotificationModel.NotificationType notifType;
         String buttonLabel;
         if ("CO_ORGANIZER".equals(type)) {

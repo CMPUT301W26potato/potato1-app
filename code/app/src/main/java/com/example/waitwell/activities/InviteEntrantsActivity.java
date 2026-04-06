@@ -38,9 +38,43 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Organizer screen for searching users and sending private-event invites by creating
+ * selected waitlist entries plus notifications. This is the organizer side of private invites.
+ *
+ * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR), US 01.05.06 - Entrant: Private Event Invite Notification
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see InvitationResponseActivity
+ */
 public class InviteEntrantsActivity extends AppCompatActivity {
+
+    /*
+     * Used Gemini to get my head around writing notification documents to
+     * Firestore in a way the entrant side can actually pick up and display.
+     * It helped me figure out what fields to include so we can tell what
+     * type of notification it is when the entrant sees it. Wrote everything
+     * myself after understanding how it fits together.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - adding documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - how snapshot listeners work:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
     public static final String EXTRA_EVENT_ID = "event_id";
 
+    /**
+     * Search mode for the segmented filter buttons on this screen.
+     *
+     * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR)
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     private enum SearchType { NAME, PHONE, EMAIL }
 
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
@@ -56,6 +90,12 @@ public class InviteEntrantsActivity extends AppCompatActivity {
     private Button btnSearchPhone;
     private Button btnSearchEmail;
 
+    /**
+     * Wires up UI controls, fetches event context, and starts the invite search flow.
+     *
+     * @param savedInstanceState activity restore bundle, may be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,6 +165,12 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         setSearchType(SearchType.NAME);
     }
 
+    /**
+     * Switches active search type and refreshes results for that mode.
+     *
+     * @param type selected mode (name, phone, or email)
+     * @author Karina Zhang
+     */
     private void setSearchType(@NonNull SearchType type) {
         activeType = type;
         btnSearchName.setBackgroundResource(type == SearchType.NAME ? R.drawable.bg_filter_active : R.drawable.bg_filter_inactive);
@@ -136,6 +182,11 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         runSearch();
     }
 
+    /**
+     * Loads event title used in invitation text and fallback strings.
+     *
+     * @author Karina Zhang
+     */
     private void loadEventTitle() {
         db.collection("events").document(eventId).get().addOnSuccessListener(doc -> {
             String title = doc != null ? doc.getString("title") : null;
@@ -145,6 +196,11 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads user ids already tied to this event so they do not show in invite search.
+     *
+     * @author Karina Zhang
+     */
     private void loadExcludedUserIds() {
         db.collection("waitlist_entries")
                 .whereEqualTo("eventId", eventId)
@@ -161,6 +217,11 @@ public class InviteEntrantsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Runs a simple local filter over queried users based on the active search mode.
+     *
+     * @author Karina Zhang
+     */
     private void runSearch() {
         String query = editSearch.getText() != null ? editSearch.getText().toString().trim() : "";
         if (query.length() < 2) {
@@ -206,6 +267,12 @@ public class InviteEntrantsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Writes selected status for this user and sends the invite notification.
+     *
+     * @param item selected user row to invite
+     * @author Karina Zhang
+     */
     private void inviteEntrant(@NonNull InviteUserItem item) {
         String titleForEntry = TextUtils.isEmpty(eventTitle) ? getString(R.string.app_name) : eventTitle;
         String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
@@ -242,6 +309,12 @@ public class InviteEntrantsActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.waitlist_update_failed, Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Removes a user from visible results after they are invited.
+     *
+     * @param userId invited user id to remove
+     * @author Karina Zhang
+     */
     private void removeResult(@NonNull String userId) {
         for (int i = 0; i < results.size(); i++) {
             if (userId.equals(results.get(i).userId)) {
@@ -253,10 +326,25 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * Trims nullable profile fields to avoid null checks in UI binding.
+     *
+     * @param value nullable Firestore field value
+     * @return non-null trimmed string
+     * @author Karina Zhang
+     */
     private String safe(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Row model used by the invite search result list.
+     *
+     * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR), US 01.05.06 - Entrant: Private Event Invite Notification
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     static class InviteUserItem {
         final String userId;
         final String name;
@@ -264,6 +352,16 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         final String phone;
         final String matchedValue;
 
+        /**
+         * Creates one invite-result row object.
+         *
+         * @param userId user document id
+         * @param name display name
+         * @param email email value
+         * @param phone phone value
+         * @param matchedValue value currently matched by active filter
+         * @author Karina Zhang
+         */
         InviteUserItem(String userId, String name, String email, String phone, String matchedValue) {
             this.userId = userId;
             this.name = name;
@@ -273,20 +371,63 @@ public class InviteEntrantsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adapter for invite search results with actions for profile view and invite.
+     *
+     * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR), US 01.05.06 - Entrant: Private Event Invite Notification
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     static class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.Holder> {
+        /**
+         * Callbacks for actions on each invite row.
+         *
+         * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR)
+         *
+         * @author Karina Zhang
+         * @version 1.0
+         */
         interface Listener {
+            /**
+             * Opens entrant profile preview from an invite row.
+             *
+             * @param item selected result row
+             * @author Karina Zhang
+             */
             void onViewProfile(@NonNull InviteUserItem item);
+            /**
+             * Sends invite action for a selected result row.
+             *
+             * @param item selected result row
+             * @author Karina Zhang
+             */
             void onInvite(@NonNull InviteUserItem item);
         }
 
         private final List<InviteUserItem> items;
         private final Listener listener;
 
+        /**
+         * Creates adapter with source list and action callbacks.
+         *
+         * @param items mutable results list from parent activity
+         * @param listener callback receiver for row actions
+         * @author Karina Zhang
+         */
         InviteAdapter(List<InviteUserItem> items, Listener listener) {
             this.items = items;
             this.listener = listener;
         }
 
+        /**
+         * Inflates one invite result row.
+         *
+         * @param parent recycler parent
+         * @param viewType adapter row type
+         * @return holder bound to invite row layout
+         * @author Karina Zhang
+         */
         @NonNull
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -294,6 +435,13 @@ public class InviteEntrantsActivity extends AppCompatActivity {
             return new Holder(v);
         }
 
+        /**
+         * Binds one invite result row with actions.
+         *
+         * @param h row holder
+         * @param position adapter position
+         * @author Karina Zhang
+         */
         @Override
         public void onBindViewHolder(@NonNull Holder h, int position) {
             InviteUserItem item = items.get(position);
@@ -303,17 +451,37 @@ public class InviteEntrantsActivity extends AppCompatActivity {
             h.btnInvite.setOnClickListener(v -> listener.onInvite(item));
         }
 
+        /**
+         * Returns number of invite rows currently in the list.
+         *
+         * @return row count
+         * @author Karina Zhang
+         */
         @Override
         public int getItemCount() {
             return items.size();
         }
 
+        /**
+         * Holder for invite row view references.
+         *
+         * Addresses: US 02.01.02 - Organizer: Create Private Event (No QR)
+         *
+         * @author Karina Zhang
+         * @version 1.0
+         */
         static class Holder extends RecyclerView.ViewHolder {
             final TextView txtName;
             final TextView txtMatched;
             final ImageButton btnView;
             final ImageButton btnInvite;
 
+            /**
+             * Maps invite row view ids into holder fields.
+             *
+             * @param itemView row root view
+             * @author Karina Zhang
+             */
             Holder(@NonNull View itemView) {
                 super(itemView);
                 txtName = itemView.findViewById(R.id.txtEntrantName);

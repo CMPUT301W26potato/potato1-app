@@ -36,8 +36,28 @@ import java.util.Locale;
 /**
  * Entrant screen to accept or decline an event invitation. Firestore "invited" state is {@code selected}
  * (lottery / organizer accept); final state is {@code confirmed}; declined is {@code cancelled}.
+ *
+ * Addresses: US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see EntrantNotificationScreen
  */
 public class InvitationResponseActivity extends AppCompatActivity {
+    /*
+     * Got help from Gemini understanding how to compare the event deadline
+     * against the current time in Java, and how to update a specific Firestore
+     * field without accidentally overwriting the rest of the document. Figured
+     * out the concept then wrote it from scratch.
+     *
+     * Sites I referenced:
+     *
+     * Firestore - updating specific fields with update() vs set() with merge:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+     *
+     * Comparing dates and timestamps in Java:
+     * https://www.baeldung.com/java-date-difference
+     */
 
     private static final String TAG = "InvitationResponse";
 

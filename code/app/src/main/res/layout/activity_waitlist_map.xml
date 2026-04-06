@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- REHAAN'S ADDITION — US 02.02.02 -->
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,4 +42,4 @@
         android:contentDescription="@string/waitlist_map_content_desc" />
 
 </LinearLayout>
-    <!-- END REHAAN'S ADDITION -->
+    

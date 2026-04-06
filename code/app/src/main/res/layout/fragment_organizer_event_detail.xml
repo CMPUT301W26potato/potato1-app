@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -361,8 +361,8 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:fontFamily="@font/inter24ptmedium" />
-<!--Rehaan's addition for 02.05.02-->
-            <!-- draw a replacement when someone cancels/rejects -->
+
+            
             <Button
                 android:id="@+id/btnDrawReplacement"
                 android:layout_width="match_parent"
@@ -384,7 +384,7 @@
                 android:textAllCaps="false"
                 android:fontFamily="@font/inter24ptmedium" />
 
-            <!-- REHAAN'S ADDITION — US 02.09.01 -->
+            
             <Button
                 android:id="@+id/btnAssignCoOrganizer"
                 android:layout_width="match_parent"
@@ -395,7 +395,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:fontFamily="@font/inter24ptmedium" />
-            <!-- END REHAAN'S ADDITION -->
+            
 
             <View
                 android:layout_width="match_parent"
@@ -411,4 +411,5 @@
         app:itemTextColor="@color/text_hint"
         app:menu="@menu/bottom_nav_menu_organizer"  />
 </LinearLayout>
+
 

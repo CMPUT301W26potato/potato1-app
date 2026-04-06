@@ -13,13 +13,26 @@ import com.example.waitwell.Profile;
 import com.example.waitwell.R;
 
 /**
- * Shown after {@link com.example.waitwell.FirebaseHelper#executeLotterySampling} succeeds.
+ * Small confirmation screen shown after organizer lottery sampling finishes.
+ * It shows sampled count and routes to sampled entrants list.
+ *
+ * Addresses: US 02.05.01 - Organizer: Notify Chosen Entrants
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see SampledEntrantsActivity
  */
 public class SamplingConfirmationActivity extends AppCompatActivity {
 
     public static final String EXTRA_EVENT_ID = "event_id";
     public static final String EXTRA_SAMPLED_COUNT = "sampled_count";
 
+    /**
+     * Shows sampled count and wires nav actions to sampled list/home/back.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

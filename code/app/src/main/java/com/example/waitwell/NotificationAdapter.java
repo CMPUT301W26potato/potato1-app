@@ -29,9 +29,34 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 /**
- *  connect the notifications to the recycler view / ui
+ * Recycler adapter for entrant notifications so each card gets the right style and click action.
+ * This is part of the private invite notification and accept/decline flow.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see com.example.waitwell.activities.InvitationResponseActivity
  */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
+    /*
+     * Asked Gemini how to query Firestore for a specific user's notifications
+     * and how to sort them by timestamp properly. Also used it to think through
+     * how to update the UI when a notification gets tapped without messing up
+     * the rest of the list.
+     * approach.
+     *
+     * Sites I looked at:
+     *
+     * Firestore queries - how whereEqualTo and orderBy work together:
+     * https://firebase.google.com/docs/firestore/query-data/queries
+     *
+     * RecyclerView with Firestore data - binding patterns:
+     * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+     *
+     * RecyclerView click listeners in an adapter:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+     */
 
     private List<NotificationModel> notifications;
     private Context context;
@@ -159,7 +184,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     private void onNotificationActionClick(ViewHolder holder, NotificationModel n) {
-        // REHAAN'S ADDITION — CO_ORGANIZER routing (US 02.09.01 Part 2)
+        // REHAAN'S ADDITION â€” CO_ORGANIZER routing (US 02.09.01 Part 2)
         if (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER) {
             Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
             intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
@@ -289,7 +314,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         ContextCompat.getColor(context, R.color.status_closed_text),
                         R.drawable.ic_minus_white,
                         R.string.notification_category_cancelled);
-            // REHAAN'S ADDITION — US 02.09.01 Part 2
+            // REHAAN'S ADDITION â€” US 02.09.01 Part 2
             case CO_ORGANIZER:
                 return new CategoryStyle(
                         ContextCompat.getColor(context, R.color.primary),
@@ -331,7 +356,33 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
+    /**
+     * Holds view refs for one notification card row.
+     *
+     * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 01.05.07 - Entrant: Accept/Decline Private Event
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        /*
+         * Asked Gemini how to query Firestore for a specific user's notifications
+         * and how to sort them by timestamp properly. Also used it to think through
+         * how to update the UI when a notification gets tapped without messing up
+         * the rest of the list.
+         * approach.
+         *
+         * Sites I looked at:
+         *
+         * Firestore queries - how whereEqualTo and orderBy work together:
+         * https://firebase.google.com/docs/firestore/query-data/queries
+         *
+         * RecyclerView with Firestore data - binding patterns:
+         * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+         *
+         * RecyclerView click listeners in an adapter:
+         * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+         */
         View leftBorderStrip;
         FrameLayout iconContainer;
         ImageView imgNotificationTypeIcon;
@@ -354,3 +405,4 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 }
+

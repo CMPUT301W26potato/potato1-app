@@ -23,13 +23,15 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-/** Karina's features:
- * Mostly backs user story 02.01.01 (Create Event & QR) from the organizer's perspective.
- * a little "completed!" confirmation screen that organizers see after creating an event.
- * This fragment only belongs to the Organizer module and never shows up for other roles.
- * It generates a QR code for the newly created event, lets the organizer share it out,
- * and offers a quick way back to the Organizer home list.
-
+/**
+ * Confirmation screen after organizers create an event. It shows QR + share for public events,
+ * and skips QR for private events, so this covers both public and private create flows.
+ *
+ * Addresses: US 02.01.01 - Organizer: Create Public Event and Generate QR, US 02.01.02 - Organizer: Create Private Event (No QR)
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see OrganizerCreateEventFragment
  */
 public class OrganizerEventCreatedFragment extends Fragment {
 
@@ -58,6 +60,18 @@ public class OrganizerEventCreatedFragment extends Fragment {
      * @param eventTitle title to show and include in share text
      * @param posterUrl  optional poster URL, kept mostly for consistency with the flow
      * @return a new {@link OrganizerEventCreatedFragment} with args set
+     * @author Karina Zhang
+     */
+    /**
+     * Same factory as above, but this one also controls share-mode wording.
+     *
+     * @param eventId Firestore id for the event
+     * @param eventTitle event title text
+     * @param posterUrl optional poster url
+     * @param isPrivateEvent true means no QR rendering
+     * @param isShareMode true changes banner text for sharing context
+     * @return fragment instance with all args attached
+     * @author Karina Zhang
      */
     public static OrganizerEventCreatedFragment newInstance(@NonNull String eventId,
                                                             @NonNull String eventTitle,
@@ -85,6 +99,9 @@ public class OrganizerEventCreatedFragment extends Fragment {
     /**
      * Fires the compact confirmation layout that shows the QR code,
      * share button, and shortcut back to the Organizer home screen.
+     *
+     * @return inflated organizer created-event view
+     * @author Karina Zhang
      */
     @Nullable
     @Override
@@ -96,6 +113,10 @@ public class OrganizerEventCreatedFragment extends Fragment {
      * Pulls arguments out of the Bundle, generates the QR code, and hooks
      * up the share and navigation buttons once the view is ready.
      * Assumes the creator fragment passed a non empty event id.
+     *
+     * @param view root fragment view
+     * @param savedInstanceState lifecycle restore bundle, may be null
+     * @author Karina Zhang
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -148,6 +169,12 @@ public class OrganizerEventCreatedFragment extends Fragment {
         btnViewMyEvents.setOnClickListener(v -> navigateToMyEvents());
     }
 
+    /**
+     * Creates a bitmap QR from the event id string and shows it on screen.
+     *
+     * @param content event id encoded into QR
+     * @author Karina Zhang
+     */
     private void generateQrCode(@NonNull String content) {
         // I learned how to wire up this QR code generation flow by asking
         // ChatGPT to walk me through the ZXing usage step by step.
@@ -169,6 +196,11 @@ public class OrganizerEventCreatedFragment extends Fragment {
         }
     }
 
+    /**
+     * Shares the event id text and QR image using Android share sheet.
+     *
+     * @author Karina Zhang
+     */
     private void shareEvent() {
         if (eventId == null) return;
 
@@ -201,6 +233,11 @@ public class OrganizerEventCreatedFragment extends Fragment {
         startActivity(Intent.createChooser(shareIntent, "Share event"));
     }
 
+    /**
+     * Sends the organizer back to My Events and clears this fragment from back stack.
+     *
+     * @author Karina Zhang
+     */
     private void navigateToMyEvents() {
         if (getActivity() instanceof OrganizerEntryActivity) {
             // Clear any organizer fragments that might be on the stack so
