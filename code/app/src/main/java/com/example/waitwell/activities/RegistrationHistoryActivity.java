@@ -32,6 +32,7 @@ import java.util.List;
  * Waitlist, and Notifications. There's also a back button for easy navigation.
  *
  * @author Sarang
+ * @author Viktoria
  */
 
 public class RegistrationHistoryActivity extends AppCompatActivity {

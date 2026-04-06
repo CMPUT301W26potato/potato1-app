@@ -38,6 +38,7 @@ import com.example.waitwell.EntrantNotificationOptions;
  *
  * Modified by Rehaan: Integrated DrawerLayout logic to bridge Karina's
  * Organizer shell with Sarang's Navigation Drawer structure.
+ * QR Modification by Viktoria.
  */
 public class OrganizerEntryActivity extends AppCompatActivity {
 

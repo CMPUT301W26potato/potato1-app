@@ -53,6 +53,9 @@ import java.util.Set;
  *   category: "Swimming"
  *   category: "Dance"
  * The search bar and the active filter combine — the entrant can pick "Swimming" and then type "beginner" to narrow down their search.
+ *
+ * @author Viktoria
+ *
  *  Logic written with help from Claude (claude.ai)
  */
 public class AllEventsActivity extends AppCompatActivity {
@@ -89,6 +92,12 @@ public class AllEventsActivity extends AppCompatActivity {
 
 
 
+    /**
+     * Inflates the layout and wires up views, filter chips, search box, and
+     * bottom navigation. Event data is loaded later in {@link #onResume()}.
+     *
+     * @param savedInstanceState previously saved instance state, or {@code null} on first launch
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -453,6 +462,12 @@ public class AllEventsActivity extends AppCompatActivity {
         renderList(filtered);
     }
 
+    /**
+     * Renders the filtered list of event documents into the events container,
+     * updating the result count and showing the empty state when no events match.
+     *
+     * @param docs the filtered list of event documents to display
+     */
     private void renderList(List<DocumentSnapshot> docs) {
         eventsListContainer.removeAllViews();
 
