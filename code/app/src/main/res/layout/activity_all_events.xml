@@ -122,7 +122,7 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Availability â–¾"
+            android:text="Availability ▾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
@@ -136,7 +136,7 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Category â–¾"
+            android:text="Category ▾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
@@ -161,7 +161,7 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Event Capacity â–¾"
+            android:text="Event Capacity ▾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
     </LinearLayout>
@@ -199,7 +199,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="âœ•"
+            android:text="✕"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"
@@ -238,7 +238,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="âœ•"
+            android:text="✕"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"
@@ -278,7 +278,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="âœ•"
+            android:text="✕"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"

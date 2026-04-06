@@ -130,7 +130,7 @@
                         android:backgroundTint="@null"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
-                        android:text="â–¶ Scan QR Code"
+                        android:text="▶ Scan QR Code"
                         android:textAllCaps="false"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
@@ -157,7 +157,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="â€º"
+                        android:text="›"
                         android:textColor="@color/text_primary"
                         android:textSize="22sp" />
                 </LinearLayout>
