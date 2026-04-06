@@ -137,6 +137,8 @@ public class Notification implements Serializable {
             buttonLabel = "View Details";
         }
         // END REHAAN'S ADDITION
-        return new NotificationModel(eventId, eventName, message, buttonLabel, notifType);
+        NotificationModel model = new NotificationModel(eventId, eventName, message, buttonLabel, notifType);
+        model.setResponded(responded);
+        return model;
     }
 }

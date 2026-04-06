@@ -94,7 +94,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tintIcon(holder.imgNotificationTypeIcon, style.iconRes, muted);
         } else {
             holder.expiredLabel.setVisibility(View.GONE);
-            if (n.isInviteAlreadyResolvedOnWaitlist()) {
+            if (n.isInviteAlreadyResolvedOnWaitlist()
+                    || (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER && n.isResponded())) {
                 @ColorInt int hint = ContextCompat.getColor(context, R.color.text_hint);
                 holder.leftBorderStrip.setBackgroundColor(hint);
                 holder.iconContainer.setBackgroundTintList(ColorStateList.valueOf(hint));
@@ -161,20 +162,45 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private void onNotificationActionClick(ViewHolder holder, NotificationModel n) {
         // REHAAN'S ADDITION — CO_ORGANIZER routing (US 02.09.01 Part 2)
         if (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER) {
-            Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
-            if (parentActivity != null) {
-                int pos = holder.getBindingAdapterPosition();
-                if (pos != RecyclerView.NO_POSITION) {
-                    String notifId = parentActivity.getNotificationId(pos);
-                    if (notifId != null) {
-                        intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_NOTIFICATION_ID, notifId);
+            if (n.isResponded()) {
+                // Already responded — check event to determine accepted vs declined
+                String uid = DeviceUtils.getDeviceId(context);
+                FirebaseFirestore.getInstance()
+                        .collection("events").document(n.getEventId())
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            String status;
+                            if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                                java.util.List<String> coOrgIds = (java.util.List<String>) task.getResult().get("coOrganizerIds");
+                                status = (coOrgIds != null && coOrgIds.contains(uid)) ? "accepted" : "declined";
+                            } else {
+                                status = "declined";
+                            }
+                            holder.itemView.post(() -> {
+                                Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_ALREADY_RESPONDED, status);
+                                context.startActivity(intent);
+                            });
+                        });
+            } else {
+                Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
+                if (parentActivity != null) {
+                    int pos = holder.getBindingAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        String notifId = parentActivity.getNotificationId(pos);
+                        if (notifId != null) {
+                            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_NOTIFICATION_ID, notifId);
+                        }
                     }
                 }
+                context.startActivity(intent);
             }
-            context.startActivity(intent);
             return;
         }
         // END REHAAN'S ADDITION

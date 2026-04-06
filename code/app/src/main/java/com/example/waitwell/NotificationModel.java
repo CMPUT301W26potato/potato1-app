@@ -20,6 +20,8 @@ public class NotificationModel {
     private boolean inviteWaitlistStatusFetchStarted;
     /** True when waitlist entry is already confirmed or cancelled (invitation already handled). */
     private boolean inviteAlreadyResolvedOnWaitlist;
+    /** True when this notification has been responded to (from Firestore 'responded' field). */
+    private boolean responded;
 
     /**
      *  create a new notificationmodel object to be used in the adapter
@@ -78,5 +80,13 @@ public class NotificationModel {
 
     public void setInviteAlreadyResolvedOnWaitlist(boolean inviteAlreadyResolvedOnWaitlist) {
         this.inviteAlreadyResolvedOnWaitlist = inviteAlreadyResolvedOnWaitlist;
+    }
+
+    public boolean isResponded() {
+        return responded;
+    }
+
+    public void setResponded(boolean responded) {
+        this.responded = responded;
     }
 }
