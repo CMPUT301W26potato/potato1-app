@@ -150,4 +150,31 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
     public void onViewProfile(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
         ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
+
+    // REHAAN'S ADDITION — remove a sampled entrant (set to rejected, remove from list)
+    @Override
+    public void onRemoveSampledEntrant(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(getString(R.string.sampled_remove_dialog_title))
+                .setMessage(getString(R.string.sampled_remove_dialog_message, item.displayName))
+                .setPositiveButton(getString(R.string.sampled_remove_dialog_confirm), (dialog, which) ->
+                        doRemoveSampledEntrant(item))
+                .setNegativeButton(getString(R.string.lottery_dialog_cancel), null)
+                .show();
+    }
+
+    private void doRemoveSampledEntrant(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
+        db.collection("waitlist_entries")
+                .document(item.entryDocumentId)
+                .update("status", com.example.waitwell.WaitlistFirestoreStatus.REJECTED)
+                .addOnSuccessListener(v -> {
+                    adapter.removeEntry(item.entryDocumentId);
+                    Toast.makeText(this, R.string.sampled_remove_success, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("SampledEntrants", "remove failed", e);
+                    Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show();
+                });
+    }
+    // END REHAAN'S ADDITION
 }

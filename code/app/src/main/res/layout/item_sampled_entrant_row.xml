@@ -43,5 +43,18 @@
             android:padding="10dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_visibility_eye" />
+
+        <!-- REHAAN'S ADDITION — remove sampled entrant button -->
+        <ImageButton
+            android:id="@+id/btnRemoveSampledEntrant"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_button_red"
+            android:contentDescription="@string/sampled_remove_entrant"
+            android:padding="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_delete" />
+        <!-- END REHAAN'S ADDITION -->
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

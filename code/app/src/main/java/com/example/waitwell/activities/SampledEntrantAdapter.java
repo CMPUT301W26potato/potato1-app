@@ -22,6 +22,9 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
 
     public interface Listener {
         void onViewProfile(@NonNull SampledEntrantItem item);
+        // REHAAN'S ADDITION — remove sampled entrant
+        void onRemoveSampledEntrant(@NonNull SampledEntrantItem item);
+        // END REHAAN'S ADDITION
     }
 
     private final Listener listener;
@@ -91,6 +94,9 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
         SampledEntrantItem item = visibleItems.get(position);
         h.txtName.setText(item.displayName != null ? item.displayName : "");
         h.btnEye.setOnClickListener(v -> listener.onViewProfile(item));
+        // REHAAN'S ADDITION — wire remove button
+        h.btnRemove.setOnClickListener(v -> listener.onRemoveSampledEntrant(item));
+        // END REHAAN'S ADDITION
     }
 
     @Override
@@ -101,14 +107,19 @@ public class SampledEntrantAdapter extends RecyclerView.Adapter<SampledEntrantAd
     static final class Holder extends RecyclerView.ViewHolder {
         final TextView txtName;
         final ImageButton btnEye;
+        // REHAAN'S ADDITION — remove button
+        final ImageButton btnRemove;
+        // END REHAAN'S ADDITION
 
         Holder(@NonNull View itemView) {
             super(itemView);
             txtName = itemView.findViewById(R.id.txtEntrantName);
             btnEye = itemView.findViewById(R.id.btnViewEntrant);
+            // REHAAN'S ADDITION
+            btnRemove = itemView.findViewById(R.id.btnRemoveSampledEntrant);
+            // END REHAAN'S ADDITION
         }
     }
-
     public static final class SampledEntrantItem {
         public final String userId;
         public final String displayName;

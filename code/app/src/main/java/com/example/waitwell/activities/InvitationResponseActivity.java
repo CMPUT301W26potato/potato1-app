@@ -313,7 +313,9 @@ public class InvitationResponseActivity extends AppCompatActivity {
 
         String userId = DeviceUtils.getDeviceId(this);
         String entryId = userId + "_" + eventId;
-        String cancelled = getString(R.string.firestore_waitlist_status_cancelled);
+        // REHAAN'S ADDITION — entrant declining uses rejected not cancelled (cancelled is organizer-only)
+        String cancelled = getString(R.string.firestore_waitlist_status_rejected);
+// END REHAAN'S ADDITION
 
         findViewById(R.id.accept).setEnabled(false);
         findViewById(R.id.decline).setEnabled(false);
