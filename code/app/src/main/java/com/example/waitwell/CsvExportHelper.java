@@ -15,10 +15,46 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+/**
+ * Helper for building/exporting the final entrants CSV file.
+ * Keeps CSV formatting logic out of activity classes.
+ *
+ * Addresses: US 02.06.05 - Organizer: Export Enrolled List CSV
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see com.example.waitwell.activities.FinalEntrantsActivity
+ */
 public final class CsvExportHelper {
+    /*
+     * I used Gemini to get my head around writing to a CSV file in Android
+     * and how FileProvider works when sharing files through an Intent. It
+     * explained why getExternalFilesDir is the safe place to write and how
+     * the share sheet picks up the URI from there.
+     * just used it to understand the approach before writing it myself.
+     *
+     * Sites I looked at:
+     *
+     * Android FileProvider - sharing files with other apps without a crash:
+     * https://developer.android.com/reference/androidx/core/content/FileProvider
+     *
+     * Writing CSV in Java - BufferedWriter and how to format the rows:
+     * https://www.baeldung.com/java-csv
+     *
+     * Android share intent - how ACTION_SEND works with a file URI:
+     * https://developer.android.com/training/sharing/send
+     */
 
     private static final Pattern NON_FILE_CHARS = Pattern.compile("[^a-zA-Z0-9]+");
 
+    /**
+     * Row model used while building CSV export rows.
+     *
+     * Addresses: US 02.06.05 - Organizer: Export Enrolled List CSV
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     public static final class FinalEntrant {
         public final String name;
         public final String email;
@@ -127,3 +163,4 @@ public final class CsvExportHelper {
 
     private CsvExportHelper() {}
 }
+

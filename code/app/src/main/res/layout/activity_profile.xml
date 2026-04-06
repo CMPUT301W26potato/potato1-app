@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -9,7 +9,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp">
 
-    <!-- Top bar -->
+    
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp">
@@ -43,7 +43,7 @@
             android:contentDescription="logo" />
     </RelativeLayout>
 
-    <!-- Page title -->
+    
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"/>
 
-    <!-- Profile picture -->
+    
     <ImageView
         android:id="@+id/profileImageView"
         android:layout_width="120dp"
@@ -134,7 +134,7 @@
 
 
 
-    <!-- Profile fields -->
+    
     <EditText
         android:id="@+id/nameField"
         android:hint="Name"
@@ -169,13 +169,13 @@
         android:fontFamily="@font/poppinsmedium"
         android:textAllCaps="false"/>
 
-    <!-- Spacer -->
+    
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Bottom navigation -->
+    
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"

@@ -30,9 +30,31 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Cancelled entrants for an event (read-only list).
+ * Organizer screen that lists cancelled entrants and supports bulk notify for that group.
+ * This is used when organizers follow up with cancelled entrants.
+ *
+ * Addresses: US 02.06.04 - Organizer: View Enrolled Entrants, US 02.07.03 - Organizer: Notify All Cancelled
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see CancelledEntrantAdapter
  */
 public class CancelledEntrantsActivity extends AppCompatActivity implements CancelledEntrantAdapter.Listener {
+    /*
+     * Asked Gemini how to structure notification documents in Firestore so
+     * the entrant side can read them and figure out what type they are. It
+     * helped me think through what fields to include and how to trigger the
+     * write at the right point in the flow.
+     * getting the concept down.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - writing documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - snapshot listeners for live updates:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
@@ -215,3 +237,4 @@ public class CancelledEntrantsActivity extends AppCompatActivity implements Canc
         });
     }
 }
+

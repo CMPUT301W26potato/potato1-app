@@ -24,6 +24,11 @@ import com.google.firebase.firestore.QuerySnapshot;
  * then loads each user's name and email from the users collection.
  * The organizer can cancel any entrant who did not show up by tapping Cancel.
  * Javadoc written with help from Claude (claude.ai)
+ *
+ * Addresses: US 02.06.03 - Organizer: View Enrolled Entrants
+ *
+ * @author Karina Zhang
+ * @version 1.0
  */
 public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
 
@@ -38,6 +43,12 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
     private TextView txtEmpty;
     private String eventId;
 
+    /**
+     * Sets up enrolled entrants screen and loads confirmed list for the event.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +89,8 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
     /**
      * Queries Firestore for all waitlist entries with status "confirmed" for this event.
      * Shows a loading indicator while the query runs.
+     *
+     * @author Karina Zhang
      */
     private void loadEnrolledEntrants() {
         txtLoading.setVisibility(View.VISIBLE);
@@ -100,6 +113,7 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
      * a row with a Cancel button so the organizer can mark no-shows.
      *
      * @param snapshot query results from Firestore
+     * @author Karina Zhang
      */
     private void onEntriesLoaded(QuerySnapshot snapshot) {
         txtLoading.setVisibility(View.GONE);
@@ -160,6 +174,7 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
      * @param entryDocId Firestore document ID of the waitlist_entries doc
      * @param name       display name of the entrant shown in the dialog
      * @param row        the list row view to remove on success
+     * @author Karina Zhang
      */
     private void showCancelConfirmDialog(String entryDocId, String name, View row) {
         new AlertDialog.Builder(this)
@@ -177,6 +192,7 @@ public class EnrolledEntrantsActivity extends OrganizerBaseActivity {
      *
      * @param entryDocId Firestore document ID of the waitlist_entries doc to update
      * @param row        the list row view to remove on success
+     * @author Karina Zhang
      */
     private void cancelEntrant(String entryDocId, View row) {
         FirebaseHelper.getInstance().cancelEnrolledEntrant(entryDocId, task -> {

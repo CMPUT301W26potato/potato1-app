@@ -9,12 +9,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.waitwell.R;
 
 /**
- * Shown after successfully joining a waitlist.
- * Displays the event name and "You're on the waiting list!"
- * with a button to go to the WaitListActivity.
+ * Entrant confirmation screen shown after joining a waitlist, with quick navigation
+ * back to waitlist or home.
+ *
+ * Addresses: US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see WaitListActivity
  */
 public class ConfirmationActivity extends AppCompatActivity {
 
+    /**
+     * Shows confirmation details and wires navigation buttons back to waitlist/home.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -11,11 +11,12 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * JUnit + Mockito tests for {@link MainActivity} helper logic.
- * I followed patterns from ChatGPT and the tutorial at
- * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
- * to set up the mocks and structure these tests, but the actual checks are
- * tailored to how MainActivity reads Firestore data in this project.
+ * Tests for {@link MainActivity} static helper logic used when reading Firestore event docs.
+ * Covers happy path plus null and date-boundary alternatives.
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see MainActivity
  */
 public class MainActivityTest {
 

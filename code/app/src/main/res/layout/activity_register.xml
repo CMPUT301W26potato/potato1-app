@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,14 +15,14 @@
         android:paddingTop="48dp"
         android:paddingBottom="32dp">
 
-        <!-- Logo -->
+        
         <ImageView
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:src="@drawable/waitwell_logo"
             android:contentDescription="Logo" />
 
-        <!-- "Create Account" -->
+        
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Subtitle -->
+        
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             android:textColor="@color/black"
             android:textSize="14sp" />
 
-        <!-- Name field -->
+        
         <EditText
             android:id="@+id/editName"
             android:layout_width="match_parent"
@@ -59,7 +59,7 @@
             android:fontFamily="@font/poppins"
             android:textColorHint="@color/text_hint" />
 
-        <!-- Email field -->
+        
         <EditText
             android:id="@+id/editEmail"
             android:layout_width="match_parent"
@@ -74,7 +74,7 @@
             android:fontFamily="@font/poppins"
             android:textColorHint="@color/text_hint" />
 
-        <!-- Phone field (optional) -->
+        
         <EditText
             android:id="@+id/editPhone"
             android:layout_width="match_parent"
@@ -89,7 +89,7 @@
             android:fontFamily="@font/poppins"
             android:textColorHint="@color/text_hint" />
 
-        <!-- Type of Account spinner -->
+        
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
@@ -107,7 +107,7 @@
                 android:background="@android:color/transparent" />
         </FrameLayout>
 
-        <!-- Sign up button -->
+        
         <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
@@ -121,7 +121,7 @@
             android:fontFamily="@font/poppinsmedium"
             />
 
-        <!-- Already have an account button -->
+        
         <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnAlreadyHaveAccount"
             android:layout_width="match_parent"
@@ -136,3 +136,4 @@
 
     </LinearLayout>
 </ScrollView>
+

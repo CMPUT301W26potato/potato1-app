@@ -43,9 +43,34 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Confirmed (final) entrants for an event.
+ * Organizer screen that lists confirmed entrants and lets the organizer export the list as CSV.
+ * This is the screen-side piece for enrolled view + export.
+ *
+ * Addresses: US 02.06.03 - Organizer: View Enrolled Entrants, US 02.06.05 - Organizer: Export Enrolled List CSV
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see com.example.waitwell.CsvExportHelper
  */
 public class FinalEntrantsActivity extends OrganizerBaseActivity implements FinalEntrantAdapter.Listener {
+    /*
+     * I used Gemini to get my head around writing to a CSV file in Android
+     * and how FileProvider works when sharing files through an Intent. It
+     * explained why getExternalFilesDir is the safe place to write and how
+     * the share sheet picks up the URI from there.
+     * just used it to understand the approach before writing it myself.
+     *
+     * Sites I looked at:
+     *
+     * Android FileProvider - sharing files with other apps without a crash:
+     * https://developer.android.com/reference/androidx/core/content/FileProvider
+     *
+     * Writing CSV in Java - BufferedWriter and how to format the rows:
+     * https://www.baeldung.com/java-csv
+     *
+     * Android share intent - how ACTION_SEND works with a file URI:
+     * https://developer.android.com/training/sharing/send
+     */
 
     public static final String EXTRA_EVENT_ID = "event_id";
     private static final int REQ_EXPORT_STORAGE = 7021;
@@ -57,6 +82,12 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
     private String statusConfirmed;
     private List<FinalEntrantAdapter.FinalEntrantItem> loadedEntrantItems = new ArrayList<>();
 
+    /**
+     * Sets up final entrants list, export button, and organizer nav actions.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +148,11 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         loadFinalEntrants();
     }
 
+    /**
+     * Handles export click and requests legacy storage permission if needed.
+     *
+     * @author Karina Zhang
+     */
     private void onExportCsvClicked() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -129,10 +165,21 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         performExport();
     }
 
+    /**
+     * Starts export flow once prerequisites are satisfied.
+     *
+     * @author Karina Zhang
+     */
     private void performExport() {
         refreshEventTitleIfNeeded(this::fetchUsersAndWriteCsv);
     }
 
+    /**
+     * Loads event title once if missing, then runs the callback.
+     *
+     * @param then callback after title is ready
+     * @author Karina Zhang
+     */
     private void refreshEventTitleIfNeeded(@NonNull Runnable then) {
         if (!TextUtils.isEmpty(eventTitle)) {
             then.run();
@@ -156,6 +203,11 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
                 });
     }
 
+    /**
+     * Fetches user docs for loaded entrants and writes/shares the CSV file.
+     *
+     * @author Karina Zhang
+     */
     private void fetchUsersAndWriteCsv() {
         if (loadedEntrantItems.isEmpty()) {
             File f = CsvExportHelper.generateFinalEntrantsCsv(
@@ -194,6 +246,14 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         }
     }
 
+    /**
+     * Maps one user Firestore doc into CSV row model with fallback name.
+     *
+     * @param doc user document snapshot
+     * @param fallbackName name used when doc has no name field
+     * @return csv row model
+     * @author Karina Zhang
+     */
     private CsvExportHelper.FinalEntrant buildFinalEntrantFromDoc(
             @NonNull DocumentSnapshot doc, String fallbackName) {
         String name = doc.getString("name");
@@ -219,6 +279,12 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
                 createdAt);
     }
 
+    /**
+     * Shares generated CSV file, or shows a toast if file creation failed.
+     *
+     * @param f generated file object
+     * @author Karina Zhang
+     */
     private void shareOrToast(File f) {
         if (f == null || !f.exists()) {
             Toast.makeText(this, R.string.export_failed_toast, Toast.LENGTH_SHORT).show();
@@ -233,6 +299,14 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         startActivity(Intent.createChooser(shareIntent, getString(R.string.export_final_entrants_chooser_title)));
     }
 
+    /**
+     * Receives storage permission result and continues export when granted.
+     *
+     * @param requestCode permission request id
+     * @param permissions requested permission names
+     * @param grantResults grant results array
+     * @author Karina Zhang
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -245,6 +319,11 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         }
     }
 
+    /**
+     * Loads confirmed entrants for this event and resolves user display names.
+     *
+     * @author Karina Zhang
+     */
     private void loadFinalEntrants() {
         FirebaseHelper.getInstance()
                 .getEntriesByEventAndStatus(eventId, statusConfirmed)
@@ -288,6 +367,12 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
                         Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Sorts loaded rows by name and pushes them into adapter and cached export list.
+     *
+     * @param buf unsorted rows collected from Firestore callbacks
+     * @author Karina Zhang
+     */
     private void finishLoad(List<FinalEntrantAdapter.FinalEntrantItem> buf) {
         List<FinalEntrantAdapter.FinalEntrantItem> sorted = new ArrayList<>(buf);
         Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
@@ -299,8 +384,15 @@ public class FinalEntrantsActivity extends OrganizerBaseActivity implements Fina
         });
     }
 
+    /**
+     * Opens profile preview for selected final entrant.
+     *
+     * @param item selected row
+     * @author Karina Zhang
+     */
     @Override
     public void onViewProfile(@NonNull FinalEntrantAdapter.FinalEntrantItem item) {
         ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 }
+

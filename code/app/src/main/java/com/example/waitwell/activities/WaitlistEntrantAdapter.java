@@ -16,16 +16,63 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * List adapter for organizer "View Requests" waiting-list rows.
- * Filters by display name (case-insensitive) via {@link #setFilterQuery(String)}.
+ * Adapter for organizer waitlist request rows, with accept/decline/profile actions.
+ * Used in the view-requests screen and notification flow.
+ *
+ * Addresses: US 02.02.01 - Organizer: View Waitlist Entrants, US 02.05.01 - Organizer: Notify Chosen Entrants
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see ViewRequestsActivity
  */
 public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrantAdapter.Holder> {
+    /*
+     * Asked Gemini how to structure notification documents in Firestore so
+     * the entrant side can read them and figure out what type they are. It
+     * helped me think through what fields to include and how to trigger the
+     * write at the right point in the flow.
+     * getting the concept down.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - writing documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - snapshot listeners for live updates:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
 
+    /**
+     * Row action callbacks consumed by the parent activity.
+     *
+     * Addresses: US 02.02.01 - Organizer: View Waitlist Entrants, US 02.05.01 - Organizer: Notify Chosen Entrants
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     public interface Listener {
+        /**
+         * Opens profile preview for one waitlist row.
+         *
+         * @param item selected row
+         * @author Karina Zhang
+         */
         void onViewProfile(@NonNull WaitlistEntrantItem item);
 
+        /**
+         * Accepts one waiting entrant.
+         *
+         * @param item selected row
+         * @author Karina Zhang
+         */
         void onAccept(@NonNull WaitlistEntrantItem item);
 
+        /**
+         * Declines one waiting entrant.
+         *
+         * @param item selected row
+         * @author Karina Zhang
+         */
         void onDecline(@NonNull WaitlistEntrantItem item);
     }
 
@@ -34,21 +81,44 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
     private final List<WaitlistEntrantItem> visibleItems = new ArrayList<>();
     private String filterQuery = "";
 
+    /**
+     * Creates adapter with activity callback target.
+     *
+     * @param listener callback receiver for row actions
+     * @author Karina Zhang
+     */
     public WaitlistEntrantAdapter(@NonNull Listener listener) {
         this.listener = listener;
     }
 
+    /**
+     * Replaces all row items and reapplies current filter text.
+     *
+     * @param items rows to show
+     * @author Karina Zhang
+     */
     public void setItems(@NonNull List<WaitlistEntrantItem> items) {
         allItems.clear();
         allItems.addAll(items);
         applyFilter();
     }
 
+    /**
+     * Updates filter text used against display names.
+     *
+     * @param query filter text from search box
+     * @author Karina Zhang
+     */
     public void setFilterQuery(@NonNull String query) {
         filterQuery = query != null ? query.trim().toLowerCase(Locale.getDefault()) : "";
         applyFilter();
     }
 
+    /**
+     * Applies name filter and refreshes visible rows.
+     *
+     * @author Karina Zhang
+     */
     private void applyFilter() {
         visibleItems.clear();
         if (filterQuery.isEmpty()) {
@@ -64,11 +134,25 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
         notifyDataSetChanged();
     }
 
+    /**
+     * Returns a copy of currently visible rows.
+     *
+     * @return visible row snapshot
+     * @author Karina Zhang
+     */
     @NonNull
     public List<WaitlistEntrantItem> getVisibleItemsSnapshot() {
         return new ArrayList<>(visibleItems);
     }
 
+    /**
+     * Inflates one waitlist row.
+     *
+     * @param parent recycler parent
+     * @param viewType row type
+     * @return row holder
+     * @author Karina Zhang
+     */
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -77,6 +161,13 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
         return new Holder(v);
     }
 
+    /**
+     * Binds row values and action buttons.
+     *
+     * @param h holder to bind
+     * @param position row position
+     * @author Karina Zhang
+     */
     @Override
     public void onBindViewHolder(@NonNull Holder h, int position) {
         WaitlistEntrantItem item = visibleItems.get(position);
@@ -86,17 +177,37 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
         h.btnDecline.setOnClickListener(v -> listener.onDecline(item));
     }
 
+    /**
+     * Returns count of filtered rows.
+     *
+     * @return visible row count
+     * @author Karina Zhang
+     */
     @Override
     public int getItemCount() {
         return visibleItems.size();
     }
 
+    /**
+     * Holds views for one waitlist row.
+     *
+     * Addresses: US 02.02.01 - Organizer: View Waitlist Entrants
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     static final class Holder extends RecyclerView.ViewHolder {
         final TextView txtName;
         final ImageButton btnEye;
         final ImageButton btnAccept;
         final ImageButton btnDecline;
 
+        /**
+         * Maps row layout ids into fields.
+         *
+         * @param itemView row root view
+         * @author Karina Zhang
+         */
         Holder(@NonNull View itemView) {
             super(itemView);
             txtName = itemView.findViewById(R.id.txtEntrantName);
@@ -106,12 +217,27 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
         }
     }
 
-    /** One row: Firestore userId, display name, composite waitlist_entries document id. */
+    /**
+     * Row model with user id, display name, and waitlist entry doc id.
+     *
+     * Addresses: US 02.02.01 - Organizer: View Waitlist Entrants
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     public static final class WaitlistEntrantItem {
         public final String userId;
         public final String displayName;
         public final String entryDocumentId;
 
+        /**
+         * Creates one waitlist row model.
+         *
+         * @param userId entrant id
+         * @param displayName entrant display name
+         * @param entryDocumentId waitlist entry doc id
+         * @author Karina Zhang
+         */
         public WaitlistEntrantItem(String userId, String displayName, String entryDocumentId) {
             this.userId = userId;
             this.displayName = displayName;
@@ -119,3 +245,4 @@ public class WaitlistEntrantAdapter extends RecyclerView.Adapter<WaitlistEntrant
         }
     }
 }
+

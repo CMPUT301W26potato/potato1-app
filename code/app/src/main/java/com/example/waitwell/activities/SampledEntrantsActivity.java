@@ -26,9 +26,31 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Lists entrants with lottery status {@code selected} for an event (same field as sampling).
+ * Organizer screen that lists lottery-selected entrants and lets organizer remove a sampled entrant.
+ * This screen is used right after lottery selection.
+ *
+ * Addresses: US 02.05.01 - Organizer: Notify Chosen Entrants
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see SamplingConfirmationActivity
  */
 public class SampledEntrantsActivity extends OrganizerBaseActivity implements SampledEntrantAdapter.Listener {
+    /*
+     * Asked Gemini how to structure notification documents in Firestore so
+     * the entrant side can read them and figure out what type they are. It
+     * helped me think through what fields to include and how to trigger the
+     * write at the right point in the flow.
+     * getting the concept down.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - writing documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - snapshot listeners for live updates:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
@@ -36,6 +58,12 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
     private SampledEntrantAdapter adapter;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
 
+    /**
+     * Sets up sampled entrants screen and starts first load.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +120,11 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
         loadSelectedEntrants();
     }
 
+    /**
+     * Loads selected entrants and resolves display names.
+     *
+     * @author Karina Zhang
+     */
     private void loadSelectedEntrants() {
         String selectedStatus = getString(R.string.firestore_waitlist_status_selected);
         FirebaseHelper.getInstance()
@@ -136,6 +169,12 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
                         Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Sorts sampled rows by name and updates adapter.
+     *
+     * @param buf unsorted sampled rows
+     * @author Karina Zhang
+     */
     private void finishLoad(List<SampledEntrantAdapter.SampledEntrantItem> buf) {
         List<SampledEntrantAdapter.SampledEntrantItem> sorted = new ArrayList<>(buf);
         Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
@@ -146,12 +185,24 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
         });
     }
 
+    /**
+     * Opens profile preview for selected sampled row.
+     *
+     * @param item selected row model
+     * @author Karina Zhang
+     */
     @Override
     public void onViewProfile(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
         ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 
-    // REHAAN'S ADDITION — remove a sampled entrant (set to rejected, remove from list)
+    // REHAAN'S ADDITION â€” remove a sampled entrant (set to rejected, remove from list)
+    /**
+     * Shows confirm dialog before removing one sampled entrant.
+     *
+     * @param item row to remove
+     * @author Karina Zhang
+     */
     @Override
     public void onRemoveSampledEntrant(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
         new androidx.appcompat.app.AlertDialog.Builder(this)
@@ -163,6 +214,12 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
                 .show();
     }
 
+    /**
+     * Marks sampled entrant as rejected and removes the row from adapter on success.
+     *
+     * @param item sampled row to remove
+     * @author Karina Zhang
+     */
     private void doRemoveSampledEntrant(@NonNull SampledEntrantAdapter.SampledEntrantItem item) {
         db.collection("waitlist_entries")
                 .document(item.entryDocumentId)
@@ -178,3 +235,4 @@ public class SampledEntrantsActivity extends OrganizerBaseActivity implements Sa
     }
     // END REHAAN'S ADDITION
 }
+

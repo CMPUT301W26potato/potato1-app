@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rowRoot"
     android:layout_width="match_parent"
@@ -15,7 +15,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
 
-    <!-- Left section: title + location -->
+    
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             android:ellipsize="end" />
     </LinearLayout>
 
-    <!-- Price pill -->
+    
     <TextView
         android:id="@+id/txtEventPrice"
         android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
         android:textSize="12sp"
         android:textStyle="bold" />
 
-    <!-- Status badge -->
+    
     <TextView
         android:id="@+id/txtEventStatus"
         android:layout_width="wrap_content"
@@ -81,12 +81,13 @@
         android:text="Open"
         android:textSize="13sp" />
 
-    <!-- Arrow -->
+    
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
-        android:text="›"
+        android:text="â€º"
         android:textColor="#BDBDBD"
         android:textSize="22sp" />
 </LinearLayout>
+

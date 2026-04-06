@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -102,7 +102,7 @@
                     android:textColor="@color/text_hint"
                     android:textSize="12sp" />
 
-                <!-- Event Name -->
+                
             <EditText
                 android:id="@+id/editEventName"
                 android:layout_width="match_parent"
@@ -117,7 +117,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Location -->
+            
             <EditText
                 android:id="@+id/editLocation"
                 android:layout_width="match_parent"
@@ -132,7 +132,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Geolocation toggle (US 02.02.03) -->
+            
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <!-- Registration Start Date (calendar picker on tap) -->
+            
             <EditText
                 android:id="@+id/editRegistrationStart"
                 android:layout_width="match_parent"
@@ -172,7 +172,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Registration Deadline (calendar picker on tap) -->
+            
             <EditText
                 android:id="@+id/editRegistrationDeadline"
                 android:layout_width="match_parent"
@@ -189,7 +189,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Date the event actually happens (shown on entrant event detail + calendar) -->
+            
             <EditText
                 android:id="@+id/editEventDate"
                 android:layout_width="match_parent"
@@ -243,7 +243,7 @@
                     android:clickable="true"
                     android:cursorVisible="false"/>
 
-            <!-- Waitlist Limit optional – number selector on tap (US 02.03.01) -->
+            
             <EditText
                 android:id="@+id/editWaitlistLimit"
                 android:layout_width="match_parent"
@@ -260,7 +260,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Price -->
+            
             <EditText
                 android:id="@+id/editPrice"
                 android:layout_width="match_parent"
@@ -275,7 +275,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Description -->
+            
             <EditText
                 android:id="@+id/editDescription"
                 android:layout_width="match_parent"
@@ -292,7 +292,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Upload Poster (US 02.04.01) -->
+            
             <Button
                 android:id="@+id/btnUploadPoster"
                 android:layout_width="match_parent"
@@ -322,7 +322,7 @@
             android:visibility="gone"
             android:contentDescription="Poster preview" />
 
-        <!-- Submit -->
+        
         <Button
             android:id="@+id/btnSubmitEvent"
             android:layout_width="match_parent"
@@ -357,3 +357,4 @@
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
+

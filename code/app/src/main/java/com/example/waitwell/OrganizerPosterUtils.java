@@ -1,9 +1,13 @@
 package com.example.waitwell;
 
 /**
- * Small helper to centralize how we decide which poster URL to save
- * for an Organizer event. This is intentionally Android-free so we
- * can unit test the logic without touching real {@code Uri} objects.
+ * Small helper that picks which poster URL should be saved for an organizer event.
+ * This keeps upload/update poster decision logic simple and testable.
+ *
+ * Addresses: US 02.04.01 - Organizer: Upload Event Poster, US 02.04.02 - Organizer: Update Event Poster
+ *
+ * @author Karina Zhang
+ * @version 1.0
  */
 public class OrganizerPosterUtils {
 
@@ -13,6 +17,7 @@ public class OrganizerPosterUtils {
      * @param newPosterUriString string form of a newly picked image URI, or null if user didn't pick
      * @param existingPosterUrl  previously stored poster URL when editing, or null for new events
      * @return the URL we should save to Firestore, or null if there is none
+     * @author Karina Zhang
      */
     public static String resolvePosterUrl(String newPosterUriString, String existingPosterUrl) {
         if (newPosterUriString != null) {

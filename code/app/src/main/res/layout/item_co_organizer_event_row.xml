@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- REHAAN'S ADDITION — US 02.09.01 Part 2 — row for co-organised events in WaitListActivity -->
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,13 +7,13 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <!-- Visual dot matching item_waitlist_entry.xml -->
+    
     <View
         android:layout_width="22dp"
         android:layout_height="22dp"
         android:background="@drawable/ic_event_item" />
 
-    <!-- Card body -->
+    
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -46,3 +46,4 @@
             android:textSize="13sp" />
     </LinearLayout>
 </LinearLayout>
+

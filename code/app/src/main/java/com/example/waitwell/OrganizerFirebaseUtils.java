@@ -3,12 +3,13 @@ package com.example.waitwell;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 /**
- * Small Organizer-only helper that wraps a bit of Firestore document reading.
- * The idea is to mirror the logic we use in the Organizer UI, but keep it
- * Android-free so it can be tested cleanly with Mockito and plain JUnit.
- * I used ChatGPT and the Mockito guide at
- * https://www.bacancytechnology.com/blog/unit-testing-using-mockito-in-android
- * as inspiration for shaping this into a testable helper.
+ * Tiny organizer helper with Android-free Firestore document reads used by tests.
+ * It keeps title/status fallback logic in one place for organizer event lists.
+ *
+ * Addresses: US 02.01.01 - Organizer: Create Public Event and Generate QR, US 02.01.02 - Organizer: Create Private Event (No QR), US 02.04.01 - Organizer: Upload Event Poster, US 02.04.02 - Organizer: Update Event Poster
+ *
+ * @author Karina Zhang
+ * @version 1.0
  */
 public class OrganizerFirebaseUtils {
 
@@ -18,6 +19,7 @@ public class OrganizerFirebaseUtils {
      *
      * @param doc Firestore document for an event (mocked in tests)
      * @return a non-empty title string
+     * @author Karina Zhang
      */
     public static String getTitleOrFallback(DocumentSnapshot doc) {
         String title = doc.getString("title");
@@ -34,6 +36,7 @@ public class OrganizerFirebaseUtils {
      *
      * @param doc Firestore document for an event (mocked in tests)
      * @return a non-null status string
+     * @author Karina Zhang
      */
     public static String getStatusOrDefault(DocumentSnapshot doc) {
         String status = doc.getString("status");
