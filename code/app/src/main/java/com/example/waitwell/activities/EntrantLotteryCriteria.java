@@ -14,8 +14,29 @@ import com.example.waitwell.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
+/**
+ * Activity that displays lottery selection criteria information to entrants.
+ *
+ * Provides a view where users can learn about how the lottery selection process works.
+ * Features both a navigation drawer (hamburger menu) and bottom navigation bar for
+ * navigating to other sections of the app including profile, notifications, and waitlist.
+ *
+ * The hamburger button in this implementation acts as a back button, finishing the activity
+ * rather than opening the drawer (note: this may be unintended behavior).
+ *
+ * @author Nathaniel Chan
+ */
 public class EntrantLotteryCriteria extends AppCompatActivity {
 
+    /**
+     * Initializes the activity, sets up the navigation drawer and bottom navigation.
+     *
+     * Configures navigation listeners for:
+     * - Side drawer menu (profile, notification options, delete profile, lottery criteria, logout)
+     * - Bottom navigation bar (home, waitlist, notifications)
+     *
+     * @param savedInstanceState Bundle containing the activity's previously saved state, if any
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

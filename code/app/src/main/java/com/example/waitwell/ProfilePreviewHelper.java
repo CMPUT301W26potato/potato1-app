@@ -16,10 +16,38 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Helper class for displaying user profile previews in dialog format.
+ *
+ * Provides a utility method to fetch and display user information including
+ * profile picture, name, and join date in a custom AlertDialog. Designed
+ * as a utility class with only static methods and a private constructor
+ * to prevent instantiation.
+ *
+ * @author Nathaniel Chan 
+ */
 public class ProfilePreviewHelper {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private ProfilePreviewHelper() {}
 
+    /**
+     * Displays a user's profile information in a custom AlertDialog.
+     *
+     * Fetches user data from Firebase, creates a custom dialog layout with:
+     * - Centered title "User Profile"
+     * - Profile image (if available) displayed as a circular image
+     * - User's name and join date formatted as "Name: [name]\nJoined: [date]"
+     *
+     * Handles edge cases including missing data, activity lifecycle states,
+     * and Firebase fetch failures. All UI updates are performed on the main thread.
+     *
+     * @param activity The activity context for displaying the dialog and loading images.
+     *                 Must not be finishing or destroyed.
+     * @param userId   The Firebase user ID to fetch profile information for
+     */
     public static void showProfileDialog(Activity activity, String userId) {
         FirebaseHelper.getInstance().fetchUserDocumentForWaitlistUserId(userId, task -> {
             if (activity.isFinishing() || activity.isDestroyed()) return;
