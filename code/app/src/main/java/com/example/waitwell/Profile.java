@@ -38,7 +38,7 @@ import java.util.Map;
  * it shows the current name, email, and phone at the top,
  * and lets the user edit them in editable fields below.
  *
- * author: Sarang Kim
+ * @author Sarang Kim
  */
 public class Profile extends AppCompatActivity {
 
@@ -68,6 +68,7 @@ public class Profile extends AppCompatActivity {
      *
      * Think of this as the middleman between our app and the photo gallery - it starts
      * the gallery activity and catches whatever the user picks when they come back.
+     * @author Nathaniel Chan
      */
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
