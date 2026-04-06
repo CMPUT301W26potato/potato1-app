@@ -38,7 +38,7 @@ import java.util.Map;
  * it shows the current name, email, and phone at the top,
  * and lets the user edit them in editable fields below.
  *
- * author: Sarang Kim
+ * @author Sarang Kim
  */
 public class Profile extends AppCompatActivity {
 
@@ -60,6 +60,16 @@ public class Profile extends AppCompatActivity {
     // stores the current user's id from shared preferences
     private String userId;
 
+    /**
+     * Handles the photo picker interaction when users want to update their profile picture.
+     * This launcher opens the system's image gallery and waits for the user to select
+     * a photo. Once they pick something (or cancel), it updates the UI accordingly.
+     * If a valid image is selected, it shows a preview and enables the remove button.
+     *
+     * Think of this as the middleman between our app and the photo gallery - it starts
+     * the gallery activity and catches whatever the user picks when they come back.
+     * @author Nathaniel Chan
+     */
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
@@ -167,7 +177,7 @@ public class Profile extends AppCompatActivity {
                             joinDate.setText("No join date found");
                         }
 
-                        // load profile image
+                        // load profile image, so the admin can view entrant pfps
                         existingProfileImageUrl = doc.getString("profileImageUrl");
                         if (existingProfileImageUrl != null && !existingProfileImageUrl.isEmpty()) {
                             Glide.with(Profile.this)
@@ -228,6 +238,29 @@ public class Profile extends AppCompatActivity {
         }
     }
 
+    /**
+     * Uploads a user's selected profile image to Firebase Storage and then saves the complete
+     * profile data to Firestore, including the image URL.
+     *
+     *
+     *   Uploads the image file stored in {@code selectedImageUri} to Firebase Storage
+     *       under the path "profile_images/{userId}""
+     *   Retrieves the download URL for the uploaded image and adds it to the user data
+     *   Saves the complete user profile data to Firestore with the image URL included
+     * 
+     *   On success: Updates the profile image URL, clears the selected image URI,
+     *       re-enables the save button, and proceeds to save to Firestore
+     *   On failure: Re-enables the save button, logs the error, and shows an error
+     *       message to the user via Toast
+     * 
+     *
+     * @param updatedUser A map containing the user profile fields to be saved to Firestore
+     *                    (name, email, phone). The profileImageUrl field will be added
+     *                    to this map after successful upload.
+     *
+     * @see #saveToFirestore(Map) for the actual Firestore save operation
+     * @see #saveProfile() for the method that initiates this upload process
+     */
     private void uploadProfileImageThenSave(Map<String, Object> updatedUser) {
         String fileName = "profile_images/" + userId;
         StorageReference ref = FirebaseStorage.getInstance().getReference(fileName);
@@ -266,6 +299,19 @@ public class Profile extends AppCompatActivity {
                         Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Removes the user's profile photo from both Firebase Storage and Firestore.
+     *
+     * Performs a two-step deletion process:
+     * 1. Deletes the image file from Firebase Storage at "profile_images/{userId}"
+     * 2. Removes the profileImageUrl field from the user's Firestore document
+     *
+     * On success, resets the UI to show the default logo and hides the remove button.
+     * Storage deletion failures are logged but don't block the Firestore update.
+     * Returns early if userId is null.
+     *
+     * @see #uploadProfileImageThenSave(Map) for adding a profile photo
+     */
     private void removeProfilePhoto() {
         if (userId == null) return;
 

@@ -78,6 +78,7 @@ public class OrganizerCreateEventFragmentTest {
     public void testSaveEventToFirestore_MethodExists() throws Exception {
         // Reflection pattern inspired by the Android Studio "Test in Android
         // Studio" guide and Gemini, just to assert the method signature exists.
+        // Added missing boolean isPrivate parameter
         Method m = OrganizerCreateEventFragment.class.getDeclaredMethod(
                 "saveEventToFirestore",
                 String.class,      // organizerId
@@ -85,8 +86,10 @@ public class OrganizerCreateEventFragmentTest {
                 String.class,      // description
                 String.class,      // location
                 boolean.class,     // geolocationRequired
+                boolean.class,     // isPrivate (was missing!)
                 Date.class,        // registrationOpen
                 Date.class,        // registrationClose
+                Date.class,        // eventDateTime
                 Integer.class,     // waitlistLimit
                 double.class,      // price
                 String.class       // posterUrl (nullable)
@@ -103,6 +106,7 @@ public class OrganizerCreateEventFragmentTest {
     public void testUpdateEventInFirestore_MethodExists() throws Exception {
         // Same reflection technique as above, again based on the official
         // testing docs and Gemini suggestions for JVM-only sanity checks.
+        // Added missing boolean isPrivate parameter
         Method m = OrganizerCreateEventFragment.class.getDeclaredMethod(
                 "updateEventInFirestore",
                 String.class,      // eventId
@@ -111,8 +115,10 @@ public class OrganizerCreateEventFragmentTest {
                 String.class,      // description
                 String.class,      // location
                 boolean.class,     // geolocationRequired
+                boolean.class,     // isPrivate (was missing!)
                 Date.class,        // registrationOpen
                 Date.class,        // registrationClose
+                Date.class,        // eventDateTime
                 Integer.class,     // waitlistLimit
                 double.class,      // price
                 String.class       // posterUrl (nullable)
@@ -120,4 +126,3 @@ public class OrganizerCreateEventFragmentTest {
         assertNotNull(m);
     }
 }
-

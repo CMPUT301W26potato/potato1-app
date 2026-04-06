@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,14 +6,14 @@
     android:orientation="vertical"
     android:background="@color/bg_light">
 
-    <!--TOP BAR-->
+    
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
-        <!-- Back arrow -->
+        
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="40dp"
@@ -43,7 +43,7 @@
             android:contentDescription="logo" />
     </RelativeLayout>
 
-    <!--SEARCH bar -->
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -75,7 +75,7 @@
             android:textColorHint="@color/text_hint" />
     </LinearLayout>
 
-    <!-- Filter Chips -->
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <!-- "All" chip -->
+        
         <TextView
             android:id="@+id/chipAll"
             android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- "Open" chip -->
+        
         <TextView
             android:id="@+id/chipOpen"
             android:layout_width="wrap_content"
@@ -112,7 +112,7 @@
             android:text="Open"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
-        <!--        date range chip-->
+        
         <TextView
             android:id="@+id/chipDateRange"
             android:layout_width="wrap_content"
@@ -122,11 +122,11 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Availability ▾"
+            android:text="Availability â–¾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
-        <!-- Category dropdown chip: "▼ Category" -->
+        
         <TextView
             android:id="@+id/chipCategory"
             android:layout_width="wrap_content"
@@ -136,13 +136,13 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Category ▾"
+            android:text="Category â–¾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
 
     </LinearLayout>
 
-    <!-- Filter Chips Row 2 -->
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -152,7 +152,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <!--event capacity        -->
+        
         <TextView
             android:id="@+id/chipEventCapacity"
             android:layout_width="wrap_content"
@@ -161,13 +161,13 @@
             android:gravity="center"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
-            android:text="Event Capacity ▾"
+            android:text="Event Capacity â–¾"
             android:textColor="#2E7D32"
             android:textSize="13sp" />
     </LinearLayout>
 
-    <!--Active category indicator-->
-    <!-- Shows "Showing: Swimming x" when a category is selected -->
+    
+    
     <LinearLayout
         android:id="@+id/categoryIndicator"
         android:layout_width="match_parent"
@@ -199,7 +199,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="✕"
+            android:text="âœ•"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"
@@ -238,7 +238,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="✕"
+            android:text="âœ•"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"
@@ -246,7 +246,7 @@
             android:focusable="true" />
     </LinearLayout>
 
-    <!--Active date range indicator-->
+    
     <LinearLayout
         android:id="@+id/dateRangeIndicator"
         android:layout_width="match_parent"
@@ -278,7 +278,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="✕"
+            android:text="âœ•"
             android:textColor="#C62828"
             android:textSize="16sp"
             android:padding="4dp"
@@ -286,7 +286,7 @@
             android:focusable="true" />
     </LinearLayout>
 
-    <!-- result count-->
+    
     <TextView
         android:id="@+id/txtResultCount"
         android:layout_width="match_parent"
@@ -297,7 +297,7 @@
         android:textColor="@color/text_hint"
         android:textSize="13sp" />
 
-    <!-- event list -->
+    
     <ScrollView
         android:id="@+id/scrollEvents"
         android:layout_width="match_parent"
@@ -316,7 +316,7 @@
             android:paddingEnd="16dp" />
     </ScrollView>
 
-    <!-- empty state-->
+    
     <LinearLayout
         android:id="@+id/emptyState"
         android:layout_width="match_parent"
@@ -345,7 +345,7 @@
     </LinearLayout>
 
 
-    <!--Bottom Nav -->
+    
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
@@ -356,3 +356,4 @@
         app:menu="@menu/bottom_nav_menu_main_activity" />
 
 </LinearLayout>
+

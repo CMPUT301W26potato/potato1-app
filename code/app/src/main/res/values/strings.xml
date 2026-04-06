@@ -52,6 +52,10 @@
     <string name="organizer_error_registration_start_past">Registration start date cannot be in the past</string>
     <string name="organizer_error_upload">Poster upload failed</string>
     <string name="organizer_error_save">Failed to save event</string>
+    <!-- REHAAN'S ADDITION — Places autocomplete -->
+    <string name="google_maps_key" translatable="false">AIzaSyCxq6ab9En0oIrMJujp1okriXmfp1yH1xY</string>
+    <string name="organizer_error_location_not_selected">Please select a location from the suggestions</string>
+    <!-- END REHAAN'S ADDITION -->
     <string name="organizer_event_poster">Event poster</string>
     <string name="organizer_price_label">Price</string>
     <string name="organizer_price_free">Free</string>
@@ -135,7 +139,7 @@
     <string name="calendar_weekday_sat">S</string>
 
     <!-- Organizer: View Requests / waiting list -->
-    <string name="waitlist_screen_title">Waiting List</string>
+    <string name="waitlist_screen_title">Wait Well</string>
     <string name="waitlist_section_label">Waiting List</string>
     <string name="waitlist_view_map">View Map</string>
     <string name="waitlist_notify_all">Notify All</string>
@@ -173,6 +177,8 @@
     <string name="toast_notification_invitation_expired">This invitation has expired.</string>
     <string name="toast_invitation_already_accepted">You have already accepted this invitation.</string>
     <string name="toast_invitation_already_declined">You have already declined this invitation.</string>
+    <string name="co_organizer_already_accepted">You have already accepted the invitation to become co-organiser.</string>
+    <string name="co_organizer_already_declined">You have already declined the invitation to become co-organiser.</string>
     <string name="notification_entrant_not_selected">Unfortunately, you were not selected for %1$s.</string>
     <string name="notification_list_expired_label">Expired</string>
     <string name="notification_category_invitation">You Have Been Selected</string>
@@ -249,7 +255,13 @@
     <string name="sampled_confirm_entrant">Confirm entrant</string>
     <string name="sampled_remove_entrant">Remove from sampled list</string>
     <string name="sampled_confirm_success">Entrant confirmed.</string>
-    <string name="sampled_remove_success">Returned to waitlist.</string>
+
+    <string name="sampled_remove_success">Entrant removed from sampled list.</string>
+    <!-- REHAAN'S ADDITION — remove sampled entrant dialog -->
+    <string name="sampled_remove_dialog_title">Remove Entrant</string>
+    <string name="sampled_remove_dialog_message">Remove %1$s from the sampled list? They will be marked as not selected. Use Draw Replacement from the event page to fill the spot.</string>
+    <string name="sampled_remove_dialog_confirm">Remove</string>
+    <!-- END REHAAN'S ADDITION -->
     <string name="notification_invite_expired">Invite expired</string>
     <string name="enrolled_entrants_title">Enrolled Entrants</string>
     <string name="no_enrolled_entrants">No enrolled entrants</string>

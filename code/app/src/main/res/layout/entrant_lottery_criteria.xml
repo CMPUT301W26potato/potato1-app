@@ -23,7 +23,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentStart="true"
-                android:layout_marginStart="16dp"
+                android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/lottery_criteria_menu_desc"
                 android:src="@drawable/ic_circle_arrow_left" />

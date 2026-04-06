@@ -17,6 +17,7 @@ import com.google.zxing.integration.android.IntentResult;
  * Launches the ZXing camera scanner immediately on creation. When the entrant
  * scans a promotional QR code, the encoded event ID is looked up in Firestore
  * and EventDetailActivity is opened so they can view details and join the waitlist.
+ * @author Viktoria Lysenko
  */
 public class QrScanActivity extends AppCompatActivity {
 

@@ -1,13 +1,36 @@
 package com.example.waitwell;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProfileUtils {
 
-    /**
-     * Determines if a user can delete or view a profile
-     *
-     * @param role the role of the current user
-     * @param userId the profile being deleted
-     */
+    public static Map<String, Object> buildProfileMap(String name, String email, String phone, String profileImageUrl) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("email", email);
+        map.put("phone", phone);
+        if (profileImageUrl != null) {
+            map.put("profileImageUrl", profileImageUrl);
+        }
+        return map;
+    }
+
+    public static String getNameFromDoc(DocumentSnapshot doc) {
+        if (doc == null) return null;
+        return doc.getString("name");
+    }
+
+    public static String getEmailFromDoc(DocumentSnapshot doc) {
+        if (doc == null) return null;
+        return doc.getString("email");
+    }
+
+    public static String getPhoneFromDoc(DocumentSnapshot doc) {
+        if (doc == null) return null;
+        return doc.getString("phone");
+    }
     public static boolean canDeleteProfile(String role, String userId) {
         if (role == null || userId == null) return false;
 
@@ -15,5 +38,16 @@ public class ProfileUtils {
     }
     public static boolean canViewProfiles(String role) {
         return role != null && role.equalsIgnoreCase("admin");
+    }
+
+    public interface DeleteUserCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    public static void deleteUserProfile(String userId, DeleteUserCallback callback) {
+        FirebaseHelper.getInstance().deleteUser(userId)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
     }
 }

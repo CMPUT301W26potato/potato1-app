@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main content -->
+    
     <LinearLayout
         android:id="@+id/mainContent"
         android:layout_width="match_parent"
@@ -14,14 +14,14 @@
         android:orientation="vertical"
         android:background="@color/bg_light">
 
-        <!-- Top Bar -->
+        
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
 
-            <!-- Hamburger icon (top-left) -->
+            
             <ImageButton
                 android:id="@+id/btnHamburger"
                 android:layout_width="40dp"
@@ -32,7 +32,7 @@
                 android:src="@drawable/ic_menu_hamburger"
                 android:contentDescription="Menu" />
 
-            <!-- "Wait Well" titl -->
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
 
         </RelativeLayout>
 
-        <!--Scrollable content  -->
+        
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -69,7 +69,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Search bar -->
+                
                 <LinearLayout
                     android:id="@+id/searchBar"
                     android:layout_width="match_parent"
@@ -98,8 +98,8 @@
                         />
                 </LinearLayout>
 
-                <!-- "History" chip -->
-                <!-- History chip + Scan QR button in one row -->
+                
+                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -130,13 +130,13 @@
                         android:backgroundTint="@null"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
-                        android:text="▶ Scan QR Code"
+                        android:text="â–¶ Scan QR Code"
                         android:textAllCaps="false"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
                         app:backgroundTint="@null" />
                 </LinearLayout>
-                <!-- "Title >" section header -->
+                
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -147,7 +147,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Title"
+                        android:text="Recent Events"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -157,12 +157,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="›"
+                        android:text="â€º"
                         android:textColor="@color/text_primary"
                         android:textSize="22sp" />
                 </LinearLayout>
 
-                <!-- EVENT CARDS -->
+                
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -177,9 +177,9 @@
                         android:orientation="horizontal" />
                 </HorizontalScrollView>
 
-                <!-- Popular Events Section -->
+                
 
-                <!-- Header row: "Popular Events" + "View all" -->
+                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -205,7 +205,7 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
-                <!-- Filter tabs: Most Viewed | Nearby | Latest -->
+                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -258,7 +258,7 @@
                         android:fontFamily="@font/inter24ptregular" />
                 </LinearLayout>
 
-                <!-- Popular events list – filled dynamically from Firestore. -->
+                
                 <LinearLayout
                     android:id="@+id/popularEventsContainer"
                     android:layout_width="match_parent"
@@ -273,7 +273,7 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- Bottom Navigation bar -->
+        
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
@@ -286,7 +286,7 @@
 
     </LinearLayout>
 
-    <!-- Navigation Drawer -->
+    
     <com.google.android.material.navigation.NavigationView
     android:id="@+id/navigation_view"
     android:layout_width="280dp"

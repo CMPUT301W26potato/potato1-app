@@ -34,11 +34,31 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Organizer waiting-list / "View Requests" screen (US: manage requests).
- * Loads {@code waitlist_entries} with status {@code waiting}, accepts map to {@code selected}
- * (same as lottery) with CHOSEN notification; declines set {@code rejected} and NOT_CHOSEN notification.
+ * Organizer waitlist requests screen where each waiting entrant can be accepted or declined,
+ * plus bulk notify and lottery actions.
+ *
+ * Addresses: US 02.02.01 - Organizer: View Waitlist Entrants, US 02.05.01 - Organizer: Notify Chosen Entrants, US 02.07.01 - Organizer: Notify All on Waitlist
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see WaitlistEntrantAdapter
  */
 public class ViewRequestsActivity extends OrganizerBaseActivity implements WaitlistEntrantAdapter.Listener {
+    /*
+     * Asked Gemini how to structure notification documents in Firestore so
+     * the entrant side can read them and figure out what type they are. It
+     * helped me think through what fields to include and how to trigger the
+     * write at the right point in the flow.
+     * getting the concept down.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - writing documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - snapshot listeners for live updates:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
 
     private String eventId;
     private String eventTitle;
@@ -46,6 +66,12 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
     private WaitlistEntrantAdapter adapter;
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
 
+    /**
+     * Sets up the waitlist requests screen, wires buttons, and kicks off the first load.
+     *
+     * @param savedInstanceState activity restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +128,7 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         Button btnViewMap = findViewById(R.id.btnViewMap);
         Button btnNotifyAll = findViewById(R.id.btnNotifyAll);
         Button btnSample = findViewById(R.id.btnSampleAttendees);
-        // REHAAN'S ADDITION — US 02.02.02
+        // REHAAN'S ADDITION â€” US 02.02.02
         btnViewMap.setOnClickListener(v -> {
             Intent mapIntent = new Intent(this, WaitlistMapActivity.class);
             mapIntent.putExtra(WaitlistMapActivity.EXTRA_EVENT_ID, eventId);
@@ -115,6 +141,11 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         loadWaitingEntrants();
     }
 
+    /**
+     * Loads waiting entrants for this event and resolves each user name for display.
+     *
+     * @author Karina Zhang
+     */
     private void loadWaitingEntrants() {
         FirebaseHelper.getInstance()
                 .getEntriesByEventAndStatus(eventId, WaitlistFirestoreStatus.WAITING)
@@ -158,6 +189,12 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
                         Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Sorts fetched rows by name and pushes them into the adapter.
+     *
+     * @param buf unsorted rows built from Firestore responses
+     * @author Karina Zhang
+     */
     private void finishLoad(List<WaitlistEntrantAdapter.WaitlistEntrantItem> buf) {
         List<WaitlistEntrantAdapter.WaitlistEntrantItem> sorted = new ArrayList<>(buf);
         Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
@@ -168,6 +205,12 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         });
     }
 
+    /**
+     * Fetches event title once if missing, then runs the callback.
+     *
+     * @param then callback to run after title is available
+     * @author Karina Zhang
+     */
     private void refreshEventTitleIfNeeded(Runnable then) {
         if (!TextUtils.isEmpty(eventTitle)) {
             then.run();
@@ -189,11 +232,23 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
                 });
     }
 
+    /**
+     * Opens the selected entrant profile preview dialog.
+     *
+     * @param item selected row item
+     * @author Karina Zhang
+     */
     @Override
     public void onViewProfile(@NonNull WaitlistEntrantAdapter.WaitlistEntrantItem item) {
         ProfilePreviewHelper.showProfileDialog(this, item.userId);
     }
 
+    /**
+     * Marks one waiting entrant as selected and sends a chosen notification.
+     *
+     * @param item row item to accept
+     * @author Karina Zhang
+     */
     @Override
     public void onAccept(@NonNull WaitlistEntrantAdapter.WaitlistEntrantItem item) {
         refreshEventTitleIfNeeded(() -> {
@@ -222,6 +277,12 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         });
     }
 
+    /**
+     * Marks one waiting entrant as rejected, removes them from waitlist ids, and sends not-chosen notification.
+     *
+     * @param item row item to decline
+     * @author Karina Zhang
+     */
     @Override
     public void onDecline(@NonNull WaitlistEntrantAdapter.WaitlistEntrantItem item) {
         refreshEventTitleIfNeeded(() -> {
@@ -253,6 +314,11 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         });
     }
 
+    /**
+     * Shows the lottery sample-size input dialog.
+     *
+     * @author Karina Zhang
+     */
     private void showLotteryDialog() {
         android.widget.EditText input = new android.widget.EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
@@ -280,6 +346,12 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
                 .show();
     }
 
+    /**
+     * Runs lottery sampling for this event and opens the confirmation screen on success.
+     *
+     * @param sampleSize number of entrants to sample
+     * @author Karina Zhang
+     */
     private void runLottery(int sampleSize) {
         Toast.makeText(this, getString(R.string.lottery_running), Toast.LENGTH_SHORT).show();
         FirebaseHelper.getInstance().executeLotterySampling(this, eventId, sampleSize, true, (task, actualSampledCount) -> {
@@ -295,6 +367,11 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         });
     }
 
+    /**
+     * Sends a bulk notification to all currently visible waiting entrants.
+     *
+     * @author Karina Zhang
+     */
     private void notifyAllWaitingEntrants() {
         List<WaitlistEntrantAdapter.WaitlistEntrantItem> visible = adapter.getVisibleItemsSnapshot();
         if (visible.isEmpty()) {
@@ -327,3 +404,4 @@ public class ViewRequestsActivity extends OrganizerBaseActivity implements Waitl
         });
     }
 }
+

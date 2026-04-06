@@ -11,6 +11,7 @@ package com.example.waitwell.activities;
  */
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,8 @@ public class CoOrganizerInviteResponseActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_NAME     = "event_name";
     public static final String EXTRA_MESSAGE        = "message";
     public static final String EXTRA_NOTIFICATION_ID = "notification_id";
+    /** Pass "accepted" or "declined" to show read-only mode (already responded). */
+    public static final String EXTRA_ALREADY_RESPONDED = "alreadyResponded";
 
     private String eventId;
     private String notificationId;
@@ -52,16 +55,29 @@ public class CoOrganizerInviteResponseActivity extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.txtCoOrgInviteTitle)).setText(
                 TextUtils.isEmpty(eventName) ? getString(R.string.app_name) : eventName);
-        ((TextView) findViewById(R.id.txtCoOrgInviteMessage)).setText(
-                TextUtils.isEmpty(message) ? getString(R.string.co_organizer_notification_message, eventName) : message);
+
+        TextView messageView = findViewById(R.id.txtCoOrgInviteMessage);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         Button btnAccept  = findViewById(R.id.btnAcceptCoOrg);
         Button btnDecline = findViewById(R.id.btnDeclineCoOrg);
 
-        btnAccept.setOnClickListener(v -> handleAccept(btnAccept, btnDecline));
-        btnDecline.setOnClickListener(v -> handleDecline(btnAccept, btnDecline));
+        String alreadyResponded = getIntent().getStringExtra(EXTRA_ALREADY_RESPONDED);
+        if (alreadyResponded != null) {
+            btnAccept.setVisibility(View.GONE);
+            btnDecline.setVisibility(View.GONE);
+            if ("accepted".equals(alreadyResponded)) {
+                messageView.setText(R.string.co_organizer_already_accepted);
+            } else {
+                messageView.setText(R.string.co_organizer_already_declined);
+            }
+        } else {
+            messageView.setText(
+                    TextUtils.isEmpty(message) ? getString(R.string.co_organizer_notification_message, eventName) : message);
+            btnAccept.setOnClickListener(v -> handleAccept(btnAccept, btnDecline));
+            btnDecline.setOnClickListener(v -> handleDecline(btnAccept, btnDecline));
+        }
     }
 
     private void handleAccept(Button btnAccept, Button btnDecline) {

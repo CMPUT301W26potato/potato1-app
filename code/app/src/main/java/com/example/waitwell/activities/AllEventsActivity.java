@@ -53,6 +53,9 @@ import java.util.Set;
  *   category: "Swimming"
  *   category: "Dance"
  * The search bar and the active filter combine — the entrant can pick "Swimming" and then type "beginner" to narrow down their search.
+ *
+ * @author Viktoria
+ *
  *  Logic written with help from Claude (claude.ai)
  */
 public class AllEventsActivity extends AppCompatActivity {
@@ -89,6 +92,12 @@ public class AllEventsActivity extends AppCompatActivity {
 
 
 
+    /**
+     * Inflates the layout and wires up views, filter chips, search box, and
+     * bottom navigation. Event data is loaded later in {@link #onResume()}.
+     *
+     * @param savedInstanceState previously saved instance state, or {@code null} on first launch
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -300,6 +309,16 @@ public class AllEventsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Displays a Material Design date range picker dialog for filtering events by date.
+     *
+     * Opens a date range selection dialog that allows users to pick a start and end date.
+     * Once a range is selected, it updates the filter mode to "date_range", stores the
+     * selected dates in milliseconds, refreshes the UI chip styles to show the active
+     * date range, and applies the filter to the events list.
+     *
+     * The selected date range is displayed in "MMM d – MMM d" format on the filter chip.
+     */
     private void showDateRangePicker() {
         MaterialDatePicker<Pair<Long, Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText("Select date range")
@@ -443,6 +462,12 @@ public class AllEventsActivity extends AppCompatActivity {
         renderList(filtered);
     }
 
+    /**
+     * Renders the filtered list of event documents into the events container,
+     * updating the result count and showing the empty state when no events match.
+     *
+     * @param docs the filtered list of event documents to display
+     */
     private void renderList(List<DocumentSnapshot> docs) {
         eventsListContainer.removeAllViews();
 

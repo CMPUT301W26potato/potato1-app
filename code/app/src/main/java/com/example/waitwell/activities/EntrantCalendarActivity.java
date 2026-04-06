@@ -30,10 +30,34 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Entrant calendar: custom month grid with event counts per day (green = has events, red = none).
- * Tapping a day lists events; each row opens {@link EventDetailActivity}.
+ * Entrant calendar screen that renders a month grid and event counts per day,
+ * then shows matching events under the calendar when a day is tapped.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see EventDetailActivity
  */
 public class EntrantCalendarActivity extends AppCompatActivity {
+    /*
+     * Used Gemini to understand how Android's built-in CalendarView works
+     * and how to mark specific dates on it based on data coming from
+     * Firestore. It also helped me figure out how to filter the event list
+     * when the user taps a date.
+     * helped me understand what was available in the Android SDK.
+     *
+     * Sites I looked at:
+     *
+     * Android CalendarView - the built-in calendar widget and its listeners:
+     * https://developer.android.com/reference/android/widget/CalendarView
+     *
+     * Firestore querying by date range - how to filter events between two timestamps:
+     * https://firebase.google.com/docs/firestore/query-data/queries#range_filters_on_multiple_fields
+     *
+     * Displaying a list below a calendar in Android - RecyclerView with header pattern:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview
+     */
 
     private final Map<String, List<DocumentSnapshot>> eventsByDay = new HashMap<>();
 
@@ -54,6 +78,12 @@ public class EntrantCalendarActivity extends AppCompatActivity {
 
     private float density;
 
+    /**
+     * Sets up month controls and renders initial calendar + events section.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,13 +120,21 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         renderEventsForDate(selectedDayKey);
     }
 
+    /**
+     * Reloads events each time screen returns to foreground.
+     *
+     * @author Karina Zhang
+     */
     @Override
     protected void onResume() {
         super.onResume();
         loadEvents();
     }
 
-    /** Opens a quick month + year picker (tap the month/year label in the header). */
+    /** Opens a quick month + year picker (tap the month/year label in the header).
+     *
+     * @author Karina Zhang
+     */
     private void showMonthYearPickerDialog() {
         Calendar now = Calendar.getInstance();
         int minYear = now.get(Calendar.YEAR) - 5;
@@ -143,6 +181,12 @@ public class EntrantCalendarActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Builds month labels used by the month picker.
+     *
+     * @return 12 month names in current locale
+     * @author Karina Zhang
+     */
     private static String[] buildMonthNames() {
         String[] names = new String[12];
         Calendar c = Calendar.getInstance();
@@ -154,6 +198,11 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         return names;
     }
 
+    /**
+     * Picks default selected day for current display month.
+     *
+     * @author Karina Zhang
+     */
     private void pickDefaultSelectedDay() {
         Calendar today = Calendar.getInstance();
         if (displayMonth.get(Calendar.YEAR) == today.get(Calendar.YEAR)
@@ -169,6 +218,11 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         updateSelectedKeyFromParts();
     }
 
+    /**
+     * Recomputes selected day key string from month + day fields.
+     *
+     * @author Karina Zhang
+     */
     private void updateSelectedKeyFromParts() {
         Calendar c = (Calendar) displayMonth.clone();
         c.set(Calendar.DAY_OF_MONTH, selectedDayOfMonth);
@@ -179,12 +233,23 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         selectedDayKey = keyFormat.format(c.getTime());
     }
 
+    /**
+     * Loads all events used for day-count rendering.
+     *
+     * @author Karina Zhang
+     */
     private void loadEvents() {
         FirebaseHelper.getInstance().getAllEvents()
                 .addOnSuccessListener(this::onEventsLoaded)
                 .addOnFailureListener(e -> Toast.makeText(this, "Could not load events", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Buckets events by day key for calendar rendering.
+     *
+     * @param snapshot events query results
+     * @author Karina Zhang
+     */
     private void onEventsLoaded(QuerySnapshot snapshot) {
         eventsByDay.clear();
         for (DocumentSnapshot doc : snapshot.getDocuments()) {
@@ -205,6 +270,11 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         renderEventsForDate(selectedDayKey);
     }
 
+    /**
+     * Rebuilds the custom month grid rows and cells.
+     *
+     * @author Karina Zhang
+     */
     private void rebuildCalendarGrid() {
         calendarGridContainer.removeAllViews();
         txtMonthYear.setText(monthYearFormat.format(displayMonth.getTime()));
@@ -234,6 +304,12 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates one horizontal calendar row container.
+     *
+     * @return row layout container
+     * @author Karina Zhang
+     */
     private LinearLayout newRow() {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -243,6 +319,12 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         return row;
     }
 
+    /**
+     * Creates an empty spacer cell for leading/trailing grid positions.
+     *
+     * @return spacer view
+     * @author Karina Zhang
+     */
     private View emptySpacer() {
         View v = new View(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, (int) (56 * density));
@@ -251,6 +333,13 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         return v;
     }
 
+    /**
+     * Builds one day cell with count and click behavior.
+     *
+     * @param dayOfMonth day number to render
+     * @return configured day cell view
+     * @author Karina Zhang
+     */
     private View buildDayCell(int dayOfMonth) {
         View cell = LayoutInflater.from(this).inflate(R.layout.item_calendar_day_cell, calendarGridContainer, false);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -289,6 +378,14 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         return cell;
     }
 
+    /**
+     * Applies day cell fill/border style based on state.
+     *
+     * @param root cell root view
+     * @param hasEvents true when date has one or more events
+     * @param selected true when this is currently selected day
+     * @author Karina Zhang
+     */
     private void applyDayCellBackground(View root, boolean hasEvents, boolean selected) {
         GradientDrawable d = new GradientDrawable();
         d.setCornerRadius(8f * density);
@@ -302,6 +399,12 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         root.setBackground(d);
     }
 
+    /**
+     * Renders event rows for the selected day key.
+     *
+     * @param dayKey selected day key in yyyy-MM-dd format
+     * @author Karina Zhang
+     */
     private void renderEventsForDate(String dayKey) {
         eventsForDateContainer.removeAllViews();
 
@@ -353,3 +456,4 @@ public class EntrantCalendarActivity extends AppCompatActivity {
         }
     }
 }
+

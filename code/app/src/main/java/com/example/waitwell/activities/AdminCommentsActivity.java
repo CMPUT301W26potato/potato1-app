@@ -8,12 +8,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.example.waitwell.FirebaseHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.waitwell.R;
+
 
 /**
  * AdminCommentsActivity allows an admin to view and manage comments
@@ -102,13 +104,13 @@ public class AdminCommentsActivity extends AppCompatActivity {
 
                         // comment text
                         TextView txt = new TextView(this);
-                        txt.setTypeface(getResources().getFont(R.font.poppins));
+                        txt.setTypeface(ResourcesCompat.getFont(this, R.font.poppins));
                         txt.setText((username != null ? username : "User") + ": " + text);
                         box.addView(txt);
 
                         // delete button
                         TextView deleteBtn = new TextView(this);
-                        deleteBtn.setTypeface(getResources().getFont(R.font.poppinsmedium));
+                        txt.setTypeface(ResourcesCompat.getFont(this, R.font.poppins));
                         deleteBtn.setText("Delete");
                         deleteBtn.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
                         deleteBtn.setOnClickListener(v -> deleteComment(commentId));

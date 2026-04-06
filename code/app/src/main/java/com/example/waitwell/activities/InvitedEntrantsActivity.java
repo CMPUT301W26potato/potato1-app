@@ -33,9 +33,31 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Invited / enrolled / declined entrants for an event (status {@code selected}, {@code confirmed}, {@code cancelled}).
+ * Organizer screen for invited/enrolled/cancelled entrant statuses with bulk notification send.
+ * It lets organizers target selected groups and send status-specific messages.
+ *
+ * Addresses: US 02.05.01 - Organizer: Notify Chosen Entrants, US 02.07.02 - Organizer: Notify All Selected
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see InvitedEntrantAdapter
  */
 public class InvitedEntrantsActivity extends OrganizerBaseActivity implements InvitedEntrantAdapter.Listener {
+    /*
+     * Asked Gemini how to structure notification documents in Firestore so
+     * the entrant side can read them and figure out what type they are. It
+     * helped me think through what fields to include and how to trigger the
+     * write at the right point in the flow.
+     * getting the concept down.
+     *
+     * Sites I looked at:
+     *
+     * Firestore - writing documents to a collection:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data
+     *
+     * Firestore real-time listeners - snapshot listeners for live updates:
+     * https://firebase.google.com/docs/firestore/query-data/listen
+     */
 
     public static final String EXTRA_EVENT_ID = "event_id";
 
@@ -48,6 +70,12 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
     private String statusCancelled;
     private String eventTitle;
 
+    /**
+     * Sets up invited entrants UI, filters, and button actions, then loads rows.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,6 +152,12 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
         refreshEventTitleIfNeeded(null);
     }
 
+    /**
+     * Loads event title once if missing, then runs callback.
+     *
+     * @param then callback to run after title is ready
+     * @author Karina Zhang
+     */
     private void refreshEventTitleIfNeeded(Runnable then) {
         if (!TextUtils.isEmpty(eventTitle)) {
             if (then != null) then.run();
@@ -145,6 +179,11 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
                 });
     }
 
+    /**
+     * Sends selected entrants status-aware notification messages.
+     *
+     * @author Karina Zhang
+     */
     private void sendStatusAwareNotifications() {
         List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getSelectedEntrants();
         if (selected.isEmpty()) {
@@ -188,6 +227,11 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
         });
     }
 
+    /**
+     * Loads invited/enrolled/cancelled entrants for current event and resolves user names.
+     *
+     * @author Karina Zhang
+     */
     private void loadInvitedEntrants() {
         List<String> statuses = Arrays.asList(statusSelected, statusConfirmed, statusCancelled);
         FirebaseHelper.getInstance()
@@ -231,6 +275,12 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
                         Toast.makeText(this, R.string.could_not_load_entrants, Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Sorts rows by name and updates adapter/filter state.
+     *
+     * @param buf unsorted row list from Firestore callbacks
+     * @author Karina Zhang
+     */
     private void finishLoad(List<InvitedEntrantAdapter.InvitedEntrantItem> buf) {
         List<InvitedEntrantAdapter.InvitedEntrantItem> sorted = new ArrayList<>(buf);
         Collections.sort(sorted, Comparator.comparing(a -> a.displayName != null ? a.displayName : ""));
@@ -241,6 +291,11 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
         });
     }
 
+    /**
+     * Marks checked entrants cancelled and removes them from event arrays.
+     *
+     * @author Karina Zhang
+     */
     private void removeSelectedApplicants() {
         List<InvitedEntrantAdapter.InvitedEntrantItem> selected = adapter.getSelectedEntrants();
         if (selected.isEmpty()) {
@@ -266,6 +321,12 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
         }
     }
 
+    /**
+     * Opens profile preview for selected invited row.
+     *
+     * @param item selected row item
+     * @author Karina Zhang
+     */
     @Override
     public void onViewProfile(@NonNull InvitedEntrantAdapter.InvitedEntrantItem item) {
         ProfilePreviewHelper.showProfileDialog(this, item.userId);
@@ -276,3 +337,4 @@ public class InvitedEntrantsActivity extends OrganizerBaseActivity implements In
         // no-op
     }
 }
+

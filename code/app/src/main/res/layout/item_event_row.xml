@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,14 +9,14 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Star icon -->
+    
     <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_event_item"
         android:contentDescription="Event" />
 
-    <!-- Event name -->
+    
     <TextView
         android:id="@+id/txtRowName"
         android:layout_width="0dp"
@@ -26,7 +26,7 @@
         android:textColor="#1A1A1A"
         android:textSize="15sp" />
 
-    <!-- Status badge -->
+    
     <TextView
         android:id="@+id/txtRowStatus"
         android:layout_width="wrap_content"
@@ -36,12 +36,13 @@
         android:paddingEnd="18dp"
         android:textSize="13sp" />
 
-    <!-- Arrow -->
+    
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:text="›"
+        android:text="â€º"
         android:textColor="#9E9E9E"
         android:textSize="22sp" />
 </LinearLayout>
+

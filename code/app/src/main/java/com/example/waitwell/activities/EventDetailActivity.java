@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.TextViewCompat;
 
@@ -51,10 +52,6 @@ import com.google.android.gms.location.LocationServices;
 // END REHAAN'S ADDITION
 
 
-
-
-
-
 /**
  * Event detail screen (US 01.01.01 – join waitlist).
  *
@@ -63,6 +60,8 @@ import com.google.android.gms.location.LocationServices;
  * FirebaseHelper.joinWaitlist() then navigates to the confirmation screen.
  *
  * If the user is already on this event's waitlist, the button is hidden and a message is shown instead.
+ *
+ *  @author WaitWell Team
  */
 public class EventDetailActivity extends AppCompatActivity {
 
@@ -698,7 +697,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
                                     // create comment TextView
                                     TextView commentView = new TextView(this);
-                                    commentView.setTypeface(getResources().getFont(R.font.inter));
+                                    commentView.setTypeface(ResourcesCompat.getFont(this, R.font.inter));
                                     commentView.setText(name + ": " + text);
                                     commentView.setTextSize(14);
                                     commentView.setPadding(16, 16, 16, 16);

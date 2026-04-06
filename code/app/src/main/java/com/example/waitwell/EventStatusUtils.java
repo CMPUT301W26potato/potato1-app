@@ -13,15 +13,30 @@ import java.util.Date;
  *   <li><b>Closed</b> – deadline has passed, but the event day has not passed yet.</li>
  *   <li><b>Completed</b> – calendar day is after the event date.</li>
  * </ul>
+ *
+ * Addresses: US 02.01.04 - Organizer: Set Registration Period, US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
  */
 public final class EventStatusUtils {
 
     private EventStatusUtils() {
     }
 
-    /** Firestore field on {@code events} for the registration deadline (see {@link com.example.waitwell.Event}). */
+    /** Firestore field on {@code events} for the registration deadline (see {@link com.example.waitwell.Event}).
+     *
+     * @author Karina Zhang
+     */
     public static final String FIELD_REGISTRATION_CLOSE = "registrationClose";
 
+    /**
+     * Computes lifecycle status from a Firestore event doc.
+     *
+     * @param doc event document snapshot
+     * @return "open", "closed", or "completed"
+     * @author Karina Zhang
+     */
     public static String computeStatus(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
             return "closed";
@@ -34,6 +49,10 @@ public final class EventStatusUtils {
 
     /**
      * End of registration as stored on the event document ({@value #FIELD_REGISTRATION_CLOSE}).
+     *
+     * @param doc event document snapshot
+     * @return registration close date or null if missing
+     * @author Karina Zhang
      */
     public static Date getRegistrationCloseDate(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
@@ -51,6 +70,8 @@ public final class EventStatusUtils {
      * @param eventDate        when the event happens (organizer "Date of event"); may be null for legacy docs
      * @param registrationClose end of registration; may be null
      * @param now              typically {@code new Date()}
+     * @return computed lifecycle status string
+     * @author Karina Zhang
      */
     public static String computeStatus(Date eventDate, Date registrationClose, Date now) {
         if (eventDate != null && now.after(eventDate)) {
@@ -64,6 +85,11 @@ public final class EventStatusUtils {
 
     /**
      * True if {@code now} falls on a calendar day strictly after {@code eventDate}'s day.
+     *
+     * @param now current date/time
+     * @param eventDate event date to compare against
+     * @return true when current day is after event day
+     * @author Karina Zhang
      */
     public static boolean isCalendarDayAfter(Date now, Date eventDate) {
         Calendar eventCal = Calendar.getInstance();
@@ -87,6 +113,11 @@ public final class EventStatusUtils {
 
     /**
      * True if {@code a}'s calendar day is strictly before {@code b}'s calendar day.
+     *
+     * @param a first date
+     * @param b second date
+     * @return true when date a is before date b by day
+     * @author Karina Zhang
      */
     public static boolean isCalendarDayBefore(Date a, Date b) {
         Calendar ca = Calendar.getInstance();
@@ -104,12 +135,21 @@ public final class EventStatusUtils {
         return ad < bd;
     }
 
-    /** Local calendar start of today (00:00:00). */
+    /** Local calendar start of today (00:00:00).
+     *
+     * @return today at local midnight
+     * @author Karina Zhang
+     */
     public static Date startOfToday() {
         return startOfDay(new Date());
     }
 
-    /** Local midnight on the same calendar day as {@code d}. */
+    /** Local midnight on the same calendar day as {@code d}.
+     *
+     * @param d source date
+     * @return that same day at local midnight
+     * @author Karina Zhang
+     */
     public static Date startOfDay(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);

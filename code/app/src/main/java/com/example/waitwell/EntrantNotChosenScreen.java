@@ -27,7 +27,34 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Entrant screen for not-chosen notifications, showing event details and redraw info.
+ * It is part of the entrant notification receive flow.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ */
 public class EntrantNotChosenScreen extends AppCompatActivity {
+    /*
+     * Used Gemini to figure out how to query Firestore for a specific
+     * user's notifications and sort them by timestamp without it getting
+     * weird. Also talked through how to handle the UI update when a
+     * notification gets tapped and the entrant has already responded.
+     *
+     *
+     * Sites I looked at:
+     *
+     * Firestore queries - whereEqualTo and orderBy used together:
+     * https://firebase.google.com/docs/firestore/query-data/queries
+     *
+     * RecyclerView with Firestore - how to bind live data to a list:
+     * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+     *
+     * Handling click events inside a RecyclerView adapter:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+     */
     private static final String TAG = "EntrantNotChosenScreen";
 
     // UI elements for event details
@@ -40,6 +67,12 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
     private TextView txtEventPrice;
     private TextView messageText;
 
+    /**
+     * Sets up not-chosen screen, reads intent data, and loads event details.
+     *
+     * @param savedInstanceState restore bundle, can be null
+     * @author Karina Zhang
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -76,19 +109,20 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         }
 
         findViewById(R.id.btnHamburger).setOnClickListener(v -> finish());
-        findViewById(R.id.btnOrganizerBack).setOnClickListener(v -> finish());
 
         Button backButton = findViewById(R.id.back_button);
 
         backButton.setOnClickListener(v -> finish());
 
-        // Redraw entry disabled — button hidden in layout; listener removed (visual-only).
+        // Redraw entry disabled â€” button hidden in layout; listener removed (visual-only).
         // Button redrawButton = findViewById(R.id.entrantRedraw);
         // redrawButton.setOnClickListener(v -> handleEnterRedraw());
     }
 
     /**
      * load details from firestore for events, to be displayed on the ui
+     *
+     * @author Karina Zhang
      */
     private void loadEvent() {
         FirebaseFirestore.getInstance()
@@ -104,6 +138,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
 
     /**
      *  this is for setting the event to the ui
+     *
+     * @param doc loaded event document
+     * @author Karina Zhang
      */
     private void bindEvent(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
@@ -160,6 +197,9 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
 
     /**
      *  load the poster image for the ui
+     *
+     * @param url poster URL or local URI string
+     * @author Karina Zhang
      */
     private void loadPosterImage(String url) {
         // If it's a local content/file URI, load directly from the device
@@ -193,6 +233,8 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
     /**
      *  Handle the redraw for the entrant ,. put them back into the pool of entrants
      *  updates their status in the firestore collection back to waiting and adds them backj to the waitlistentrantids
+     *
+     * @author Karina Zhang
      */
     private void handleEnterRedraw() {
         if (TextUtils.isEmpty(eventId)) {
@@ -244,6 +286,13 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Checks whether event has reached waitlist limit from current attending count.
+     *
+     * @param eventDoc event snapshot to inspect
+     * @return true when event is full
+     * @author Karina Zhang
+     */
     @SuppressWarnings("unchecked")
     private static boolean isEventFullFromSnapshot(DocumentSnapshot eventDoc) {
         if (eventDoc == null || !eventDoc.exists()) {
@@ -258,6 +307,14 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         return confirmed >= limitVal.intValue();
     }
 
+    /**
+     * Completes redraw re-entry after capacity check passes.
+     *
+     * @param entryDoc existing waitlist entry snapshot
+     * @param db firestore instance
+     * @param userId entrant id
+     * @author Karina Zhang
+     */
     private void enterRedrawAfterCapacityOk(DocumentSnapshot entryDoc, FirebaseFirestore db, String userId) {
         entryDoc.getReference().update("status", "waiting")
                 .addOnSuccessListener(aVoid -> {
@@ -290,6 +347,10 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
 
     /**
      *  create a new waitlist entry for the entrant
+     *
+     * @param userId entrant id
+     * @param eventId event id
+     * @author Karina Zhang
      */
     private void createNewWaitlistEntry(String userId, String eventId) {
         // Get event title for the entry
@@ -340,6 +401,13 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Walks throwable chain to detect "event full" transaction failure.
+     *
+     * @param e thrown error
+     * @return true if error maps to event-full condition
+     * @author Karina Zhang
+     */
     private static boolean isEventFullFailure(Throwable e) {
         while (e != null) {
             if (e instanceof IllegalStateException
@@ -351,3 +419,4 @@ public class EntrantNotChosenScreen extends AppCompatActivity {
         return false;
     }
 }
+

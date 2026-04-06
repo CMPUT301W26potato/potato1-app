@@ -31,7 +31,35 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Entrant notification inbox that reads Firestore notifications, shows them in a list,
+ * and keeps state in sync when the user opens a notification card.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see NotificationAdapter
+ */
 public class EntrantNotificationScreen extends AppCompatActivity {
+    /*
+     * Asked Gemini how to query Firestore for a specific user's notifications
+     * and how to sort them by timestamp properly. Also used it to think through
+     * how to update the UI when a notification gets tapped without messing up
+     * the rest of the list.
+     * approach.
+     *
+     * Sites I looked at:
+     *
+     * Firestore queries - how whereEqualTo and orderBy work together:
+     * https://firebase.google.com/docs/firestore/query-data/queries
+     *
+     * RecyclerView with Firestore data - binding patterns:
+     * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+     *
+     * RecyclerView click listeners in an adapter:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+     */
     private static final String TAG = "EntrantNotificationScreen";
 
     private RecyclerView recyclerView;
@@ -90,7 +118,6 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         FirebaseFirestore.getInstance()
                 .collection("notifications")
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("responded", false)  // Only show unresponded notifications
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
@@ -204,7 +231,6 @@ public class EntrantNotificationScreen extends AppCompatActivity {
         notificationListener = FirebaseFirestore.getInstance()
                 .collection("notifications")
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("responded", false)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.w(TAG, "Listen failed.", e);
@@ -354,3 +380,4 @@ public class EntrantNotificationScreen extends AppCompatActivity {
                         Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 }
+

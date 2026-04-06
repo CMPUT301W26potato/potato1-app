@@ -13,6 +13,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
 
+/**
+ * RecyclerView adapter for an entrant's registration history. Renders one row
+ * per waitlist entry showing the event title and a simplified status
+ * ("Selected" or "Not Selected"); rows with any other status are hidden.
+ * @author Viktoria Lysenko
+ */
 public class RegistrationAdapter extends RecyclerView.Adapter<RegistrationAdapter.ViewHolder> {
 
     private final List<DocumentSnapshot> registrations;

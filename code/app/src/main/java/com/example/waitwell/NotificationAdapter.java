@@ -29,9 +29,34 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 /**
- *  connect the notifications to the recycler view / ui
+ * Recycler adapter for entrant notifications so each card gets the right style and click action.
+ * This is part of the private invite notification and accept/decline flow.
+ *
+ * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see com.example.waitwell.activities.InvitationResponseActivity
  */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
+    /*
+     * Asked Gemini how to query Firestore for a specific user's notifications
+     * and how to sort them by timestamp properly. Also used it to think through
+     * how to update the UI when a notification gets tapped without messing up
+     * the rest of the list.
+     * approach.
+     *
+     * Sites I looked at:
+     *
+     * Firestore queries - how whereEqualTo and orderBy work together:
+     * https://firebase.google.com/docs/firestore/query-data/queries
+     *
+     * RecyclerView with Firestore data - binding patterns:
+     * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+     *
+     * RecyclerView click listeners in an adapter:
+     * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+     */
 
     private List<NotificationModel> notifications;
     private Context context;
@@ -94,9 +119,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tintIcon(holder.imgNotificationTypeIcon, style.iconRes, muted);
         } else {
             holder.expiredLabel.setVisibility(View.GONE);
-            if (n.isInviteAlreadyResolvedOnWaitlist()) {
+            if (n.isInviteAlreadyResolvedOnWaitlist()
+                    || (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER && n.isResponded())) {
+                @ColorInt int hint = ContextCompat.getColor(context, R.color.text_hint);
+                holder.leftBorderStrip.setBackgroundColor(hint);
+                holder.iconContainer.setBackgroundTintList(ColorStateList.valueOf(hint));
+                holder.actionButton.setBackgroundTintList(ColorStateList.valueOf(hint));
                 holder.itemView.setAlpha(0.5f);
             } else {
+                holder.actionButton.setBackgroundTintList(null);
                 holder.itemView.setAlpha(1f);
             }
         }
@@ -154,22 +185,47 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     private void onNotificationActionClick(ViewHolder holder, NotificationModel n) {
-        // REHAAN'S ADDITION — CO_ORGANIZER routing (US 02.09.01 Part 2)
+        // REHAAN'S ADDITION â€” CO_ORGANIZER routing (US 02.09.01 Part 2)
         if (n.getType() == NotificationModel.NotificationType.CO_ORGANIZER) {
-            Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
-            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
-            if (parentActivity != null) {
-                int pos = holder.getBindingAdapterPosition();
-                if (pos != RecyclerView.NO_POSITION) {
-                    String notifId = parentActivity.getNotificationId(pos);
-                    if (notifId != null) {
-                        intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_NOTIFICATION_ID, notifId);
+            if (n.isResponded()) {
+                // Already responded — check event to determine accepted vs declined
+                String uid = DeviceUtils.getDeviceId(context);
+                FirebaseFirestore.getInstance()
+                        .collection("events").document(n.getEventId())
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            String status;
+                            if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                                java.util.List<String> coOrgIds = (java.util.List<String>) task.getResult().get("coOrganizerIds");
+                                status = (coOrgIds != null && coOrgIds.contains(uid)) ? "accepted" : "declined";
+                            } else {
+                                status = "declined";
+                            }
+                            holder.itemView.post(() -> {
+                                Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
+                                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_ALREADY_RESPONDED, status);
+                                context.startActivity(intent);
+                            });
+                        });
+            } else {
+                Intent intent = new Intent(context, com.example.waitwell.activities.CoOrganizerInviteResponseActivity.class);
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+                intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_MESSAGE, n.getMessage());
+                if (parentActivity != null) {
+                    int pos = holder.getBindingAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        String notifId = parentActivity.getNotificationId(pos);
+                        if (notifId != null) {
+                            intent.putExtra(com.example.waitwell.activities.CoOrganizerInviteResponseActivity.EXTRA_NOTIFICATION_ID, notifId);
+                        }
                     }
                 }
+                context.startActivity(intent);
             }
-            context.startActivity(intent);
             return;
         }
         // END REHAAN'S ADDITION
@@ -201,15 +257,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         }
                         String st = task.getResult().getString(fieldStatus);
                         if (confirmed.equals(st)) {
-                            holder.itemView.post(() ->
-                                    Toast.makeText(context, R.string.toast_invitation_already_accepted,
-                                            Toast.LENGTH_SHORT).show());
+                            holder.itemView.post(() -> startChosenInvitationReadOnly(n, pos, confirmed));
                             return;
                         }
                         if (cancelled.equals(st)) {
-                            holder.itemView.post(() ->
-                                    Toast.makeText(context, R.string.toast_invitation_already_declined,
-                                            Toast.LENGTH_SHORT).show());
+                            holder.itemView.post(() -> startChosenInvitationReadOnly(n, pos, cancelled));
                             return;
                         }
                         holder.itemView.post(() -> startChosenInvitationActivity(n, pos));
@@ -237,6 +289,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
         intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
         intent.putExtra(InvitationResponseActivity.EXTRA_MESSAGE, n.getMessage());
+        if (parentActivity != null && position != RecyclerView.NO_POSITION) {
+            String notificationId = parentActivity.getNotificationId(position);
+            if (notificationId != null) {
+                intent.putExtra(InvitationResponseActivity.EXTRA_NOTIFICATION_ID, notificationId);
+            }
+        }
+        context.startActivity(intent);
+    }
+
+    private void startChosenInvitationReadOnly(NotificationModel n, int position, String resolvedStatus) {
+        Intent intent = new Intent(context, InvitationResponseActivity.class);
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_ID, n.getEventId());
+        intent.putExtra(InvitationResponseActivity.EXTRA_EVENT_NAME, n.getEventName());
+        intent.putExtra(InvitationResponseActivity.EXTRA_ALREADY_RESPONDED, resolvedStatus);
         if (parentActivity != null && position != RecyclerView.NO_POSITION) {
             String notificationId = parentActivity.getNotificationId(position);
             if (notificationId != null) {
@@ -274,7 +340,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         ContextCompat.getColor(context, R.color.status_closed_text),
                         R.drawable.ic_minus_white,
                         R.string.notification_category_cancelled);
-            // REHAAN'S ADDITION — US 02.09.01 Part 2
+            // REHAAN'S ADDITION â€” US 02.09.01 Part 2
             case CO_ORGANIZER:
                 return new CategoryStyle(
                         ContextCompat.getColor(context, R.color.primary),
@@ -316,7 +382,33 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
+    /**
+     * Holds view refs for one notification card row.
+     *
+     * Addresses: US 01.05.06 - Entrant: Private Event Invite Notification, US 01.05.07 - Entrant: Accept/Decline Private Event
+     *
+     * @author Karina Zhang
+     * @version 1.0
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        /*
+         * Asked Gemini how to query Firestore for a specific user's notifications
+         * and how to sort them by timestamp properly. Also used it to think through
+         * how to update the UI when a notification gets tapped without messing up
+         * the rest of the list.
+         * approach.
+         *
+         * Sites I looked at:
+         *
+         * Firestore queries - how whereEqualTo and orderBy work together:
+         * https://firebase.google.com/docs/firestore/query-data/queries
+         *
+         * RecyclerView with Firestore data - binding patterns:
+         * https://developer.android.com/reference/com/firebase/ui/firestore/FirestoreRecyclerAdapter
+         *
+         * RecyclerView click listeners in an adapter:
+         * https://developer.android.com/guide/topics/ui/layout/recyclerview#click-listener
+         */
         View leftBorderStrip;
         FrameLayout iconContainer;
         ImageView imgNotificationTypeIcon;
@@ -339,3 +431,4 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 }
+

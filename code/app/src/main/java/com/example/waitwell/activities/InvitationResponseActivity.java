@@ -36,8 +36,28 @@ import java.util.Locale;
 /**
  * Entrant screen to accept or decline an event invitation. Firestore "invited" state is {@code selected}
  * (lottery / organizer accept); final state is {@code confirmed}; declined is {@code cancelled}.
+ *
+ * Addresses: US 01.05.07 - Entrant: Accept/Decline Private Event
+ *
+ * @author Karina Zhang
+ * @version 1.0
+ * @see EntrantNotificationScreen
  */
 public class InvitationResponseActivity extends AppCompatActivity {
+    /*
+     * Got help from Gemini understanding how to compare the event deadline
+     * against the current time in Java, and how to update a specific Firestore
+     * field without accidentally overwriting the rest of the document. Figured
+     * out the concept then wrote it from scratch.
+     *
+     * Sites I referenced:
+     *
+     * Firestore - updating specific fields with update() vs set() with merge:
+     * https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+     *
+     * Comparing dates and timestamps in Java:
+     * https://www.baeldung.com/java-date-difference
+     */
 
     private static final String TAG = "InvitationResponse";
 
@@ -48,6 +68,8 @@ public class InvitationResponseActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_PRICE = "eventPrice";
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_NOTIFICATION_ID = "notificationId";
+    /** Pass "confirmed" or "cancelled" to show read-only mode (already responded). */
+    public static final String EXTRA_ALREADY_RESPONDED = "alreadyResponded";
 
     private String eventId;
     private String notificationId;
@@ -58,6 +80,7 @@ public class InvitationResponseActivity extends AppCompatActivity {
     private TextView messageText;
     private TextView txtRegistrationClosed;
     private boolean cardDataPrefilledFromIntent;
+    private boolean isReadOnly;
 
     /**
      * Fills intent extras for location, registration / event date range, and formatted price from a loaded event.
@@ -135,16 +158,16 @@ public class InvitationResponseActivity extends AppCompatActivity {
             txtEventPrice.setText(in.getStringExtra(EXTRA_EVENT_PRICE));
         }
 
-        applyInvitationMessage(message, eventName);
+        isReadOnly = !TextUtils.isEmpty(in.getStringExtra(EXTRA_ALREADY_RESPONDED));
+        if (!isReadOnly) {
+            applyInvitationMessage(message, eventName);
+        }
 
         ImageButton btnHamburger = findViewById(R.id.btnHamburger);
         btnHamburger.setOnClickListener(v -> finish());
 
         ImageView imgProfile = findViewById(R.id.imgProfileAvatar);
         imgProfile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
-
-        TextView txtBackLink = findViewById(R.id.txtBackLink);
-        txtBackLink.setOnClickListener(v -> finish());
 
         if (!TextUtils.isEmpty(eventId)) {
             loadEventFromFirestore();
@@ -154,12 +177,26 @@ public class InvitationResponseActivity extends AppCompatActivity {
         }
 
         Button acceptButton = findViewById(R.id.accept);
-        acceptButton.setOnClickListener(v -> handleAcceptEvent());
-
         Button declineButton = findViewById(R.id.decline);
-        declineButton.setOnClickListener(v -> handleDeclineEvent());
-
         Button backButton = findViewById(R.id.back_button);
+
+        String alreadyResponded = in.getStringExtra(EXTRA_ALREADY_RESPONDED);
+        if (alreadyResponded != null) {
+            // Read-only mode: show what the entrant did, no action buttons
+            acceptButton.setVisibility(View.GONE);
+            declineButton.setVisibility(View.GONE);
+            txtRegistrationClosed.setVisibility(View.GONE);
+            if ("confirmed".equals(alreadyResponded)) {
+                messageText.setText(R.string.toast_invitation_already_accepted);
+            } else {
+                messageText.setText(R.string.toast_invitation_already_declined);
+            }
+            messageText.setVisibility(View.VISIBLE);
+        } else {
+            acceptButton.setOnClickListener(v -> handleAcceptEvent());
+            declineButton.setOnClickListener(v -> handleDeclineEvent());
+        }
+
         backButton.setOnClickListener(v ->
                 startActivity(new Intent(this, EntrantNotificationScreen.class)));
     }
@@ -197,7 +234,8 @@ public class InvitationResponseActivity extends AppCompatActivity {
                         String titleForMessage = txtEventTitle.getText() != null
                                 ? txtEventTitle.getText().toString()
                                 : "";
-                        if (TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
+                        if (!isReadOnly
+                                && TextUtils.isEmpty(getIntent().getStringExtra(EXTRA_MESSAGE))
                                 && !TextUtils.isEmpty(titleForMessage)) {
                             messageText.setText(getString(R.string.waitlist_chosen_notification_message, titleForMessage));
                         }
@@ -295,7 +333,9 @@ public class InvitationResponseActivity extends AppCompatActivity {
 
         String userId = DeviceUtils.getDeviceId(this);
         String entryId = userId + "_" + eventId;
-        String cancelled = getString(R.string.firestore_waitlist_status_cancelled);
+        // REHAAN'S ADDITION — entrant declining uses rejected not cancelled (cancelled is organizer-only)
+        String cancelled = getString(R.string.firestore_waitlist_status_rejected);
+// END REHAAN'S ADDITION
 
         findViewById(R.id.accept).setEnabled(false);
         findViewById(R.id.decline).setEnabled(false);

@@ -126,7 +126,10 @@ public class OrganizerEventDetailFragment extends Fragment {
         btnInviteEntrants = view.findViewById(R.id.btnInviteEntrants);
         Button btnViewSampledEntrants = view.findViewById(R.id.btnViewSampledEntrants);
         Button btnViewComments = view.findViewById(R.id.btnViewComments);
-        //View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        View btnBack = view.findViewById(R.id.btnOrganizerBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> navigateBackFromManage());
+        }
         BottomNavigationView nav = view.findViewById(R.id.organizerBottomNavigation);
 
         View btnHamburger = view.findViewById(R.id.btnHamburger);
@@ -307,8 +310,11 @@ public class OrganizerEventDetailFragment extends Fragment {
             loadPosterImage(imageUrl);
         }
         Boolean privateEvent = doc.getBoolean("isPrivate");
+        boolean isPrivate = Boolean.TRUE.equals(privateEvent);
+        View spacer = requireView().findViewById(R.id.spaceBetweenButtons);
         btnInviteEntrants.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.VISIBLE : View.GONE);
         btnShare.setVisibility(Boolean.TRUE.equals(privateEvent) ? View.GONE : View.VISIBLE);
+        spacer.setVisibility(isPrivate ? View.GONE : View.VISIBLE);
     }
 
     private void openEventQrShareFromManage() {
