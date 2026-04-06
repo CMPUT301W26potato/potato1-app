@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
  * Unit tests for ProfilePreviewHelper class.
  * Tests the profile preview dialog functionality for viewing user profiles
  * with profile pictures.
- *
+ ** Written with help from Claude (claude.ai)
  * @author Nathaniel Chan
  */
 @RunWith(MockitoJUnitRunner.class)

@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
  * Unit tests for admin viewing profile pictures functionality.
  * Tests the AdminProfilesAdapter for correctly displaying user profile pictures
  * in the admin profiles list.
- *
+ ** Written with help from Claude (claude.ai)
  * @author Nathaniel Chan
  */
 @RunWith(MockitoJUnitRunner.class)

@@ -28,10 +28,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for profile picture functionality in the Profile class.
  * Tests uploading, removing, and managing user profile pictures.
- *
- * Note: These tests focus on the logic and interactions rather than
- * Android-specific components that require instrumentation testing.
- *
+ ** Written with help from Claude (claude.ai)
  * @author Nathaniel Chan
  */
 @RunWith(MockitoJUnitRunner.class)
