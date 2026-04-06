@@ -4,3 +4,7 @@ code/app/google-services.json
 
 .DS_Store
 .idea/
+
+.gradle/
+build/
+local.properties
