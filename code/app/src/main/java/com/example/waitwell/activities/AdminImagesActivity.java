@@ -20,9 +20,19 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.StorageReference;
 
+/**
+ * AdminImagesActivity allows admins to view and delete
+ * all event images stored in Firebase Storage.
+ * <p>
+ * Images are displayed in a grid layout.
+ * Admins can delete images with confirmation.
+ *
+ * @author Grace Shin
+ */
 public class AdminImagesActivity extends AppCompatActivity {
 
     RecyclerView recyclerImages;
@@ -43,6 +53,9 @@ public class AdminImagesActivity extends AppCompatActivity {
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());
     }
 
+    /**
+     * Loads all images from Firebase Storage.
+     */
     private void loadImages() {
 
         List<String> imageUrls = new ArrayList<>();
@@ -73,6 +86,9 @@ public class AdminImagesActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sets up adapter using image URLs and references.
+     */
     private void setupAdapterFromUrls(List<String> imageUrls, List<StorageReference> imageRefs) {
 
         adapter = new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -81,7 +97,8 @@ public class AdminImagesActivity extends AppCompatActivity {
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_admin_image, parent, false);
-                return new RecyclerView.ViewHolder(view) {};
+                return new RecyclerView.ViewHolder(view) {
+                };
             }
 
             @Override
@@ -109,6 +126,9 @@ public class AdminImagesActivity extends AppCompatActivity {
         recyclerImages.setAdapter(adapter);
     }
 
+    /**
+     * Shows confirmation dialog before deleting image.
+     */
     private void showDeleteDialog(StorageReference fileRef, String imageUrl) {
 
         new AlertDialog.Builder(this)
@@ -119,6 +139,9 @@ public class AdminImagesActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Deletes image from Firebase Storage.
+     */
     private void deleteImage(StorageReference fileRef, String imageUrl) {
 
         fileRef.delete()
@@ -139,6 +162,7 @@ public class AdminImagesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // reload images when returning so it doesn't show old screen with deleted image still there
         loadImages();
     }
 

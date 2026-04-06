@@ -39,8 +39,6 @@ import java.util.List;
  *
  * Administrators can remove profiles from the system.
  *
- * AI Usage:
- *
  * @author Grace Shin
  */
 public class AdminProfilesActivity extends AppCompatActivity {

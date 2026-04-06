@@ -19,8 +19,6 @@ import com.example.waitwell.R;
  * This activity is launched from AdminEventsActivity after
  * a successful Firestore deletion operation.
  *
- * AI Usage:
- *
  * @author Grace Shin
  */
 public class AdminEventRemovedActivity extends AppCompatActivity {
@@ -31,7 +29,7 @@ public class AdminEventRemovedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Load the confirmation layout for deleted events
+        // load the confirmation layout for deleted events
         setContentView(R.layout.activity_admin_event_deleted);
         String imageUrl = getIntent().getStringExtra("image_url");
 
@@ -43,7 +41,7 @@ public class AdminEventRemovedActivity extends AppCompatActivity {
                 .into(img);
 
 
-        // Back button simply closes this activity and returns to the previous admin page
+        // back button simply closes this activity and returns to the previous admin page
         findViewById(R.id.backBtn).setOnClickListener(v -> {
             finish();
         });

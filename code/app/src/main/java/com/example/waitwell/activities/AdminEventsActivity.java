@@ -28,6 +28,20 @@ import java.util.List;
 /**
  * AdminEventsActivity allows administrators to view
  * and manage all events stored in Firestore.
+ *
+ * Events are displayed in a grid using RecyclerView.
+ * Each event shows:
+ * - title
+ * - organizer name
+ * - number of entrants
+ * - status
+ *
+ * Admins can:
+ * - delete events
+ * - view/remove comments
+ * - search through events
+ *
+ * @author Grace Shin
  */
 public class AdminEventsActivity extends AppCompatActivity {
 
@@ -44,6 +58,7 @@ public class AdminEventsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_events);
 
         recyclerEvents = findViewById(R.id.recyclerEvents);
+        // show events in a 2 column grid
         recyclerEvents.setLayoutManager(new GridLayoutManager(this, 2));
 
         loadEvents();
@@ -52,10 +67,10 @@ public class AdminEventsActivity extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.admin_drawer_layout);
         NavigationView navigationView = findViewById(R.id.admin_navigation_view);
 
-// open drawer on hamburger click
+        // open drawer on hamburger click
         findViewById(R.id.btnHamburger).setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START));
-
+        // handle switching roles
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -70,6 +85,11 @@ public class AdminEventsActivity extends AppCompatActivity {
             return true;
         });
     }
+
+    /**
+     * Switch current user to entrant view if registered,
+     * otherwise redirect to registration.
+     */
     private void switchToEntrant() {
 
         String deviceId = DeviceUtils.getDeviceId(this);
@@ -94,6 +114,11 @@ public class AdminEventsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error checking entrant role", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * Switch current user to organizer view if registered,
+     * otherwise redirect to registration.
+     */
     private void switchToOrganizer() {
 
         String deviceId = DeviceUtils.getDeviceId(this);
@@ -172,7 +197,7 @@ public class AdminEventsActivity extends AppCompatActivity {
                 String imageUrl = doc.getString("imageUrl");
 
                 ImageView imgPoster = holder.itemView.findViewById(R.id.eventImage);
-
+                // load image using Glide
                 if (imageUrl != null && !imageUrl.isEmpty()) {
                     Glide.with(holder.itemView.getContext())
                             .load(imageUrl)
@@ -202,14 +227,14 @@ public class AdminEventsActivity extends AppCompatActivity {
 
 
 
-                // Delete button (with confirmation)
+                // delete button with confirmation
                 holder.itemView.findViewById(R.id.btnRemoveEvent)
                         .setOnClickListener(v -> {
 
                             showDeleteDialog(doc.getId(), imageUrl);
                         });
 
-                // Open comments screen
+                // open comments screen
                 holder.itemView.findViewById(R.id.btnRemoveComments)
                         .setOnClickListener(v -> {
                             Intent intent = new Intent(v.getContext(), AdminCommentsActivity.class);
@@ -275,7 +300,7 @@ public class AdminEventsActivity extends AppCompatActivity {
     }
 
     /**
-     * Filter logic (search + buttons)
+     * Filter events
      */
     private void filterEvents(String query) {
 
@@ -306,7 +331,7 @@ public class AdminEventsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadEvents(); // reload so that prev screen doesn't display old display
+        loadEvents(); // reload so that previous screen doesn't display old display
     }
 
 }

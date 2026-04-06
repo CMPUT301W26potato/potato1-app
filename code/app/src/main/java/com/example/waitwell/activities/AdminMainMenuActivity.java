@@ -15,20 +15,21 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * AdminMainMenuActivity is the main dashboard for administrators.
+ * AdminMainMenuActivity represents the main dashboard screen for administrators.
  *
- * It provides navigation to administrative tools such as:
- * - Viewing all events
- * - Viewing all user profiles
+ * This activity allows admins to navigate to different management sections of the app,
+ * including events, user profiles, images, and notifications.
  *
- * Each option is represented by a clickable layout element.
+ * It also includes a navigation drawer that allows switching between roles
+ * (entrant and organizer) based on the current device.
  *
- * AI Usage:
+ * This class mainly handles UI interactions and redirects users to the appropriate screens.
  *
  * @author Grace Shin
  */
 public class AdminMainMenuActivity extends AppCompatActivity {
 
+    // buttons for navigating to different admin sections
     LinearLayout btnEvents;
     LinearLayout btnProfiles;
     LinearLayout btnImages;
@@ -42,25 +43,25 @@ public class AdminMainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_main_menu);
 
+        // link UI elements from XML layout
         btnEvents = findViewById(R.id.btnAllEvents);
         btnProfiles = findViewById(R.id.btnAllProfiles);
         btnNotifications = findViewById(R.id.btnAllNotifications);
-
-
         btnImages = findViewById(R.id.btnAllImages);
-        // Navigate to events management screen
+
+        // navigate to events management screen
         btnEvents.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminEventsActivity.class));
         });
-        // Navigate to profiles management screen
+        // navigate to profiles management screen
         btnProfiles.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminProfilesActivity.class));
         });
-        // Navigate to images management screen
+        // navigate to images management screen
         btnImages.setOnClickListener((v -> {
             startActivity(new Intent(this, AdminImagesActivity.class));
         }));
-        // Navigate to notifications screen
+        // navigate to notifications screen
         btnNotifications.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminNotificationsActivity.class));
         });
@@ -68,10 +69,11 @@ public class AdminMainMenuActivity extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.admin_drawer_layout);
         NavigationView navigationView = findViewById(R.id.admin_navigation_view);
 
-// open drawer on hamburger click
+        // open drawer on hamburger click
         findViewById(R.id.btnHamburger).setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START));
 
+        // handle navigation menu item clicks
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -86,11 +88,21 @@ public class AdminMainMenuActivity extends AppCompatActivity {
             return true;
         });
     }
-    private void switchToEntrant() {
 
+    /**
+     * Switches the current user to the entrant role.
+     *
+     * Checks Firebase to see if a user with this device ID already exists
+     * as an entrant:
+     * - If yes, go to MainActivity (entrant home)
+     * - If no, go to RegisterActivity to create entrant profile
+     */
+    private void switchToEntrant() {
+        // get unique device ID for this phone
         String deviceId = DeviceUtils.getDeviceId(this);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // query users collection for matching device ID and entrant role
         db.collection("users")
                 .whereEqualTo("deviceId", deviceId)
                 .whereEqualTo("role", "entrant")
@@ -110,11 +122,21 @@ public class AdminMainMenuActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error checking entrant role", Toast.LENGTH_SHORT).show();
                 });
     }
-    private void switchToOrganizer() {
 
+    /**
+     * Switches the current user to the organizer role.
+     *
+     * Checks Firebase to see if a user with this device ID already exists
+     * as an organizer:
+     * - If yes, go to OrganizerEntryActivity
+     * - If no, go to RegisterActivity to create organizer profile
+     */
+    private void switchToOrganizer() {
+        // get unique device ID for this phone
         String deviceId = DeviceUtils.getDeviceId(this);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // query users collection for matching device ID and organizer role
         db.collection("users")
                 .whereEqualTo("deviceId", deviceId)
                 .whereEqualTo("role", "organizer")
