@@ -429,6 +429,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Shows a confirmation dialog before deleting the user's profile.
+     * The user must explicitly confirm, as this action cannot be undone.
+     * On confirmation, {@link #deleteUserProfile()} is called.
+     */
     private void showDeleteProfileDialog() {
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
@@ -441,6 +446,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    /**
+     * Deletes the current user's profile from Firestore using {@link FirebaseHelper#deleteUser(String)}.
+     * Clears all local SharedPreferences for the app and redirects to {@link RegisterActivity}.
+     * Shows a toast on success or failure.
+     */
     private void deleteUserProfile() {
         String userId = com.example.waitwell.DeviceUtils.getDeviceId(this);
 
@@ -448,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
 
-                    // Clear stored prefs (UUID fallback + any cached userId)
+                    // clear stored prefs (UUID fallback + any cached userId)
                     getSharedPreferences("waitwell_prefs", MODE_PRIVATE).edit().clear().apply();
                     getSharedPreferences("WaitWellPrefs", MODE_PRIVATE).edit().clear().apply();
 
@@ -462,7 +473,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Opens the user's registration history screen.
+     * Launches {@link RegistrationHistoryActivity}.
+     */
     private void openRegistrationHistory() {
         startActivity(new Intent(this, RegistrationHistoryActivity.class));
     }

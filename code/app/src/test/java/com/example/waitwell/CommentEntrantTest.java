@@ -5,8 +5,14 @@ import static org.junit.Assert.*;
 import com.google.firebase.Timestamp;
 import java.util.Calendar;
 
+/**
+ * Unit tests for {@link CommentUtils#canEntrantComment(String, Timestamp)}.
+ * Checks if entrants are allowed to comment based on role and registration status.
+ * @author Sarang Kim
+ */
 public class CommentEntrantTest {
 
+    /** Entrants can comment if registration is still open. */
     @Test
     public void entrantCanCommentIfRegistrationOpen() {
         Calendar cal = Calendar.getInstance();
@@ -16,6 +22,7 @@ public class CommentEntrantTest {
         assertTrue(CommentUtils.canEntrantComment("entrant", close));
     }
 
+    /** Entrants cannot comment if registration has closed. */
     @Test
     public void entrantCannotCommentIfRegistrationClosed() {
         Calendar cal = Calendar.getInstance();
@@ -25,6 +32,7 @@ public class CommentEntrantTest {
         assertFalse(CommentUtils.canEntrantComment("entrant", close));
     }
 
+    /** Non-entrant roles cannot comment regardless of registration status. */
     @Test
     public void nonEntrantCannotComment() {
         Calendar cal = Calendar.getInstance();
